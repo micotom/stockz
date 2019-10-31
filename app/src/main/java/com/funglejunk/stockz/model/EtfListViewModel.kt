@@ -22,7 +22,11 @@ class EtfListViewModel : ViewModel() {
 
     val etfData: LiveData<List<XetraEtfFlattened>> = MutableLiveData()
 
-    fun loadEtfs() {
+    init {
+        loadEtfs()
+    }
+
+    private fun loadEtfs() {
         db.etfDao().getAll().flatMap {
             Observable.fromIterable(it)
                 .flatMapSingle { etf ->

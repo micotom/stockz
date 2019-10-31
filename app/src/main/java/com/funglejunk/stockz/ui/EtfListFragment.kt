@@ -40,8 +40,6 @@ class EtfListFragment : Fragment() {
         viewModel.etfData.observe(viewLifecycleOwner, Observer {
             recycler_view.adapter = ListAdapter(it, itemClickListener)
         })
-
-        viewModel.loadEtfs()
     }
 
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
+import com.funglejunk.stockz.data.XetraEtfFlattened
 import com.funglejunk.stockz.data.fboerse.FBoerseData
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.util.RxSchedulers
@@ -32,9 +33,18 @@ class EtfDetailViewModel(private val schedulers: RxSchedulers) : ViewModel() {
     val viewStateData: LiveData<ViewState> = MutableLiveData()
     private val mutableViewStateData = viewStateData as MutableLiveData
 
+    private var etfArg: XetraEtfFlattened? = null
+
     private val disposables: CompositeDisposable = CompositeDisposable()
 
-    fun fetchFboerseHistoy(
+    fun setEtfArgs(etf: XetraEtfFlattened) {
+        if (null == etfArg || etfArg != etf) {
+            fetchFboerseHistoy(etf.isin)
+        }
+        etfArg = etf.copy()
+    }
+
+    private fun fetchFboerseHistoy(
         isin: String, fromDate: LocalDate = LocalDate.of(2010, 1, 1),
         toDate: LocalDate = LocalDate.now()
     ) {

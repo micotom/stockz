@@ -42,7 +42,7 @@ class EtfDetailFragment : Fragment() {
         arguments?.let {
             val etf = EtfDetailFragmentArgs.fromBundle(it).etf
             Timber.d("ETF: $etf")
-            viewModel.fetchFboerseHistoy(etf.isin)
+            viewModel.setEtfArgs(etf)
             showBasicData(etf)
         }
 
