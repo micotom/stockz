@@ -30,26 +30,8 @@ class EtfDetailFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        // setHasOptionsMenu(true)
 
         viewModel.viewStateData.observe(viewLifecycleOwner, Observer { event ->
-            when (event) {
-                is EtfDetailViewModel.ViewState.NewChartData -> {
-                    renderChartData(event)
-                }
-            }
-        })
-
-        arguments?.let {
-            val etf = EtfDetailFragmentArgs.fromBundle(it).etf
-            Timber.d("ETF: $etf")
-            viewModel.setEtfArgs(etf)
-            showBasicData(etf)
-        }
-
-        /*
-        viewModel.viewStateData.observe(viewLifecycleOwner, Observer { event ->
-            Timber.d("view state: $event")
             when (event) {
                 EtfDetailViewModel.ViewState.Loading -> {
                     error_txt.visibility = View.INVISIBLE
@@ -71,7 +53,13 @@ class EtfDetailFragment : Fragment() {
                 }
             }
         })
-         */
+
+        arguments?.let {
+            val etf = EtfDetailFragmentArgs.fromBundle(it).etf
+            Timber.d("ETF: $etf")
+            viewModel.setEtfArgs(etf)
+            showBasicData(etf)
+        }
     }
 
     // TODO inflate strings from resources
