@@ -18,7 +18,7 @@ import androidx.appcompat.widget.SearchView
 import timber.log.Timber
 
 
-class EtfListFragment : Fragment() {
+class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     private val viewModel: EtfListViewModel by viewModel()
 
@@ -52,21 +52,21 @@ class EtfListFragment : Fragment() {
         (menu.findItem(R.id.action_search).actionView as SearchView).apply {
             setSearchableInfo(searchManager!!.getSearchableInfo(activity?.componentName))
             isSubmitButtonEnabled = true
-            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String): Boolean {
-                    Timber.d("submit query: $query")
-                    searchDbFor(query)
-                    return false
-                }
-
-                override fun onQueryTextChange(newText: String): Boolean {
-                    Timber.d("update query: $newText")
-                    searchDbFor(newText)
-                    return false
-                }
-            })
+            setOnQueryTextListener(this@EtfListFragment)
         }
 
+    }
+
+    override fun onQueryTextSubmit(query: String): Boolean {
+        Timber.d("submit query: $query")
+        searchDbFor(query)
+        return false
+    }
+
+    override fun onQueryTextChange(newText: String): Boolean {
+        Timber.d("update query: $newText")
+        searchDbFor(newText)
+        return false
     }
 
     private fun searchDbFor(query: String) {

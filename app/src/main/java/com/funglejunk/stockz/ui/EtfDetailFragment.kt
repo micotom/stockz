@@ -32,26 +32,7 @@ class EtfDetailFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         viewModel.viewStateData.observe(viewLifecycleOwner, Observer { event ->
-            when (event) {
-                EtfDetailViewModel.ViewState.Loading -> {
-                    error_txt.visibility = View.INVISIBLE
-                    mychart.visibility = View.INVISIBLE
-                    progressbar.visibility = View.VISIBLE
-                }
-                is EtfDetailViewModel.ViewState.NewChartData -> {
-                    error_txt.visibility = View.INVISIBLE
-                    progressbar.visibility = View.INVISIBLE
-                    mychart.visibility = View.VISIBLE
-                    renderChartData(event)
-                }
-                is EtfDetailViewModel.ViewState.Error -> {
-                    progressbar.visibility = View.INVISIBLE
-                    mychart.visibility = View.INVISIBLE
-                    error_txt.visibility = View.VISIBLE
-                    error_txt.text = "${event.error.message}"
-                    Timber.e("${event.error}")
-                }
-            }
+            renderNewViewState(event)
         })
 
         arguments?.let {
@@ -59,6 +40,29 @@ class EtfDetailFragment : Fragment() {
             Timber.d("ETF: $etf")
             viewModel.setEtfArgs(etf)
             showBasicData(etf)
+        }
+    }
+
+    private fun renderNewViewState(event: EtfDetailViewModel.ViewState?) {
+        when (event) {
+            EtfDetailViewModel.ViewState.Loading -> {
+                error_txt.visibility = View.INVISIBLE
+                mychart.visibility = View.INVISIBLE
+                progressbar.visibility = View.VISIBLE
+            }
+            is EtfDetailViewModel.ViewState.NewChartData -> {
+                error_txt.visibility = View.INVISIBLE
+                progressbar.visibility = View.INVISIBLE
+                mychart.visibility = View.VISIBLE
+                renderChartData(event)
+            }
+            is EtfDetailViewModel.ViewState.Error -> {
+                progressbar.visibility = View.INVISIBLE
+                mychart.visibility = View.INVISIBLE
+                error_txt.visibility = View.VISIBLE
+                error_txt.text = "${event.error.message}"
+                Timber.e("${event.error}")
+            }
         }
     }
 
