@@ -8,6 +8,7 @@ import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import java.util.*
 
+@Deprecated("Worldtradingdata API is deprecated")
 class WtdMockRepo : WtdRepo {
 
     @UnstableDefault

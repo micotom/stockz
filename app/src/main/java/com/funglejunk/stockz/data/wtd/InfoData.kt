@@ -3,13 +3,14 @@ package com.funglejunk.stockz.data.wtd
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Deprecated("Worldtradingdata API is deprecated")
 @Serializable
 data class InfoData(
     val symbols_requested: Int,
     val symbols_returned: Int,
     val `data`: List<Data>
 ) {
-
+    @Deprecated("Worldtradingdata API is deprecated")
     @Serializable
     data class Data(
         val symbol: String,

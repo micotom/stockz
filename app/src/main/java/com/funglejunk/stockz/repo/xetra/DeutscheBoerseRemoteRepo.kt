@@ -2,7 +2,7 @@ package com.funglejunk.stockz.repo.xetra
 
 import arrow.core.Try
 import com.funglejunk.stockz.BuildConfig
-import com.funglejunk.stockz.data.XetraDayData
+import com.funglejunk.stockz.data.dboerse.DeutscheBoerseDayData
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.rx.rxResponseString
 import io.reactivex.Single
@@ -11,7 +11,8 @@ import kotlinx.serialization.list
 import timber.log.Timber
 import java.time.LocalDate
 
-class XetraRemoteRepo() : XetraRepo {
+@Deprecated("Deutsche Boerse API is deprecated")
+class DeutscheBoerseRemoteRepo : DeutscheBoerseRepo {
 
     private companion object {
         const val BASE_URL = "https://api.developer.deutsche-boerse.com/prod/xetra-public-data-set/1.0.0/xetra"
@@ -21,7 +22,7 @@ class XetraRemoteRepo() : XetraRepo {
         const val DATE_PARAM_NAME = "date"
     }
 
-    override fun getCloseValueFor(isin: String, date: LocalDate): Single<XetraDayData> {
+    override fun getCloseValueFor(isin: String, date: LocalDate): Single<DeutscheBoerseDayData> {
         Timber.d("remote call for $isin on $date")
         return Single.fromCallable {
             BASE_URL.httpGet(
@@ -33,15 +34,15 @@ class XetraRemoteRepo() : XetraRepo {
             req.rxResponseString()
         }.map { response ->
             Try.invoke {
-                Json.nonstrict.parse(XetraDayData.serializer().list, response)
+                Json.nonstrict.parse(DeutscheBoerseDayData.serializer().list, response)
             }.fold(
-                { _ -> listOf(XetraDayData.INVALID) },
+                { _ -> listOf(DeutscheBoerseDayData.INVALID) },
                 { data -> data }
             )
         }.map { dayData->
             dayData.maxBy {
                 it.time
-            } ?: XetraDayData.INVALID
+            } ?: DeutscheBoerseDayData.INVALID
         }
     }
 

@@ -1,15 +1,17 @@
-package com.funglejunk.stockz.data
+package com.funglejunk.stockz.data.dboerse
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Deprecated("Deutsche Boerse API is deprecated")
 @Serializable
-data class XetraResponse(
-    val data: List<XetraDayData>
+data class DeutscheBoerseResponse(
+    val data: List<DeutscheBoerseDayData>
 )
 
+@Deprecated("Deutsche Boerse API is deprecated")
 @Serializable
-data class XetraDayData(
+data class DeutscheBoerseDayData(
     @SerialName("Isin")
     val isin: String,
     @SerialName("Mnemonic")
@@ -42,12 +44,20 @@ data class XetraDayData(
 
     companion object {
         const val NAN = -1.0
-        val INVALID = XetraDayData(
-            isin = "", mnemonic = "", securityDesc = "",
-            securityType = "", currency = "", securityID = -1,
-            date = "", time = "-1", startPrice = NAN,
-            maxPrice = NAN, minPrice = NAN,
-            endPrice = NAN, tradedVolume = -1,
+        val INVALID = DeutscheBoerseDayData(
+            isin = "",
+            mnemonic = "",
+            securityDesc = "",
+            securityType = "",
+            currency = "",
+            securityID = -1,
+            date = "",
+            time = "-1",
+            startPrice = NAN,
+            maxPrice = NAN,
+            minPrice = NAN,
+            endPrice = NAN,
+            tradedVolume = -1,
             numberOfTrades = -1
         )
     }

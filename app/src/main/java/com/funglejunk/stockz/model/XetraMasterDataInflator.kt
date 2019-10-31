@@ -1,4 +1,4 @@
-package com.funglejunk.stockz.repo.xetra
+package com.funglejunk.stockz.model
 
 import android.content.Context
 import com.funglejunk.stockz.data.XetraEtfFlattened
@@ -10,6 +10,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
+
 
 class XetraMasterDataInflator(private val context: Context, private val db: XetraDb) {
 

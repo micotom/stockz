@@ -15,7 +15,6 @@ import timber.log.Timber
 class EtfDetailFragment : Fragment() {
 
     private val viewModel: EtfDetailViewModel by viewModel()
-    // private lateinit var tickerSuggestionsAdapter: SimpleCursorAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,6 +73,7 @@ class EtfDetailFragment : Fragment() {
          */
     }
 
+    // TODO inflate strings from resources
     private fun showBasicData(etf: XetraEtfFlattened) {
         stock_name.text = etf.name
         left_column.layoutManager = LinearLayoutManager(context)

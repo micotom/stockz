@@ -2,6 +2,7 @@ package com.funglejunk.stockz.data.wtd
 
 import kotlinx.serialization.Serializable
 
+@Deprecated("Worldtradingdata API is deprecated")
 @Serializable
 data class HistoryData(
     val name: String,

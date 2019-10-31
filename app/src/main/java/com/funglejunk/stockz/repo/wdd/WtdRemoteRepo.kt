@@ -13,6 +13,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
+@Deprecated("Worldtradingdata API is deprecated")
 class WtdRemoteRepo : WtdRepo {
 
     companion object {

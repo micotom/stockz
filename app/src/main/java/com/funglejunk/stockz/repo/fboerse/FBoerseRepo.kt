@@ -5,9 +5,11 @@ import com.funglejunk.stockz.data.fboerse.FBoerseData
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.rx.rxResponseString
 import io.reactivex.Single
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
 
+@UnstableDefault
 class FBoerseRepo {
 
     private companion object {
@@ -22,8 +24,14 @@ class FBoerseRepo {
 
     fun getHistory(isin: String, minDate: LocalDate, maxDate: LocalDate): Single<Try<FBoerseData>> {
         return BASE_URL.httpGet(
-            listOf(OFFSET_PARAM, LIMIT_PARAM, MIC_PARAM, ISIN_PARAM_ID to isin,
-                MIN_DATE_ID to minDate, MAX_DATE_ID to maxDate)
+            listOf(
+                OFFSET_PARAM,
+                LIMIT_PARAM,
+                MIC_PARAM,
+                ISIN_PARAM_ID to isin,
+                MIN_DATE_ID to minDate,
+                MAX_DATE_ID to maxDate
+            )
         ).rxResponseString().map {
             Try.invoke {
                 Json.nonstrict.parse(FBoerseData.serializer(), it)

@@ -7,14 +7,17 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import timber.log.Timber
 import com.funglejunk.stockz.repo.db.XetraDb
-import com.funglejunk.stockz.repo.xetra.XetraMasterDataInflator
+import com.funglejunk.stockz.model.XetraMasterDataInflator
 import com.github.kittinunf.fuel.core.FuelManager
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 
 @Suppress("unused")
 class StockzApplication : Application() {
+
+    private var disposable: Disposable? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -28,20 +31,28 @@ class StockzApplication : Application() {
             androidLogger()
             androidContext(this@StockzApplication)
             modules(
-                listOf(repoModule, readerModule, vmModule, schedulersModule)
+                listOf(repoModule, vmModule, schedulersModule)
             )
         }
 
-        XetraDb.init(this)
+        FuelManager.instance.timeoutReadInMillisecond = TimeUnit.SECONDS.toMillis(30).toInt()
 
-        XetraMasterDataInflator(this, XetraDb.get()).init()
+        initAppComponents()
+    }
+
+    // TODO use to show splash screen or at least loading indicator (db inflation make take time)
+    private fun initAppComponents() {
+        XetraDb.init(this)
+        disposable = XetraMasterDataInflator(this, XetraDb.get()).init()
             .subscribeOn(Schedulers.io())
             .subscribe {
                 Timber.d("db master complete")
             }
+    }
 
-        FuelManager.instance.timeoutReadInMillisecond = TimeUnit.SECONDS.toMillis(30).toInt()
-
+    override fun onTerminate() {
+        disposable?.dispose()
+        super.onTerminate()
     }
 
 }

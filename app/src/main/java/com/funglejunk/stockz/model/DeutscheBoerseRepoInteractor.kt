@@ -1,10 +1,10 @@
 package com.funglejunk.stockz.model
 
 import android.annotation.SuppressLint
-import com.funglejunk.stockz.data.XetraDayData
+import com.funglejunk.stockz.data.dboerse.DeutscheBoerseDayData
 import com.funglejunk.stockz.repo.db.XetraPerformanceEntry
 import com.funglejunk.stockz.repo.db.XetraDb
-import com.funglejunk.stockz.repo.xetra.XetraRepo
+import com.funglejunk.stockz.repo.xetra.DeutscheBoerseRepo
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -13,7 +13,8 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class XetraRepoInteractor(db: XetraDb, private val repo: XetraRepo) {
+@Deprecated("Deutsche Boerse API is deprecated")
+class DeutscheBoerseRepoInteractor(db: XetraDb, private val repo: DeutscheBoerseRepo) {
 
     private companion object {
         val maxAgedDate = LocalDate.of(2017, 6, 17)
@@ -51,13 +52,13 @@ class XetraRepoInteractor(db: XetraDb, private val repo: XetraRepo) {
                         repo.getCloseValueFor(isin, date)
                     }.toList()
                 }
-                false -> Single.just(emptyList<XetraDayData>())
+                false -> Single.just(emptyList<DeutscheBoerseDayData>())
             }
         }
 
         val dbUpdateCall = remoteGetCall.doOnEvent { newEntries, _ ->
             newEntries.filter {
-                it.endPrice != XetraDayData.NAN
+                it.endPrice != DeutscheBoerseDayData.NAN
             }.map { xetraDayData ->
                 Timber.d("try to update db with: $xetraDayData")
                 XetraPerformanceEntry(xetraDayData.isin, xetraDayData.date, xetraDayData.endPrice)
