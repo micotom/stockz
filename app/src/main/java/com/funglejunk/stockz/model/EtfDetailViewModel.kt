@@ -9,6 +9,7 @@ import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.XetraEtfFlattened
 import com.funglejunk.stockz.data.fboerse.FBoerseData
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
+import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.RxSchedulers
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -58,7 +59,7 @@ class EtfDetailViewModel(private val schedulers: RxSchedulers,
             )
         }.map {
             it.content.map { dayData ->
-                ChartValue(dateFormatter.parse(dayData.date), dayData.close.toFloat())
+                ChartValue(dayData.date.toLocalDate(), dayData.close.toFloat())
             }
         }.map {
             DrawableHistoricData(it)

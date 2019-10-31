@@ -1,8 +1,7 @@
 package com.funglejunk.stockz.data
 
-import java.util.*
+import java.time.LocalDate
 
 data class DrawableHistoricData(val data: List<ChartValue>) : Collection<ChartValue> by data
 
-// TODO move from java.util.Date to LocalDate
-data class ChartValue(val date: Date, val value: Float)
+data class ChartValue(val date: LocalDate, val value: Float)

@@ -1,16 +1,14 @@
 package com.funglejunk.stockz.ui.view
 
 import com.funglejunk.stockz.data.DrawableHistoricData
+import com.funglejunk.stockz.toFboerseString
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
 
 class ChartViewPresenter {
 
-    private companion object {
-        private val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
-    }
-
-    fun calculateLabels(data: DrawableHistoricData, viewWidth: Int): List<Pair<Date, Float>> {
+    fun calculateLabels(data: DrawableHistoricData, viewWidth: Int): List<Pair<LocalDate, Float>> {
         val distanceYValues = viewWidth.toFloat() / data.size
         return data.mapIndexed { index, (date, _) -> date to index * distanceYValues }
     }
@@ -30,33 +28,28 @@ class ChartViewPresenter {
     }
 
     // TODO switch from java.util.Date to LocalDate
-    fun getYearMarkers(data: List<Pair<Date, Float>>): List<Pair<String, Float>> {
-        val calendarLabels = data.map { (date, x) ->
-            Calendar.getInstance().apply { time = date } to x
-        }
-        var currentYear = calendarLabels[0].first.get(Calendar.YEAR)
-        return calendarLabels.filter { (c, _) ->
-            val cYear = c.get(Calendar.YEAR)
-            val isNewYear = cYear > currentYear
-            currentYear = cYear
+    // Brings list with only first values from a year
+    fun getYearMarkers(data: List<Pair<LocalDate, Float>>): List<Pair<String, Float>> {
+        var currentYear = data.first().first.year
+        return data.filter { (date, _) ->
+            val dataYear = date.year
+            val isNewYear = dataYear > currentYear
+            currentYear = dataYear
             isNewYear
-        }.map { (calendar, x) ->
-            dateFormatter.format(calendar.time) to x
+        }.map { (date, value) ->
+            date.toFboerseString() to value
         }
     }
 
-    fun getMonthMarkers(data: List<Pair<Date, Float>>): List<Pair<String, Float>> {
-        val calendarLabels = data.map { (date, x) ->
-            Calendar.getInstance().apply { time = date } to x
-        }
-        var currentMonth = calendarLabels[0].first.get(Calendar.MONTH)
-        return calendarLabels.filter { (c, _) ->
-            val cMonth = c.get(Calendar.MONTH)
-            val isNewMonth = cMonth > currentMonth
-            currentMonth = cMonth
+    fun getMonthMarkers(data: List<Pair<LocalDate, Float>>): List<Pair<String, Float>> {
+        var currentMonth = data.first().first.month
+        return data.filter { (date, _) ->
+            val dateMonth = date.month
+            val isNewMonth = dateMonth > currentMonth
+            currentMonth = dateMonth
             isNewMonth
-        }.map { (calendar, x) ->
-            dateFormatter.format(calendar.time) to x
+        }.map { (date, value) ->
+            date.toFboerseString() to value
         }
     }
 

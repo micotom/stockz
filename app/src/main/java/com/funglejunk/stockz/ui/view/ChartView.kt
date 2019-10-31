@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.DrawableHistoricData
 import timber.log.Timber
+import java.time.LocalDate
 import java.util.*
 
 
@@ -44,7 +45,7 @@ class ChartView : View {
     private var animator: ValueAnimator? = null
     private var drawLabels = false
     private val presenter = ChartViewPresenter()
-    private val labels = mutableListOf<Pair<Date, Float>>()
+    private val labels = mutableListOf<Pair<LocalDate, Float>>()
 
     fun draw(data: DrawableHistoricData) {
 
