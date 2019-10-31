@@ -16,7 +16,7 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-class EtfListViewModel : ViewModel() {
+class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
 
     private val db = XetraDb.get()
     private val disposables: CompositeDisposable = CompositeDisposable()
@@ -25,14 +25,26 @@ class EtfListViewModel : ViewModel() {
 
     // TODO fix empty result on initial db inflation
     init {
-        loadEtfs()
+        loadEtfs(dbInflater)
     }
 
-    private fun loadEtfs() {
-        db.etfDao().getAll().flattenInfo().subscribeOn(Schedulers.io()).subscribe(
-            { (etfData as MutableLiveData).postValue(it) },
-            { e -> Timber.e(e) }
-        ).addTo(disposables)
+    private fun loadEtfs(dbInflater: XetraMasterDataInflater) {
+        dbInflater.init()
+            .doOnEvent {
+                Timber.d("db inflation complete.")
+            }
+            .toSingleDefault(true)
+            .flatMap {
+                db.etfDao().getAll().flattenInfo()
+            }
+            .subscribeOn(Schedulers.io())
+            .subscribe(
+                {
+                    Timber.d("posting new etf data: ${it.size} entries")
+                    (etfData as MutableLiveData).postValue(it)
+                },
+                { e -> Timber.e(e) }
+            ).addTo(disposables)
     }
 
     fun searchDbFor(query: String) {

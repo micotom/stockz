@@ -2,6 +2,8 @@ package com.funglejunk.stockz
 
 import com.funglejunk.stockz.model.EtfDetailViewModel
 import com.funglejunk.stockz.model.EtfListViewModel
+import com.funglejunk.stockz.model.XetraMasterDataInflater
+import com.funglejunk.stockz.repo.db.XetraDb
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepoImpl
 import com.funglejunk.stockz.repo.wtd.WtdRemoteRepo
@@ -18,7 +20,7 @@ val repoModule = module {
 
 val vmModule = module {
     viewModel { EtfDetailViewModel(get(), get()) }
-    viewModel { EtfListViewModel() }
+    viewModel { EtfListViewModel(XetraMasterDataInflater(get(), XetraDb.get())) }
 }
 
 val schedulersModule = module {

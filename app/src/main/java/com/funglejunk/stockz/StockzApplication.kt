@@ -7,7 +7,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import timber.log.Timber
 import com.funglejunk.stockz.repo.db.XetraDb
-import com.funglejunk.stockz.model.XetraMasterDataInflator
+import com.funglejunk.stockz.model.XetraMasterDataInflater
 import com.github.kittinunf.fuel.core.FuelManager
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -35,19 +35,10 @@ class StockzApplication : Application() {
             )
         }
 
+        XetraDb.init(this)
+
         FuelManager.instance.timeoutReadInMillisecond = TimeUnit.SECONDS.toMillis(30).toInt()
 
-        initAppComponents()
-    }
-
-    // TODO use to show splash screen or at least loading indicator (db inflation make take time)
-    private fun initAppComponents() {
-        XetraDb.init(this)
-        disposable = XetraMasterDataInflator(this, XetraDb.get()).init()
-            .subscribeOn(Schedulers.io())
-            .subscribe {
-                Timber.d("db master complete")
-            }
     }
 
     override fun onTerminate() {

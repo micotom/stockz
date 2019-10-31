@@ -37,6 +37,7 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
             findNavController().navigate(EtfListFragmentDirections.listToDetailAction(etf))
         }
 
+        // TODO apply loading status
         viewModel.etfData.observe(viewLifecycleOwner, Observer {
             recycler_view.adapter = ListInfoAdapter(it, itemClickListener)
         })

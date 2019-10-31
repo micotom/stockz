@@ -12,7 +12,7 @@ import io.reactivex.Single
 import timber.log.Timber
 
 
-class XetraMasterDataInflator(private val context: Context, private val db: XetraDb) {
+class XetraMasterDataInflater(private val context: Context, private val db: XetraDb) {
 
     private companion object {
         const val NAME_INDEX = 1
