@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <color name="primaryColor">#80cbc4</color>
+    <color name="primaryLightColor">#b2fef7</color>
+    <color name="primaryDarkColor">#4f9a94</color>
+    <color name="primaryTextColor">#000000</color>
+    <color name="secondaryColor">#004d40</color>
+    <color name="secondaryLightColor">#39796b</color>
+    <color name="secondaryDarkColor">#00251a</color>
+    <color name="secondaryTextColor">#ffffff</color>
+    <color name="cardBorderColor">#22004d40</color>
+</resources>
