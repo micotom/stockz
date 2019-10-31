@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.repo.db.XetraDb
-import com.funglejunk.stockz.repo.xetra.DeutscheBoerseRemoteRepo
+import com.funglejunk.stockz.repo.dboerse.DeutscheBoerseRemoteRepo
 import io.reactivex.Single
 import java.text.SimpleDateFormat
 import java.util.*

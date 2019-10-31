@@ -1,4 +1,4 @@
-package com.funglejunk.stockz.repo.wdd
+package com.funglejunk.stockz.repo.wtd
 
 import arrow.core.Try
 import com.funglejunk.stockz.data.wtd.HistoryData

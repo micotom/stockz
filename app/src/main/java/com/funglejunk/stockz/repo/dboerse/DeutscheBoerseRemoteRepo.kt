@@ -1,4 +1,4 @@
-package com.funglejunk.stockz.repo.xetra
+package com.funglejunk.stockz.repo.dboerse
 
 import arrow.core.Try
 import com.funglejunk.stockz.BuildConfig

@@ -1,4 +1,4 @@
-package com.funglejunk.stockz.repo.xetra
+package com.funglejunk.stockz.repo.dboerse
 
 import com.funglejunk.stockz.data.dboerse.DeutscheBoerseDayData
 import io.reactivex.Single

@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import com.funglejunk.stockz.data.dboerse.DeutscheBoerseDayData
 import com.funglejunk.stockz.repo.db.XetraPerformanceEntry
 import com.funglejunk.stockz.repo.db.XetraDb
-import com.funglejunk.stockz.repo.xetra.DeutscheBoerseRepo
+import com.funglejunk.stockz.repo.dboerse.DeutscheBoerseRepo
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
