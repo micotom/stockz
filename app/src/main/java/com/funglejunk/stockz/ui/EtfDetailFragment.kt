@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.XetraEtfFlattened
 import com.funglejunk.stockz.model.EtfDetailViewModel
+import com.funglejunk.stockz.ui.adapter.BasicDetailInfoAdapter
 import kotlinx.android.synthetic.main.main_fragment_layout.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
@@ -92,8 +93,8 @@ class EtfDetailFragment : Fragment() {
             "Fund Currency" to etf.fundCurrency,
             "Trading Currency" to etf.tradingCurrency
         )
-        left_column.adapter = StockInfoAdapter(leftData)
-        right_column.adapter = StockInfoAdapter(rightData)
+        left_column.adapter = BasicDetailInfoAdapter(leftData)
+        right_column.adapter = BasicDetailInfoAdapter(rightData)
     }
 
     /*
@@ -128,8 +129,8 @@ class EtfDetailFragment : Fragment() {
                 "Stock Exchange" to data.stock_exchange_short,
                 "Last Trade Time" to data.last_trade_time
             )
-            left_column.adapter = StockInfoAdapter(leftData)
-            right_column.adapter = StockInfoAdapter(rightData)
+            left_column.adapter = BasicDetailInfoAdapter(leftData)
+            right_column.adapter = BasicDetailInfoAdapter(rightData)
         })
 
         viewModel.chartData.observe(viewLifecycleOwner, Observer { tickers ->

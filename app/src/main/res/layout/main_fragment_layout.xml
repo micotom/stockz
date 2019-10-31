@@ -68,7 +68,7 @@
             tools:text="VFEM"
     />
 
-    <com.funglejunk.stockz.ui.ChartView
+    <com.funglejunk.stockz.ui.view.ChartView
             android:id="@+id/mychart"
             android:layout_width="0dp"
             android:layout_height="0dp"

@@ -1,4 +1,4 @@
-package com.funglejunk.stockz.ui
+package com.funglejunk.stockz.ui.view
 
 import com.funglejunk.stockz.data.DrawableHistoricData
 import java.text.SimpleDateFormat
@@ -21,7 +21,7 @@ class ChartViewPresenter {
         return if (maxValueY != null && minValueY != null) {
             val verticalSpan = maxValueY - minValueY
             val factorY = (viewHeight / verticalSpan)
-            data.mapIndexed { index, (_, value) ->
+            data.map { (_, value) ->
                 (value - minValueY) * factorY
             }
         } else {
@@ -29,6 +29,7 @@ class ChartViewPresenter {
         }
     }
 
+    // TODO switch from java.util.Date to LocalDate
     fun getYearMarkers(data: List<Pair<Date, Float>>): List<Pair<String, Float>> {
         val calendarLabels = data.map { (date, x) ->
             Calendar.getInstance().apply { time = date } to x

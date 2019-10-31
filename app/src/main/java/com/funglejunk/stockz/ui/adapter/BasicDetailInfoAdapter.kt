@@ -1,4 +1,4 @@
-package com.funglejunk.stockz.ui
+package com.funglejunk.stockz.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +10,7 @@ import android.animation.ObjectAnimator
 import android.animation.AnimatorSet
 
 
-class StockInfoAdapter(private val data: List<Pair<String, String>>) : RecyclerView.Adapter<StockInfoAdapter.Holder>() {
+class BasicDetailInfoAdapter(private val data: List<Pair<String, String>>) : RecyclerView.Adapter<BasicDetailInfoAdapter.Holder>() {
 
     companion object {
         const val ANIM_DURATION = 500L

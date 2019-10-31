@@ -1,4 +1,4 @@
-package com.funglejunk.stockz.ui
+package com.funglejunk.stockz.ui.view
 
 import android.animation.Animator
 import android.animation.ValueAnimator
@@ -7,14 +7,12 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
-import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.DrawableHistoricData
 import timber.log.Timber
 import java.util.*
-import android.view.MotionEvent
 
 
 class ChartView : View {
