@@ -135,7 +135,7 @@ class XetraMasterDataInflator(private val context: Context, private val db: Xetr
                     etf.publisherName to XetraEtf(
                         name = etf.name,
                         isin = etf.isin,
-                        publisherId = -1L,
+                        publisherId = -1,
                         symbol = etf.symbol,
                         listingDate = etf.listingDate,
                         ter = etf.ter,
@@ -143,14 +143,14 @@ class XetraMasterDataInflator(private val context: Context, private val db: Xetr
                         replicationMethod = etf.replicationMethod,
                         fundCurrency = etf.fundCurrency,
                         tradingCurrency = etf.tradingCurrency,
-                        benchmarkId = benchmark.id
+                        benchmarkId = benchmark.rowid
                     )
                 }
             }
             .flatMap { (publisherName, etf) ->
                 publisherDao.getPublisherByName(publisherName).toObservable()
                     .map {
-                        etf.copy(publisherId = it.id)
+                        etf.copy(publisherId = it.rowid)
                     }
             }
             .toList()

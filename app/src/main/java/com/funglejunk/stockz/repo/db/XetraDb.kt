@@ -10,8 +10,11 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 @Database(
-    entities = [XetraPerformanceEntry::class, XetraEtf::class,
-        XetraEtfPublisher::class, XetraEtfBenchmark::class], version = 4
+    entities = [
+        XetraPerformanceEntry::class, XetraEtf::class, XetraEtfPublisher::class,
+        XetraEtfBenchmark::class
+    ],
+    version = 4
 )
 abstract class XetraDb : RoomDatabase() {
 
@@ -56,19 +59,19 @@ abstract class XetraDb : RoomDatabase() {
         ForeignKey(
             entity = XetraEtfPublisher::class,
             childColumns = ["publ_id"],
-            parentColumns = ["id"]
+            parentColumns = ["rowid"]
         ),
         ForeignKey(
             entity = XetraEtfBenchmark::class,
             childColumns = ["bench_id"],
-            parentColumns = ["id"]
+            parentColumns = ["rowid"]
         )
     ]
 )
 data class XetraEtf(
     @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "isin") @PrimaryKey(autoGenerate = false) val isin: String,
-    @ColumnInfo(name = "publ_id") val publisherId: Long,
+    @PrimaryKey(autoGenerate = false) @ColumnInfo(name = "isin") val isin: String,
+    @ColumnInfo(name = "publ_id") val publisherId: Int,
     @ColumnInfo(name = "symb") val symbol: String,
     @ColumnInfo(name = "listing") val listingDate: String,
     @ColumnInfo(name = "ter") val ter: Double,
@@ -76,11 +79,13 @@ data class XetraEtf(
     @ColumnInfo(name = "repl_meth") val replicationMethod: String,
     @ColumnInfo(name = "fund_curr") val fundCurrency: String,
     @ColumnInfo(name = "trade_curr") val tradingCurrency: String,
-    @ColumnInfo(name = "bench_id") val benchmarkId: Long
+    @ColumnInfo(name = "bench_id") val benchmarkId: Int
 )
 
 @Dao
 interface XetraEtfInfoDao {
+
+    // TODO write proper join queries to include Publisher and Benchmark into result
 
     @Query("SELECT * FROM xetraetf WHERE isin LIKE (:isin)")
     fun getEntryForIsin(isin: String): Single<XetraEtf>
@@ -94,11 +99,16 @@ interface XetraEtfInfoDao {
     @Query("SELECT * FROM xetraetf")
     fun getAll(): Single<List<XetraEtf>>
 
+    @Query("SELECT * FROM xetraetf WHERE name LIKE ('%' || (:query) || '%') " +
+            "OR symb LIKE ('%' || (:query) || '%') " +
+            "OR isin LIKE ('%' || (:query) || '%')")
+    fun queryFts(query: String): Single<List<XetraEtf>>
+
 }
 
 @Entity
 data class XetraEtfPublisher(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0L,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rowid") val rowid: Int = 0,
     @ColumnInfo(name = "name") val name: String
 )
 
@@ -111,14 +121,14 @@ interface XetraEtfPublisherDao {
     @Query("SELECT * from xetraetfpublisher WHERE name LIKE (:name)")
     fun getPublisherByName(name: String): Single<XetraEtfPublisher>
 
-    @Query("SELECT * from xetraetfpublisher WHERE id LIKE (:id) LIMIT 1")
-    fun getPublisherById(id: Long): Single<XetraEtfPublisher>
+    @Query("SELECT * from xetraetfpublisher WHERE rowid LIKE (:id) LIMIT 1")
+    fun getPublisherById(id: Int): Single<XetraEtfPublisher>
 
 }
 
 @Entity
 data class XetraEtfBenchmark(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0L,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rowid") val rowid: Int = 0,
     @ColumnInfo(name = "name") val name: String
 )
 
@@ -131,8 +141,8 @@ interface XetraEtfBenchmarkDao {
     @Query("SELECT * from xetraetfbenchmark WHERE name LIKE (:name)")
     fun getBenchmarkByName(name: String): Single<XetraEtfBenchmark>
 
-    @Query("SELECT * from xetraetfbenchmark WHERE id LIKE (:id) LIMIT 1")
-    fun getBenchmarkById(id: Long): Single<XetraEtfBenchmark>
+    @Query("SELECT * from xetraetfbenchmark WHERE rowid LIKE (:id) LIMIT 1")
+    fun getBenchmarkById(id: Int): Single<XetraEtfBenchmark>
 
 }
 

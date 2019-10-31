@@ -1,9 +1,7 @@
 package com.funglejunk.stockz.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -14,6 +12,11 @@ import com.funglejunk.stockz.model.EtfListViewModel
 import com.funglejunk.stockz.ui.adapter.ListInfoAdapter
 import kotlinx.android.synthetic.main.etf_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import android.content.Context.SEARCH_SERVICE
+import android.app.SearchManager
+import androidx.appcompat.widget.SearchView
+import timber.log.Timber
+
 
 class EtfListFragment : Fragment() {
 
@@ -37,6 +40,39 @@ class EtfListFragment : Fragment() {
         viewModel.etfData.observe(viewLifecycleOwner, Observer {
             recycler_view.adapter = ListInfoAdapter(it, itemClickListener)
         })
+
+        setHasOptionsMenu(true)
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.search_menu, menu)
+
+        val searchManager = context?.getSystemService(SEARCH_SERVICE) as SearchManager?
+        (menu.findItem(R.id.action_search).actionView as SearchView).apply {
+            setSearchableInfo(searchManager!!.getSearchableInfo(activity?.componentName))
+            isSubmitButtonEnabled = true
+            setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String): Boolean {
+                    Timber.d("submit query: $query")
+                    searchDbFor(query)
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String): Boolean {
+                    Timber.d("update query: $newText")
+                    searchDbFor(newText)
+                    return false
+                }
+            })
+        }
+
+    }
+
+    private fun searchDbFor(query: String) {
+        viewModel.searchDbFor(query)
+    }
+
+
 
 }
