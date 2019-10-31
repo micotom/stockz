@@ -17,7 +17,8 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 
-class EtfDetailViewModel(private val schedulers: RxSchedulers) : ViewModel() {
+class EtfDetailViewModel(private val schedulers: RxSchedulers,
+                         private val fBoerseRepo: FBoerseRepo) : ViewModel() {
 
     private companion object {
         @SuppressLint("SimpleDateFormat")
@@ -49,7 +50,7 @@ class EtfDetailViewModel(private val schedulers: RxSchedulers) : ViewModel() {
         toDate: LocalDate = LocalDate.now()
     ) {
         mutableViewStateData.postValue(ViewState.Loading)
-        FBoerseRepo().getHistory(isin, fromDate, toDate).flatMap {
+        fBoerseRepo.getHistory(isin, fromDate, toDate).flatMap {
             it.fold(
                 { e -> Single.error<FBoerseData>(e) },
                 { Single.just(it) }
