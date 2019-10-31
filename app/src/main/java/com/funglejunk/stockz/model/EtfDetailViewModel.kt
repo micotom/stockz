@@ -39,7 +39,8 @@ class EtfDetailViewModel(private val schedulers: RxSchedulers,
     private val disposables: CompositeDisposable = CompositeDisposable()
 
     fun setEtfArgs(etf: XetraEtfFlattened) {
-        if (null == etfArg || etfArg != etf) {
+        val receivedNewEtfArg = null == etfArg || etfArg != etf
+        if (receivedNewEtfArg) {
             fetchFboerseHistoy(etf.isin)
         }
         etfArg = etf.copy()
