@@ -19,7 +19,7 @@
             android:id="@+id/info_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/secondaryColor"
+            android:textColor="@color/primaryTextColor"
             android:maxLines="2"
             tools:text="Some info might be very long"/>
 
