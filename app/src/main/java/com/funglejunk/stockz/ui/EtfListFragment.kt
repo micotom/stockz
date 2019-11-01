@@ -59,14 +59,15 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     override fun onQueryTextSubmit(query: String): Boolean {
-        Timber.d("submit query: $query")
-        searchDbFor(query)
+        // Timber.d("submit query: $query")
+        // searchDbFor(query)
         return false
     }
 
     override fun onQueryTextChange(newText: String): Boolean {
-        Timber.d("update query: $newText")
-        searchDbFor(newText)
+        if (newText.length > 2) {
+            searchDbFor(newText)
+        }
         return false
     }
 

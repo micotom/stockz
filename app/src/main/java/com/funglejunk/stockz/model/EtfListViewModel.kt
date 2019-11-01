@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.funglejunk.stockz.data.XetraEtfFlattened
+import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDb
 import com.funglejunk.stockz.repo.db.XetraEtf
 import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
@@ -23,7 +24,6 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
 
     val etfData: LiveData<List<XetraEtfFlattened>> = MutableLiveData()
 
-    // TODO fix empty result on initial db inflation
     init {
         loadEtfs(dbInflater)
     }
@@ -41,7 +41,7 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
             .subscribe(
                 {
                     Timber.d("posting new etf data: ${it.size} entries")
-                    (etfData as MutableLiveData).postValue(it)
+                    etfData.mutable().postValue(it)
                 },
                 { e -> Timber.e(e) }
             ).addTo(disposables)
@@ -54,7 +54,9 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
             }
             .subscribeOn(Schedulers.io())
             .subscribe(
-                { (etfData as MutableLiveData).postValue(it) },
+                {
+                    etfData.mutable().postValue(it)
+                },
                 { e -> Timber.e(e) }
             ).addTo(disposables)
     }

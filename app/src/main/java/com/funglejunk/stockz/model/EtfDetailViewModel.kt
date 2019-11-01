@@ -8,6 +8,7 @@ import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.XetraEtfFlattened
 import com.funglejunk.stockz.data.fboerse.FBoerseData
+import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.RxSchedulers
@@ -33,7 +34,6 @@ class EtfDetailViewModel(private val schedulers: RxSchedulers,
     }
 
     val viewStateData: LiveData<ViewState> = MutableLiveData()
-    private val mutableViewStateData = viewStateData as MutableLiveData
 
     private var etfArg: XetraEtfFlattened? = null
 
@@ -51,7 +51,7 @@ class EtfDetailViewModel(private val schedulers: RxSchedulers,
         isin: String, fromDate: LocalDate = LocalDate.of(2010, 1, 1),
         toDate: LocalDate = LocalDate.now()
     ) {
-        mutableViewStateData.postValue(ViewState.Loading)
+        viewStateData.mutable().postValue(ViewState.Loading)
         fBoerseRepo.getHistory(isin, fromDate, toDate).flatMap {
             it.fold(
                 { e -> Single.error<FBoerseData>(e) },
@@ -64,10 +64,10 @@ class EtfDetailViewModel(private val schedulers: RxSchedulers,
         }.map {
             DrawableHistoricData(it)
         }.subscribeOn(schedulers.ioScheduler).subscribe(
-            { drawableDate -> mutableViewStateData.postValue(ViewState.NewChartData(drawableDate)) },
+            { drawableDate -> viewStateData.mutable().postValue(ViewState.NewChartData(drawableDate)) },
             { e ->
                 Timber.e(e)
-                mutableViewStateData.postValue(ViewState.Error(e))
+                viewStateData.mutable().postValue(ViewState.Error(e))
             }
         ).addTo(disposables)
     }
