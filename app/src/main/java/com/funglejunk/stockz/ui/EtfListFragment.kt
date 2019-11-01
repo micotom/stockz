@@ -15,6 +15,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import android.content.Context.SEARCH_SERVICE
 import android.app.SearchManager
 import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.DividerItemDecoration
 import timber.log.Timber
 
 
@@ -31,7 +32,6 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        recycler_view.layoutManager = LinearLayoutManager(context)
 
         val itemClickListener: (XetraEtfFlattened) -> Unit = { etf ->
             findNavController().navigate(EtfListFragmentDirections.listToDetailAction(etf))

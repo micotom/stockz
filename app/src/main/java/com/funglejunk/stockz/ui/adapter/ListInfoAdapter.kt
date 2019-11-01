@@ -17,7 +17,7 @@ class ListInfoAdapter(
     RecyclerView.Adapter<ListInfoAdapter.EtfViewHolder>() {
 
     companion object {
-        const val ANIM_DURATION = 1000L
+        const val ANIM_DURATION = 1500L
     }
 
     private var onAttach = true
@@ -35,7 +35,7 @@ class ListInfoAdapter(
     override fun onBindViewHolder(holder: EtfViewHolder, position: Int) {
         val item = data[position]
         holder.apply {
-            nameText.text = item.name
+            etfNameText.text = item.name
             publisherText.text = item.publisherName
             isinText.text = item.isin
             symbolText.text = item.symbol
@@ -101,7 +101,6 @@ class ListInfoAdapter(
 
         init {
             leftColumn().apply {
-                findVg(R.id.name).setHeadline("Name")
                 findVg(R.id.publisher).setHeadline("Publisher")
                 findVg(R.id.isin).setHeadline("Isin")
                 findVg(R.id.symbol).setHeadline("Symbol")
@@ -116,7 +115,8 @@ class ListInfoAdapter(
             }
         }
 
-        val nameText: TextView = leftColumn().findVg(R.id.name).findTv(R.id.info_text)
+        val etfNameText: TextView = view.findViewById(R.id.etf_name)
+
         val publisherText: TextView = leftColumn().findVg(R.id.publisher).findTv(R.id.info_text)
         val isinText: TextView = leftColumn().findVg(R.id.isin).findTv(R.id.info_text)
         val symbolText: TextView = leftColumn().findVg(R.id.symbol).findTv(R.id.info_text)
