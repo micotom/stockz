@@ -35,6 +35,8 @@ class FBoerseRepoImpl : FBoerseRepo {
         ).rxResponseString().map {
             Try.invoke {
                 Json.nonstrict.parse(FBoerseData.serializer(), it)
+            }.map {
+                it.copy(content = it.content.sortedBy { it.date })
             }
         }
     }
