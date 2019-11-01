@@ -12,12 +12,13 @@ import com.funglejunk.stockz.data.XetraEtfFlattened
 
 class ListInfoAdapter(
     private val data: List<XetraEtfFlattened>,
-    private val onClickListener: (XetraEtfFlattened) -> Unit
+    private val onClickListener: (XetraEtfFlattened) -> Unit,
+    private val parentWidth: Int
 ) :
     RecyclerView.Adapter<ListInfoAdapter.EtfViewHolder>() {
 
     companion object {
-        const val ANIM_DURATION = 1500L
+        const val ANIM_DURATION = 500L
     }
 
     private var onAttach = true
@@ -65,35 +66,48 @@ class ListInfoAdapter(
     }
 
     private fun setAnimation(itemView: View, itemPosition: Int) {
-        var iTemp = itemPosition
+        var itemPos = itemPosition
         if (!onAttach) {
-            iTemp = -1
+            itemPos = -1
         }
-        val isNotFirstItem = iTemp == -1
-        iTemp++
-        itemView.findViewById<View>(R.id.left_column).translationX = -500.0f
-        itemView.findViewById<View>(R.id.right_column).alpha = 0f
-        val animatorSet = AnimatorSet()
-        val leftAnimator = ObjectAnimator.ofFloat(
-            itemView.findViewById(R.id.left_column),
-            "translationX",
-            -500f,
-            0f
-        )
-        val rightAnimator =
-            ObjectAnimator.ofFloat(itemView.findViewById(R.id.right_column), "alpha", 1f).also {
-                it.duration = 1000
-            }
-        animatorSet.also {
-            it.duration = ANIM_DURATION
-            it.startDelay = when (isNotFirstItem) {
-                true -> ANIM_DURATION
-                false -> iTemp * ANIM_DURATION
-            }
-            it.playTogether(leftAnimator, rightAnimator)
+        val isNotFirstItem = itemPos == -1
+        itemPos++
+
+        val headlineAnimator = with(itemView.findViewById<View>(R.id.etf_name)) {
+            val initTranslationX = -parentWidth.toFloat()
+            also { translationX = initTranslationX }
+            ObjectAnimator.ofFloat(
+                this,
+                "translationX",
+                initTranslationX,
+                0f
+            )
         }
-        leftAnimator.start()
-        rightAnimator.start()
+
+        val leftColumnAnimator = with(itemView.findViewById<View>(R.id.left_column)) {
+            val initTranslationX = -500f
+            also { translationX = initTranslationX }
+            ObjectAnimator.ofFloat(
+                this,
+                "translationX",
+                initTranslationX,
+                0f
+            )
+        }
+
+        val rightColumnAnimator = with(itemView.findViewById<View>(R.id.right_column)) {
+            also { alpha = 0f }
+            ObjectAnimator.ofFloat(this, "alpha", 1f)
+        }
+
+        AnimatorSet().apply {
+            duration = ANIM_DURATION
+            startDelay = when (isNotFirstItem) {
+                true -> (ANIM_DURATION / 3)
+                false -> itemPos * (ANIM_DURATION / 3)
+            }
+            playTogether(headlineAnimator, leftColumnAnimator, rightColumnAnimator)
+        }.start()
     }
 
 

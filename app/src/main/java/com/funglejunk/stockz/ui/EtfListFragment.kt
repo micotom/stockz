@@ -39,7 +39,7 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         // TODO apply loading status
         viewModel.etfData.observe(viewLifecycleOwner, Observer {
-            recycler_view.adapter = ListInfoAdapter(it, itemClickListener)
+            recycler_view.adapter = ListInfoAdapter(it, itemClickListener, this@EtfListFragment.view?.width ?: 0)
         })
 
         setHasOptionsMenu(true)
