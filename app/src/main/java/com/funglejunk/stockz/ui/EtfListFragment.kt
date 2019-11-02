@@ -14,6 +14,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import android.content.Context.SEARCH_SERVICE
 import android.app.SearchManager
 import androidx.appcompat.widget.SearchView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.android.synthetic.main.filter_sheet.*
 
 
 class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
@@ -30,13 +32,16 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        initFilterSheet()
+
         val itemClickListener: (XetraEtfFlattened) -> Unit = { etf ->
             findNavController().navigate(EtfListFragmentDirections.listToDetailAction(etf))
         }
 
         // TODO apply loading status
         viewModel.etfData.observe(viewLifecycleOwner, Observer {
-            recycler_view.adapter = ListInfoAdapter(it, itemClickListener, this@EtfListFragment.view?.width ?: 0)
+            recycler_view.adapter =
+                ListInfoAdapter(it, itemClickListener, this@EtfListFragment.view?.width ?: 0)
         })
 
         setHasOptionsMenu(true)
@@ -56,8 +61,6 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
     override fun onQueryTextSubmit(query: String): Boolean {
-        // Timber.d("submit query: $query")
-        // searchDbFor(query)
         return false
     }
 
@@ -68,10 +71,32 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
         return false
     }
 
+    private fun initFilterSheet() {
+
+        BottomSheetBehavior.from(filter_sheet)?.let { bsb ->
+            bsb.state = BottomSheetBehavior.STATE_HIDDEN
+            fab_filter.setOnClickListener {
+                when (bsb.state) {
+                    BottomSheetBehavior.STATE_HIDDEN -> bsb.state =
+                        BottomSheetBehavior.STATE_EXPANDED
+                    BottomSheetBehavior.STATE_EXPANDED -> bsb.state =
+                        BottomSheetBehavior.STATE_HIDDEN
+                }
+            }
+            bsb.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onStateChanged(view: View, newState: Int) {
+                    if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                        // TODO update filter
+                    }
+                }
+
+                override fun onSlide(view: View, v: Float) = Unit
+            })
+        }
+    }
+
     private fun searchDbFor(query: String) {
         viewModel.searchDbFor(query)
     }
-
-
 
 }
