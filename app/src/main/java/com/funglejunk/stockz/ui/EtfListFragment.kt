@@ -16,6 +16,7 @@ import android.app.SearchManager
 import androidx.appcompat.widget.SearchView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.filter_sheet.*
+import timber.log.Timber
 
 
 class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
@@ -74,15 +75,17 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
     private fun initFilterSheet() {
 
         BottomSheetBehavior.from(filter_sheet)?.let { bsb ->
-            bsb.state = BottomSheetBehavior.STATE_HIDDEN
+
             fab_filter.setOnClickListener {
+                Timber.d("bsb state: ${bsb.state}")
                 when (bsb.state) {
-                    BottomSheetBehavior.STATE_HIDDEN -> bsb.state =
+                    BottomSheetBehavior.STATE_COLLAPSED -> bsb.state =
                         BottomSheetBehavior.STATE_EXPANDED
                     BottomSheetBehavior.STATE_EXPANDED -> bsb.state =
-                        BottomSheetBehavior.STATE_HIDDEN
+                        BottomSheetBehavior.STATE_COLLAPSED
                 }
             }
+
             bsb.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onStateChanged(view: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
