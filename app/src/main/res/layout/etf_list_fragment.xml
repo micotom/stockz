@@ -16,7 +16,8 @@
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="32dp"
             android:layout_marginBottom="32dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:src="@drawable/round_filter_list_24"/>
 
     <include layout="@layout/filter_sheet" />
 
