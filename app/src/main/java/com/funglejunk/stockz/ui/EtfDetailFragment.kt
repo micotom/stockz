@@ -9,7 +9,7 @@ import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.XetraEtfFlattened
 import com.funglejunk.stockz.model.EtfDetailViewModel
 import com.funglejunk.stockz.ui.adapter.BasicDetailInfoAdapter
-import kotlinx.android.synthetic.main.main_fragment_layout.*
+import kotlinx.android.synthetic.main.etf_detail_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
@@ -21,7 +21,7 @@ class EtfDetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.main_fragment_layout, container, false)
+        return inflater.inflate(R.layout.etf_detail_fragment, container, false)
     }
 
     private fun renderChartData(data: EtfDetailViewModel.ViewState.NewChartData) {

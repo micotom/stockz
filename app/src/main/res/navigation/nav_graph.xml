@@ -9,7 +9,7 @@
             android:id="@+id/list_fragment"
             android:name="com.funglejunk.stockz.ui.EtfListFragment"
             android:label="list_fragment"
-            tools:layout="@layout/main_fragment_layout">
+            tools:layout="@layout/etf_detail_fragment">
         <action
                 android:id="@+id/list_to_detail_action"
                 app:destination="@id/detail_fragment">

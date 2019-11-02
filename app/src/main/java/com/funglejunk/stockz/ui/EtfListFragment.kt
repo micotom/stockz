@@ -5,18 +5,15 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.XetraEtfFlattened
 import com.funglejunk.stockz.model.EtfListViewModel
 import com.funglejunk.stockz.ui.adapter.ListInfoAdapter
-import kotlinx.android.synthetic.main.etf_fragment.*
+import kotlinx.android.synthetic.main.etf_list_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import android.content.Context.SEARCH_SERVICE
 import android.app.SearchManager
 import androidx.appcompat.widget.SearchView
-import androidx.recyclerview.widget.DividerItemDecoration
-import timber.log.Timber
 
 
 class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
@@ -27,7 +24,7 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.etf_fragment, container, false)
+        return inflater.inflate(R.layout.etf_list_fragment, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
