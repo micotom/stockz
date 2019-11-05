@@ -11,15 +11,11 @@ import com.funglejunk.stockz.model.EtfListViewModel
 import com.funglejunk.stockz.ui.adapter.ListInfoAdapter
 import kotlinx.android.synthetic.main.etf_list_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import android.content.Context.SEARCH_SERVICE
-import android.app.SearchManager
-import androidx.appcompat.widget.SearchView
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.android.synthetic.main.filter_sheet.*
+import com.funglejunk.stockz.model.UiQueryDbInteractor
 import timber.log.Timber
 
 
-class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
+class EtfListFragment : Fragment() {
 
     private val viewModel: EtfListViewModel by viewModel()
 
@@ -41,65 +37,26 @@ class EtfListFragment : Fragment(), SearchView.OnQueryTextListener {
 
         // TODO apply loading status
         viewModel.etfData.observe(viewLifecycleOwner, Observer {
+            // TODO change args order and beautify lambda passing
             recycler_view.adapter =
                 ListInfoAdapter(it, itemClickListener, this@EtfListFragment.view?.width ?: 0)
         })
 
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.search_menu, menu)
-
-        val searchManager = context?.getSystemService(SEARCH_SERVICE) as SearchManager?
-        (menu.findItem(R.id.action_search).actionView as SearchView).apply {
-            setSearchableInfo(searchManager!!.getSearchableInfo(activity?.componentName))
-            isSubmitButtonEnabled = true
-            setOnQueryTextListener(this@EtfListFragment)
-        }
-
-    }
-
-    override fun onQueryTextSubmit(query: String): Boolean {
-        return false
-    }
-
-    override fun onQueryTextChange(newText: String): Boolean {
-        if (newText.length > 2) {
-            searchDbFor(newText)
-        }
-        return false
     }
 
     private fun initFilterSheet() {
 
-        BottomSheetBehavior.from(filter_sheet)?.let { bsb ->
-
-            fab_filter.setOnClickListener {
-                Timber.d("bsb state: ${bsb.state}")
-                when (bsb.state) {
-                    BottomSheetBehavior.STATE_COLLAPSED -> bsb.state =
-                        BottomSheetBehavior.STATE_EXPANDED
-                    BottomSheetBehavior.STATE_EXPANDED -> bsb.state =
-                        BottomSheetBehavior.STATE_COLLAPSED
+        fab_filter.setOnClickListener {
+            FilterDialog.newInstance { query ->
+                Timber.d("execute query: $query")
+                viewModel.searchDbFor(query)
+            }.also {
+                activity?.let { safeActivity ->
+                    it.show(safeActivity.supportFragmentManager, "some_tag")
                 }
             }
-
-            bsb.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                override fun onStateChanged(view: View, newState: Int) {
-                    if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                        // TODO update filter
-                    }
-                }
-
-                override fun onSlide(view: View, v: Float) = Unit
-            })
         }
-    }
 
-    private fun searchDbFor(query: String) {
-        viewModel.searchDbFor(query)
     }
 
 }

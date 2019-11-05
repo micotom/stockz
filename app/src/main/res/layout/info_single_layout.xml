@@ -11,7 +11,7 @@
             android:id="@+id/headline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/primaryDarkColor"
+            android:textColor="@color/primaryColor"
             android:maxLines="2"
             tools:text="Headline"/>
 
@@ -19,7 +19,7 @@
             android:id="@+id/info_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/primaryTextColor"
+            android:textColor="@color/secondaryColor"
             android:maxLines="2"
             tools:text="Some info might be very long"/>
 

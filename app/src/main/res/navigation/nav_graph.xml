@@ -10,6 +10,9 @@
             android:name="com.funglejunk.stockz.ui.EtfListFragment"
             android:label="list_fragment"
             tools:layout="@layout/etf_detail_fragment">
+        <argument
+                android:name="queryData"
+                app:argType="com.funglejunk.stockz.data.UiEtfQuery" />
         <action
                 android:id="@+id/list_to_detail_action"
                 app:destination="@id/detail_fragment">
@@ -27,5 +30,12 @@
                 android:name="etf"
                 app:argType="com.funglejunk.stockz.data.XetraEtfFlattened" />
     </fragment>
+
+    <dialog
+            android:id="@+id/filter_dialog"
+            android:name="com.funglejunk.stockz.ui.FilterDialog"
+            android:label="filter_dialog"
+            tools:layout="@layout/filter_dialog">
+    </dialog>
 
 </navigation>

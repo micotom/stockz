@@ -3,6 +3,7 @@ package com.funglejunk.stockz.model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.data.XetraEtfFlattened
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDb
@@ -47,8 +48,9 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
             ).addTo(disposables)
     }
 
-    fun searchDbFor(query: String) {
-        db.etfDao().queryFts(query).flattenInfo()
+    fun searchDbFor(query: UiEtfQuery) {
+
+        UiQueryDbInteractor(db).dispatchQuery(query).flattenInfo()
             .doOnEvent { data, _ ->
                 Timber.d("received ${data.size} results from search")
             }

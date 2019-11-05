@@ -11,14 +11,18 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:layout_width="wrap_content"
             android:id="@+id/fab_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="32dp"
             android:layout_marginBottom="32dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/round_filter_list_24"/>
+            android:src="@drawable/round_filter_list_24" />
 
-    <include layout="@layout/filter_sheet" />
+    <!--
+    <include
+            android:id="@+id/filter_sheet_view"
+            layout="@layout/filter_dialog" />
+            -->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
