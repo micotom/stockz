@@ -40,7 +40,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
-            android:layout_marginBottom="12dp"
             android:gravity="center_horizontal"
             android:text="Maximum TER"
             android:textColor="@color/primaryDarkColor"
@@ -63,12 +62,28 @@
             android:text="Foo!"
             tools:text="1.0%" />
 
+    <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:hint="Profit Use">
+
+        <AutoCompleteTextView
+                android:id="@+id/profit_use_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:editable="false"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.button.MaterialButton
             android:id="@+id/submit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="36dp"
+            android:textColor="@color/primaryTextColor"
             android:text="Submit" />
 
 </LinearLayout>

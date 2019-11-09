@@ -2,7 +2,6 @@ package com.funglejunk.stockz.model
 
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.funglejunk.stockz.data.UiEtfQuery
-import com.funglejunk.stockz.data.XetraEtfFlattened
 import com.funglejunk.stockz.repo.db.XetraDb
 import com.funglejunk.stockz.repo.db.XetraEtf
 import io.reactivex.Single
@@ -21,6 +20,9 @@ class UiQueryDbInteractor(private val db: XetraDb) {
             }
             if (query.ter != UiEtfQuery.TER_MAX) {
                 criteria.add("ter <= ${query.ter}")
+            }
+            if (query.profitUse != UiEtfQuery.PROFIT_USE_EMPTY) {
+                criteria.add("profit_use LIKE '${query.profitUse}'")
             }
             val queryString = "SELECT * FROM xetraetf WHERE " +
                     criteria.joinToString(separator = " AND ")
