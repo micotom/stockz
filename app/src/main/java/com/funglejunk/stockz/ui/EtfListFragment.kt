@@ -11,7 +11,6 @@ import com.funglejunk.stockz.model.EtfListViewModel
 import com.funglejunk.stockz.ui.adapter.ListInfoAdapter
 import kotlinx.android.synthetic.main.etf_list_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import com.funglejunk.stockz.model.UiQueryDbInteractor
 import timber.log.Timber
 
 

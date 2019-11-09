@@ -2,6 +2,7 @@ package com.funglejunk.stockz.repo.db
 
 import android.content.Context
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.funglejunk.stockz.data.UiEtfQuery
 import io.reactivex.Completable
 import io.reactivex.Maybe
@@ -88,9 +89,6 @@ interface XetraEtfInfoDao {
 
     // TODO write proper join queries to include Publisher and Benchmark into result
 
-    @Query("SELECT * FROM xetraetf WHERE isin LIKE (:isin)")
-    fun getEntryForIsin(isin: String): Single<XetraEtf>
-
     @Query("SELECT COUNT(*) FROM xetraetf")
     fun getEntryCount(): Single<Int>
 
@@ -100,23 +98,8 @@ interface XetraEtfInfoDao {
     @Query("SELECT * FROM xetraetf")
     fun getAll(): Single<List<XetraEtf>>
 
-    @Query("SELECT * FROM xetraetf WHERE name LIKE ('%' || (:query) || '%') " +
-            "OR symb LIKE ('%' || (:query) || '%') " +
-            "OR isin LIKE ('%' || (:query) || '%')")
-    fun queryFts(query: String): Single<List<XetraEtf>>
-
-    @Query("SELECT * FROM xetraetf WHERE (name LIKE ('%' || (:etfName) || '%') " +
-            "OR symb LIKE ('%' || (:etfName) || '%') " +
-            "OR isin LIKE ('%' || (:etfName) || '%')) AND ter <= :ter")
-    fun queryNameAndTer(etfName: String, ter: Double): Single<List<XetraEtf>>
-
-    @Query("SELECT * FROM xetraetf WHERE name LIKE ('%' || (:etfName) || '%') " +
-            "OR symb LIKE ('%' || (:etfName) || '%') " +
-            "OR isin LIKE ('%' || (:etfName) || '%')")
-    fun queryName(etfName: String): Single<List<XetraEtf>>
-
-    @Query("SELECT * FROM xetraetf WHERE ter <= :ter")
-    fun queryTer(ter: Double): Single<List<XetraEtf>>
+    @RawQuery
+    fun search(query: SupportSQLiteQuery): Single<List<XetraEtf>>
 
 }
 
