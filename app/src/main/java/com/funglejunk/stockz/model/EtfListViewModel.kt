@@ -50,7 +50,7 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
 
     fun searchDbFor(query: UiEtfQuery) {
 
-        UiQueryDbInteractor(db).dispatchQuery(query).flattenInfo()
+        UiQueryDbInteractor(db).createSqlQuery(query).flattenInfo()
             .doOnEvent { data, _ ->
                 Timber.d("received ${data.size} results from search")
             }

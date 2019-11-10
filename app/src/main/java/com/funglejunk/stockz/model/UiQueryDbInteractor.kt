@@ -9,7 +9,7 @@ import timber.log.Timber
 
 class UiQueryDbInteractor(private val db: XetraDb) {
 
-    fun dispatchQuery(query: UiEtfQuery): Single<List<XetraEtf>> {
+    fun createSqlQuery(query: UiEtfQuery): Single<List<XetraEtf>> {
 
         return if (query.isEmpty()) {
             db.etfDao().getAll()
@@ -23,6 +23,9 @@ class UiQueryDbInteractor(private val db: XetraDb) {
             }
             if (query.profitUse != UiEtfQuery.PROFIT_USE_EMPTY) {
                 criteria.add("profit_use LIKE '${query.profitUse}'")
+            }
+            if (query.replicationMethod != UiEtfQuery.REPLICATION_METHOD_EMPTY) {
+                criteria.add("repl_meth LIKE '${query.replicationMethod}'")
             }
             val queryString = "SELECT * FROM xetraetf WHERE " +
                     criteria.joinToString(separator = " AND ")
