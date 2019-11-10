@@ -6,10 +6,10 @@ import com.funglejunk.stockz.data.dboerse.DeutscheBoerseDayData
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.rx.rxResponseString
 import io.reactivex.Single
+import java.time.LocalDate
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.list
 import timber.log.Timber
-import java.time.LocalDate
 
 @Deprecated("Deutsche Boerse API is deprecated")
 class DeutscheBoerseRemoteRepo : DeutscheBoerseRepo {
@@ -39,11 +39,10 @@ class DeutscheBoerseRemoteRepo : DeutscheBoerseRepo {
                 { _ -> listOf(DeutscheBoerseDayData.INVALID) },
                 { data -> data }
             )
-        }.map { dayData->
+        }.map { dayData ->
             dayData.maxBy {
                 it.time
             } ?: DeutscheBoerseDayData.INVALID
         }
     }
-
 }

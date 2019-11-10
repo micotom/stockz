@@ -17,5 +17,4 @@ data class HistoryData(
         val low: String,
         val volume: String
     )
-
 }

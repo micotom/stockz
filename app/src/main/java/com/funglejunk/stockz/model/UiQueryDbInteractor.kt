@@ -34,7 +34,5 @@ class UiQueryDbInteractor(private val db: XetraDb) {
                 SimpleSQLiteQuery(queryString)
             )
         }
-
     }
-
 }

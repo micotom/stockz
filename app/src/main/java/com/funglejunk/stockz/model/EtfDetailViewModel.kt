@@ -15,12 +15,14 @@ import com.funglejunk.stockz.util.RxSchedulers
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import timber.log.Timber
 
-class EtfDetailViewModel(private val schedulers: RxSchedulers,
-                         private val fBoerseRepo: FBoerseRepo) : ViewModel() {
+class EtfDetailViewModel(
+    private val schedulers: RxSchedulers,
+    private val fBoerseRepo: FBoerseRepo
+) : ViewModel() {
 
     private companion object {
         @SuppressLint("SimpleDateFormat")
@@ -48,7 +50,8 @@ class EtfDetailViewModel(private val schedulers: RxSchedulers,
     }
 
     private fun fetchFboerseHistoy(
-        isin: String, fromDate: LocalDate = LocalDate.of(2010, 1, 1),
+        isin: String,
+        fromDate: LocalDate = LocalDate.of(2010, 1, 1),
         toDate: LocalDate = LocalDate.now()
     ) {
         viewStateData.mutable().postValue(ViewState.Loading)
@@ -79,5 +82,4 @@ class EtfDetailViewModel(private val schedulers: RxSchedulers,
 
     private fun Disposable.addTo(compositeDisposable: CompositeDisposable) =
         compositeDisposable.add(this)
-
 }

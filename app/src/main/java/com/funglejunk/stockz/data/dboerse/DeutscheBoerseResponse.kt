@@ -61,5 +61,4 @@ data class DeutscheBoerseDayData(
             numberOfTrades = -1
         )
     }
-
 }

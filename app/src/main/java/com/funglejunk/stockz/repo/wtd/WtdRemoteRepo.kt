@@ -7,11 +7,11 @@ import com.funglejunk.stockz.data.wtd.InfoData
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.rx.rxResponseString
 import io.reactivex.Single
+import java.text.SimpleDateFormat
+import java.util.Date
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.*
 
 @Deprecated("Worldtradingdata API is deprecated")
 class WtdRemoteRepo : WtdRepo {
@@ -50,5 +50,4 @@ class WtdRemoteRepo : WtdRepo {
                 Try.invoke { json.parse(HistoryData.serializer(), it) }
             }
     }
-
 }

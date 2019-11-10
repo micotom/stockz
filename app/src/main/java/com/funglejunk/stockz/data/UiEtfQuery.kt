@@ -24,5 +24,4 @@ data class UiEtfQuery(
             ter == TER_MAX &&
             profitUse == PROFIT_USE_EMPTY &&
             replicationMethod == REPLICATION_METHOD_EMPTY
-
 }

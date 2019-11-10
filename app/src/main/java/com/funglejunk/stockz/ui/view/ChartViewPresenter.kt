@@ -2,9 +2,7 @@ package com.funglejunk.stockz.ui.view
 
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.toFboerseString
-import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.util.*
 
 class ChartViewPresenter {
 
@@ -52,5 +50,4 @@ class ChartViewPresenter {
             date.toFboerseString() to value
         }
     }
-
 }

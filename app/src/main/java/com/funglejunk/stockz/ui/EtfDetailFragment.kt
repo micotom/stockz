@@ -1,7 +1,9 @@
 package com.funglejunk.stockz.ui
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +20,8 @@ class EtfDetailFragment : Fragment() {
     private val viewModel: EtfDetailViewModel by viewModel()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         return inflater.inflate(R.layout.etf_detail_fragment, container, false)
@@ -88,5 +91,4 @@ class EtfDetailFragment : Fragment() {
         left_column.adapter = BasicDetailInfoAdapter(leftData)
         right_column.adapter = BasicDetailInfoAdapter(rightData)
     }
-
 }

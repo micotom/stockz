@@ -6,7 +6,5 @@ import io.reactivex.Single
 import java.time.LocalDate
 
 interface FBoerseRepo {
-
     fun getHistory(isin: String, minDate: LocalDate, maxDate: LocalDate): Single<Try<FBoerseData>>
-
 }

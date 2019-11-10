@@ -1,7 +1,9 @@
 package com.funglejunk.stockz.ui
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -13,13 +15,13 @@ import kotlinx.android.synthetic.main.etf_list_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
-
 class EtfListFragment : Fragment() {
 
     private val viewModel: EtfListViewModel by viewModel()
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         return inflater.inflate(R.layout.etf_list_fragment, container, false)
@@ -40,7 +42,6 @@ class EtfListFragment : Fragment() {
             recycler_view.adapter =
                 ListInfoAdapter(it, itemClickListener, this@EtfListFragment.view?.width ?: 0)
         })
-
     }
 
     private fun initFilterSheet() {
@@ -55,7 +56,5 @@ class EtfListFragment : Fragment() {
                 }
             }
         }
-
     }
-
 }

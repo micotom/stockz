@@ -1,10 +1,19 @@
 package com.funglejunk.stockz.repo.db
 
 import android.content.Context
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.RawQuery
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.funglejunk.stockz.data.UiEtfQuery
-import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import java.lang.RuntimeException
@@ -43,7 +52,6 @@ abstract class XetraDb : RoomDatabase() {
                 throw RuntimeException("Database not initialized")
             }()
         }
-
     }
 
     abstract fun perfDao(): XetraPerformanceEntryDao
@@ -53,7 +61,6 @@ abstract class XetraDb : RoomDatabase() {
     abstract fun publisherDao(): XetraEtfPublisherDao
 
     abstract fun benchmarkDao(): XetraEtfBenchmarkDao
-
 }
 
 @Entity(
@@ -100,7 +107,6 @@ interface XetraEtfInfoDao {
 
     @RawQuery
     fun search(query: SupportSQLiteQuery): Single<List<XetraEtf>>
-
 }
 
 @Entity
@@ -120,7 +126,6 @@ interface XetraEtfPublisherDao {
 
     @Query("SELECT * from xetraetfpublisher WHERE rowid LIKE (:id) LIMIT 1")
     fun getPublisherById(id: Int): Single<XetraEtfPublisher>
-
 }
 
 @Entity
@@ -140,7 +145,6 @@ interface XetraEtfBenchmarkDao {
 
     @Query("SELECT * from xetraetfbenchmark WHERE rowid LIKE (:id) LIMIT 1")
     fun getBenchmarkById(id: Int): Single<XetraEtfBenchmark>
-
 }
 
 @Entity(primaryKeys = ["isin", "date"])
@@ -167,5 +171,4 @@ interface XetraPerformanceEntryDao {
 
     @Delete
     fun delete(isinEntry: XetraPerformanceEntry)
-
 }

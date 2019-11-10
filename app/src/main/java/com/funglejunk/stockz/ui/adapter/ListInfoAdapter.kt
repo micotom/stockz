@@ -110,7 +110,6 @@ class ListInfoAdapter(
         }.start()
     }
 
-
     class EtfViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
 
         init {
@@ -152,5 +151,4 @@ class ListInfoAdapter(
 
         private fun ViewGroup.findTv(id: Int) = findViewById<TextView>(id)
     }
-
 }

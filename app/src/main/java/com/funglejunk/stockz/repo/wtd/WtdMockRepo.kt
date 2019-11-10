@@ -4,9 +4,9 @@ import arrow.core.Try
 import com.funglejunk.stockz.data.wtd.HistoryData
 import com.funglejunk.stockz.data.wtd.InfoData
 import io.reactivex.Single
+import java.util.Date
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
-import java.util.*
 
 @Deprecated("Worldtradingdata API is deprecated")
 class WtdMockRepo : WtdRepo {
@@ -1556,7 +1556,5 @@ class WtdMockRepo : WtdRepo {
   }
 }
         """
-
     }
-
 }

@@ -1,14 +1,13 @@
 package com.funglejunk.stockz.ui.adapter
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
-import android.animation.ObjectAnimator
-import android.animation.AnimatorSet
-
 
 class BasicDetailInfoAdapter(private val data: List<Pair<String, String>>) : RecyclerView.Adapter<BasicDetailInfoAdapter.Holder>() {
 
@@ -66,5 +65,4 @@ class BasicDetailInfoAdapter(private val data: List<Pair<String, String>>) : Rec
         val headline: TextView = view.findViewById(R.id.headline)
         val infoText: TextView = view.findViewById(R.id.info_text)
     }
-
 }

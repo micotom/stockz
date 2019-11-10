@@ -1,19 +1,18 @@
 package com.funglejunk.stockz.ui
 
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
-import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
-import androidx.navigation.fragment.findNavController
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.withSafeContext
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.textfield.TextInputEditText
-import kotlinx.android.synthetic.main.filter_dialog.*
 import kotlin.math.round
+import kotlinx.android.synthetic.main.filter_dialog.*
 
 typealias QueryDataListener = (UiEtfQuery) -> Unit
 
@@ -30,7 +29,8 @@ class FilterDialog : BottomSheetDialogFragment() {
     private lateinit var queryDataListener: QueryDataListener
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.filter_dialog, container, false)
 
@@ -93,5 +93,4 @@ class FilterDialog : BottomSheetDialogFragment() {
             true -> f()
             else -> text.toString()
         }
-
 }

@@ -6,7 +6,5 @@ import java.time.LocalDate
 
 @Deprecated("Deutsche Boerse API is deprecated")
 interface DeutscheBoerseRepo {
-
     fun getCloseValueFor(isin: String, date: LocalDate): Single<DeutscheBoerseDayData>
-
 }

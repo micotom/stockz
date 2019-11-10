@@ -5,9 +5,9 @@ import com.funglejunk.stockz.data.fboerse.FBoerseData
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.rx.rxResponseString
 import io.reactivex.Single
+import java.time.LocalDate
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
-import java.time.LocalDate
 
 @UnstableDefault
 class FBoerseRepoImpl : FBoerseRepo {
@@ -40,5 +40,4 @@ class FBoerseRepoImpl : FBoerseRepo {
             }
         }
     }
-
 }

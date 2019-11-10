@@ -11,7 +11,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
 
-
 class XetraMasterDataInflater(private val context: Context, private val db: XetraDb) {
 
     private companion object {
@@ -163,5 +162,4 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
 
     private fun String.formatPercentage() =
         replace(",", ".").replace("%", "").trim()
-
 }

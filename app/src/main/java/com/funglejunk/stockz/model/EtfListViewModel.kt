@@ -96,5 +96,4 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
 
     private fun Disposable.addTo(compositeDisposable: CompositeDisposable) =
         compositeDisposable.add(this)
-
 }

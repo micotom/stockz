@@ -11,10 +11,8 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.DrawableHistoricData
-import timber.log.Timber
 import java.time.LocalDate
-import java.util.*
-
+import timber.log.Timber
 
 class ChartView : View {
 
@@ -80,17 +78,13 @@ class ChartView : View {
                         drawLabels = true
                         invalidate()
                     }
-
                     override fun onAnimationRepeat(animation: Animator?) = Unit
                     override fun onAnimationCancel(animation: Animator?) = Unit
                     override fun onAnimationStart(animation: Animator?) = Unit
-
                 })
                 start()
             }
-
         }
-
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -124,9 +118,7 @@ class ChartView : View {
                     false -> canvas.drawLine(x, 0.0f, x, height.toFloat() - (textHeight + twoDp), xPaint)
                 }
             }
-
         }
-
     }
 
     override fun onDetachedFromWindow() {
@@ -134,5 +126,4 @@ class ChartView : View {
         animator?.cancel()
         super.onDetachedFromWindow()
     }
-
 }

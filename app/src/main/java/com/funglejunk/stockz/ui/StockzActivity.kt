@@ -13,5 +13,4 @@ class StockzActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp() = findNavController(R.id.list_fragment).navigateUp()
-
 }

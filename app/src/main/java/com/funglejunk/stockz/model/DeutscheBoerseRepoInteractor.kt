@@ -2,16 +2,16 @@ package com.funglejunk.stockz.model
 
 import android.annotation.SuppressLint
 import com.funglejunk.stockz.data.dboerse.DeutscheBoerseDayData
-import com.funglejunk.stockz.repo.db.XetraPerformanceEntry
 import com.funglejunk.stockz.repo.db.XetraDb
+import com.funglejunk.stockz.repo.db.XetraPerformanceEntry
 import com.funglejunk.stockz.repo.dboerse.DeutscheBoerseRepo
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
-import timber.log.Timber
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import timber.log.Timber
 
 @Deprecated("Deutsche Boerse API is deprecated")
 class DeutscheBoerseRepoInteractor(db: XetraDb, private val repo: DeutscheBoerseRepo) {
@@ -104,5 +104,4 @@ class DeutscheBoerseRepoInteractor(db: XetraDb, private val repo: DeutscheBoerse
     }
 
     private fun LocalDate.copy() = LocalDate.of(year, month, dayOfMonth)
-
 }
