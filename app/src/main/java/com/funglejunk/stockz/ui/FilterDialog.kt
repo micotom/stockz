@@ -10,6 +10,7 @@ import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.withSafeContext
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
 import kotlin.math.round
 import kotlinx.android.synthetic.main.filter_dialog.*
@@ -37,11 +38,6 @@ class FilterDialog : BottomSheetDialogFragment() {
     // TODO use string placeholder for slider text
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ter_slider.isEnabled = false
-        ter_slider.setOnTouchListener { _, _ ->
-            ter_slider.isEnabled = true
-            false
-        }
         slider_text.text = "${ter_slider.value.round()}%"
         ter_slider.setOnChangeListener { _, value ->
             slider_text.text = "${value.round()}%"
@@ -64,7 +60,7 @@ class FilterDialog : BottomSheetDialogFragment() {
             queryDataListener.invoke(
                 UiEtfQuery(
                     name = name_input_field.textOrIfEmpty { UiEtfQuery.NAME_EMPTY },
-                    ter = ter_slider.value.round(),
+                    ter = ter_slider.valueOrDefault { UiEtfQuery.TER_MAX },
                     profitUse = profit_use_dropdown.textOrIfEmpty { UiEtfQuery.PROFIT_USE_EMPTY },
                     replicationMethod = replication_dropdown.textOrIfEmpty {
                         UiEtfQuery.REPLICATION_METHOD_EMPTY
@@ -93,4 +89,9 @@ class FilterDialog : BottomSheetDialogFragment() {
             true -> f()
             else -> text.toString()
         }
+
+    private fun Slider.valueOrDefault(f: () -> Float) = when (isEnabled) {
+        true -> value.round()
+        false -> f()
+    }
 }
