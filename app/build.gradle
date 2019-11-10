@@ -5,6 +5,8 @@ apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 
+apply from: '../ktlint.gradle'
+
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 def wdtApiKey = properties.getProperty('wtd_api.key')
