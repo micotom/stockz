@@ -14,6 +14,7 @@ import androidx.room.RawQuery
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
+import com.funglejunk.stockz.data.XetraEtfFlattened
 import io.reactivex.Maybe
 import io.reactivex.Single
 import java.lang.RuntimeException
@@ -61,6 +62,8 @@ abstract class XetraDb : RoomDatabase() {
     abstract fun publisherDao(): XetraEtfPublisherDao
 
     abstract fun benchmarkDao(): XetraEtfBenchmarkDao
+
+    abstract fun etfFlattenedDao(): XetraEtfFlattenedDao
 }
 
 @Entity(
@@ -92,9 +95,32 @@ data class XetraEtf(
 )
 
 @Dao
-interface XetraEtfInfoDao {
+interface XetraEtfFlattenedDao {
 
-    // TODO write proper join queries to include Publisher and Benchmark into result
+    companion object {
+        const val MAPPING_SELECT =
+            "SELECT xetraetf.name AS name, xetraetf.isin AS isin, xetraetf.symb AS symbol, " +
+                    "xetraetf.listing AS listingDate, xetraetf.ter AS ter, xetraetf.profit_use AS profitUse, " +
+                    "xetraetf.repl_meth AS replicationMethod, xetraetf.fund_curr AS fundCurrency, " +
+                    "xetraetf.trade_curr AS tradingCurrency, xetraetfpublisher.name AS publisherName, " +
+                    "xetraetfbenchmark.name AS benchmarkName " +
+                    "FROM xetraetf "
+    }
+
+    @RawQuery
+    fun search(query: SupportSQLiteQuery): Single<List<XetraEtfFlattened>>
+
+    @Query(
+        MAPPING_SELECT +
+            "LEFT JOIN xetraetfpublisher ON xetraetf.publ_id = xetraetfpublisher.rowid " +
+            "LEFT JOIN xetraetfbenchmark ON xetraetf.bench_id = xetraetfbenchmark.rowid"
+    )
+    fun getAll(): Single<List<XetraEtfFlattened>>
+
+}
+
+@Dao
+interface XetraEtfInfoDao {
 
     @Query("SELECT COUNT(*) FROM xetraetf")
     fun getEntryCount(): Single<Int>
@@ -102,11 +128,6 @@ interface XetraEtfInfoDao {
     @Insert
     fun insert(vararg publisher: XetraEtf): Array<Long>
 
-    @Query("SELECT * FROM xetraetf")
-    fun getAll(): Single<List<XetraEtf>>
-
-    @RawQuery
-    fun search(query: SupportSQLiteQuery): Single<List<XetraEtf>>
 }
 
 @Entity
@@ -126,6 +147,9 @@ interface XetraEtfPublisherDao {
 
     @Query("SELECT * from xetraetfpublisher WHERE rowid LIKE (:id) LIMIT 1")
     fun getPublisherById(id: Int): Single<XetraEtfPublisher>
+
+    @Query("SELECT * from xetraetfpublisher")
+    fun getAll(): Single<List<XetraEtfPublisher>>
 }
 
 @Entity
@@ -145,6 +169,9 @@ interface XetraEtfBenchmarkDao {
 
     @Query("SELECT * from xetraetfbenchmark WHERE rowid LIKE (:id) LIMIT 1")
     fun getBenchmarkById(id: Int): Single<XetraEtfBenchmark>
+
+    @Query("SELECT * from xetraetfbenchmark")
+    fun getAll(): Single<List<XetraEtfBenchmark>>
 }
 
 @Entity(primaryKeys = ["isin", "date"])

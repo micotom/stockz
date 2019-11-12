@@ -8,7 +8,9 @@ data class UiEtfQuery(
     val name: String,
     val ter: Float,
     val profitUse: String,
-    val replicationMethod: String
+    val replicationMethod: String,
+    val publisher: String,
+    val benchmark: String
 ) : Parcelable {
 
     companion object {
@@ -18,10 +20,14 @@ data class UiEtfQuery(
         const val NAME_EMPTY = STRING_EMPTY
         const val PROFIT_USE_EMPTY = STRING_EMPTY
         const val REPLICATION_METHOD_EMPTY = STRING_EMPTY
+        const val PUBLISHER_EMPTY = STRING_EMPTY
+        const val BENCHMARK_EMPTY = STRING_EMPTY
     }
 
     fun isEmpty() = name == NAME_EMPTY &&
             ter == TER_MAX &&
             profitUse == PROFIT_USE_EMPTY &&
-            replicationMethod == REPLICATION_METHOD_EMPTY
+            replicationMethod == REPLICATION_METHOD_EMPTY &&
+            publisher == PUBLISHER_EMPTY &&
+            benchmark == BENCHMARK_EMPTY
 }
