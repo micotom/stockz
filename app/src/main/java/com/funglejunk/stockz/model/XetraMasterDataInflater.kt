@@ -1,9 +1,9 @@
 package com.funglejunk.stockz.model
 
 import android.content.Context
-import com.funglejunk.stockz.data.XetraEtfFlattened
+import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.repo.db.XetraDb
-import com.funglejunk.stockz.repo.db.XetraEtf
+import com.funglejunk.stockz.repo.db.XetraDbEtf
 import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.repo.db.XetraEtfPublisher
 import io.reactivex.Completable
@@ -61,7 +61,7 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         return etfDao.getEntryCount().map { it > 0 }
     }
 
-    private fun readFromDisk(): Single<Triple<List<XetraEtfFlattened>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>> {
+    private fun readFromDisk(): Single<Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>> {
         return Single.fromCallable {
             context.assets.open("xetra_etf_datasheet.csv").bufferedReader().use {
                 it.readText()
@@ -74,10 +74,10 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
     }
 
     private fun parseLines(lines: List<String>):
-            Single<Triple<List<XetraEtfFlattened>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>> {
+            Single<Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>> {
         val publishers = mutableSetOf<XetraEtfPublisher>()
         val benchmarks = mutableSetOf<XetraEtfBenchmark>()
-        val etfs = mutableListOf<XetraEtfFlattened>()
+        val etfs = mutableListOf<Etf>()
         return Observable.fromIterable(lines).filter {
             it.isNotEmpty()
         }.map { line ->
@@ -85,7 +85,7 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         }.map { columns ->
             val publisher = XetraEtfPublisher(name = columns[PUBLISHER_INDEX])
             val benchmark = XetraEtfBenchmark(name = columns[BENCH_INDEX])
-            val etf = XetraEtfFlattened(
+            val etf = Etf(
                 name = columns[NAME_INDEX],
                 isin = columns[ISIN_INDEX],
                 symbol = columns[SYMBOL_INDEX],
@@ -125,13 +125,13 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         }
     }
 
-    private fun inflateEtfs(etfs: Collection<XetraEtfFlattened>): Single<Array<Long>> {
+    private fun inflateEtfs(etfs: Collection<Etf>): Single<Array<Long>> {
         val benchmarkDao = db.benchmarkDao()
         val publisherDao = db.publisherDao()
         return Observable.fromIterable(etfs)
             .flatMap { etf ->
                 benchmarkDao.getBenchmarkByName(etf.benchmarkName).toObservable().map { benchmark ->
-                    etf.publisherName to XetraEtf(
+                    etf.publisherName to XetraDbEtf(
                         name = etf.name,
                         isin = etf.isin,
                         publisherId = -1,

@@ -14,7 +14,7 @@ import androidx.room.RawQuery
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.funglejunk.stockz.data.XetraEtfFlattened
+import com.funglejunk.stockz.data.Etf
 import io.reactivex.Maybe
 import io.reactivex.Single
 import java.lang.RuntimeException
@@ -23,7 +23,7 @@ import kotlin.concurrent.withLock
 
 @Database(
     entities = [
-        XetraPerformanceEntry::class, XetraEtf::class, XetraEtfPublisher::class,
+        XetraPerformanceEntry::class, XetraDbEtf::class, XetraEtfPublisher::class,
         XetraEtfBenchmark::class
     ],
     version = 4
@@ -80,7 +80,7 @@ abstract class XetraDb : RoomDatabase() {
         )
     ]
 )
-data class XetraEtf(
+data class XetraDbEtf(
     @ColumnInfo(name = "name") val name: String,
     @PrimaryKey(autoGenerate = false) @ColumnInfo(name = "isin") val isin: String,
     @ColumnInfo(name = "publ_id") val publisherId: Int,
@@ -92,41 +92,52 @@ data class XetraEtf(
     @ColumnInfo(name = "fund_curr") val fundCurrency: String,
     @ColumnInfo(name = "trade_curr") val tradingCurrency: String,
     @ColumnInfo(name = "bench_id") val benchmarkId: Int
-)
+) {
+    companion object {
+        const val TABLE_NAME = "xetradbetf"
+    }
+}
 
 @Dao
 interface XetraEtfFlattenedDao {
 
     companion object {
         const val MAPPING_SELECT =
-            "SELECT xetraetf.name AS name, xetraetf.isin AS isin, xetraetf.symb AS symbol, " +
-                    "xetraetf.listing AS listingDate, xetraetf.ter AS ter, xetraetf.profit_use AS profitUse, " +
-                    "xetraetf.repl_meth AS replicationMethod, xetraetf.fund_curr AS fundCurrency, " +
-                    "xetraetf.trade_curr AS tradingCurrency, xetraetfpublisher.name AS publisherName, " +
+            "SELECT " +
+                    "${XetraDbEtf.TABLE_NAME}.name AS name, " +
+                    "${XetraDbEtf.TABLE_NAME}.isin AS isin, " +
+                    "${XetraDbEtf.TABLE_NAME}.symb AS symbol, " +
+                    "${XetraDbEtf.TABLE_NAME}.listing AS listingDate, " +
+                    "${XetraDbEtf.TABLE_NAME}.ter AS ter, " +
+                    "${XetraDbEtf.TABLE_NAME}.profit_use AS profitUse, " +
+                    "${XetraDbEtf.TABLE_NAME}.repl_meth AS replicationMethod, " +
+                    "${XetraDbEtf.TABLE_NAME}.fund_curr AS fundCurrency, " +
+                    "${XetraDbEtf.TABLE_NAME}.trade_curr AS tradingCurrency, " +
+                    "xetraetfpublisher.name AS publisherName, " +
                     "xetraetfbenchmark.name AS benchmarkName " +
-                    "FROM xetraetf "
+                    "FROM ${XetraDbEtf.TABLE_NAME} "
     }
 
     @RawQuery
-    fun search(query: SupportSQLiteQuery): Single<List<XetraEtfFlattened>>
+    fun search(query: SupportSQLiteQuery): Single<List<Etf>>
 
     @Query(
         MAPPING_SELECT +
-            "LEFT JOIN xetraetfpublisher ON xetraetf.publ_id = xetraetfpublisher.rowid " +
-            "LEFT JOIN xetraetfbenchmark ON xetraetf.bench_id = xetraetfbenchmark.rowid"
+            "LEFT JOIN xetraetfpublisher ON xetradbetf.publ_id = xetraetfpublisher.rowid " +
+            "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid"
     )
-    fun getAll(): Single<List<XetraEtfFlattened>>
+    fun getAll(): Single<List<Etf>>
 
 }
 
 @Dao
 interface XetraEtfInfoDao {
 
-    @Query("SELECT COUNT(*) FROM xetraetf")
+    @Query("SELECT COUNT(*) FROM xetradbetf")
     fun getEntryCount(): Single<Int>
 
     @Insert
-    fun insert(vararg publisher: XetraEtf): Array<Long>
+    fun insert(vararg publisher: XetraDbEtf): Array<Long>
 
 }
 

@@ -8,11 +8,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.data.XetraEtfFlattened
+import com.funglejunk.stockz.data.Etf
 
 class ListInfoAdapter(
-    private val data: List<XetraEtfFlattened>,
-    private val onClickListener: (XetraEtfFlattened) -> Unit,
+    private val data: List<Etf>,
+    private val onClickListener: (Etf) -> Unit,
     private val parentWidth: Int
 ) :
     RecyclerView.Adapter<ListInfoAdapter.EtfViewHolder>() {

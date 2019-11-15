@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class XetraEtfFlattened(
+data class Etf(
     val name: String,
     val isin: String,
     val symbol: String,

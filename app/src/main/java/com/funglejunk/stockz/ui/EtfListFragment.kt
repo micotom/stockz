@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.data.XetraEtfFlattened
+import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.model.EtfListViewModel
 import com.funglejunk.stockz.ui.adapter.ListInfoAdapter
 import kotlinx.android.synthetic.main.etf_list_fragment.*
@@ -32,7 +32,7 @@ class EtfListFragment : Fragment() {
 
         initFilterSheet()
 
-        val itemClickListener: (XetraEtfFlattened) -> Unit = { etf ->
+        val itemClickListener: (Etf) -> Unit = { etf ->
             findNavController().navigate(EtfListFragmentDirections.listToDetailAction(etf))
         }
 

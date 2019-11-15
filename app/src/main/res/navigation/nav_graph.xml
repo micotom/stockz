@@ -18,7 +18,7 @@
                 app:destination="@id/detail_fragment">
             <argument
                     android:name="etf"
-                    app:argType="com.funglejunk.stockz.data.XetraEtfFlattened" />
+                    app:argType="com.funglejunk.stockz.data.Etf" />
         </action>
     </fragment>
 
@@ -28,7 +28,7 @@
             android:label="detail_fragment">
         <argument
                 android:name="etf"
-                app:argType="com.funglejunk.stockz.data.XetraEtfFlattened" />
+                app:argType="com.funglejunk.stockz.data.Etf" />
     </fragment>
 
     <dialog

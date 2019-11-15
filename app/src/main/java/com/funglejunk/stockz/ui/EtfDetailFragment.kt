@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.data.XetraEtfFlattened
+import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.model.EtfDetailViewModel
 import com.funglejunk.stockz.ui.adapter.BasicDetailInfoAdapter
 import kotlinx.android.synthetic.main.etf_detail_fragment.*
@@ -70,7 +70,7 @@ class EtfDetailFragment : Fragment() {
     }
 
     // TODO inflate strings from resources
-    private fun showBasicData(etf: XetraEtfFlattened) {
+    private fun showBasicData(etf: Etf) {
         stock_name.text = etf.name
         left_column.layoutManager = LinearLayoutManager(context)
         right_column.layoutManager = LinearLayoutManager(context)

@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
-import com.funglejunk.stockz.data.XetraEtfFlattened
+import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.fboerse.FBoerseData
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
@@ -37,11 +37,11 @@ class EtfDetailViewModel(
 
     val viewStateData: LiveData<ViewState> = MutableLiveData()
 
-    private var etfArg: XetraEtfFlattened? = null
+    private var etfArg: Etf? = null
 
     private val disposables: CompositeDisposable = CompositeDisposable()
 
-    fun setEtfArgs(etf: XetraEtfFlattened) {
+    fun setEtfArgs(etf: Etf) {
         val receivedNewEtfArg = null == etfArg || etfArg != etf
         if (receivedNewEtfArg) {
             fetchFboerseHistoy(etf.isin)
