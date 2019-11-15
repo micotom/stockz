@@ -127,7 +127,6 @@ interface XetraEtfFlattenedDao {
             "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid"
     )
     fun getAll(): Single<List<Etf>>
-
 }
 
 @Dao
@@ -138,7 +137,6 @@ interface XetraEtfInfoDao {
 
     @Insert
     fun insert(vararg publisher: XetraDbEtf): Array<Long>
-
 }
 
 @Entity

@@ -1,13 +1,12 @@
 package com.funglejunk.stockz.model
 
 import androidx.sqlite.db.SimpleSQLiteQuery
-import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.data.Etf
+import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.repo.db.XetraDb
 import com.funglejunk.stockz.repo.db.XetraDbEtf
 import com.funglejunk.stockz.repo.db.XetraEtfFlattenedDao
 import io.reactivex.Single
-import timber.log.Timber
 
 class UiQueryDbInteractor {
 
@@ -53,7 +52,6 @@ class UiQueryDbInteractor {
                     }
             queryString
         }
-
     }
 
     fun executeSqlString(query: String, db: XetraDb): Single<List<Etf>> {
