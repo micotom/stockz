@@ -7,11 +7,6 @@ apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 apply from: '../ktlint.gradle'
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-def wdtApiKey = properties.getProperty('wtd_api.key')
-def xetraApiKey = properties.getProperty('xetra_api.key')
-
 android {
 
     compileSdkVersion 29
@@ -25,10 +20,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            buildConfigField "String", "WDT_API_KEY", wdtApiKey
-            buildConfigField "String", "XETRA_API_KEY", xetraApiKey
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

@@ -25,7 +25,6 @@ class ChartViewPresenter {
         }
     }
 
-    // TODO switch from java.util.Date to LocalDate
     // Brings list with only first values from a year
     fun getYearMarkers(data: List<Pair<LocalDate, Float>>): List<Pair<String, Float>> {
         var currentYear = data.first().first.year
