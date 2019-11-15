@@ -4,7 +4,6 @@ import android.app.Application
 import com.facebook.stetho.Stetho
 import com.funglejunk.stockz.repo.db.XetraDb
 import com.github.kittinunf.fuel.core.FuelManager
-import io.reactivex.disposables.Disposable
 import java.util.concurrent.TimeUnit
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -13,8 +12,6 @@ import timber.log.Timber
 
 @Suppress("unused")
 class StockzApplication : Application() {
-
-    private var disposable: Disposable? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -37,8 +34,4 @@ class StockzApplication : Application() {
         FuelManager.instance.timeoutReadInMillisecond = TimeUnit.SECONDS.toMillis(30).toInt()
     }
 
-    override fun onTerminate() {
-        disposable?.dispose()
-        super.onTerminate()
-    }
 }
