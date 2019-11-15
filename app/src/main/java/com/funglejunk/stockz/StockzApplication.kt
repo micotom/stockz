@@ -30,8 +30,6 @@ class StockzApplication : Application() {
         }
 
         XetraDb.init(this)
-
-        FuelManager.instance.timeoutReadInMillisecond = TimeUnit.SECONDS.toMillis(30).toInt()
     }
 
 }
