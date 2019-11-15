@@ -36,7 +36,6 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
             .subscribeOn(Schedulers.io())
             .subscribe(
                 {
-                    Timber.d("posting new etf data: ${it.size} entries")
                     etfData.mutable().postValue(it)
                 },
                 { e -> Timber.e(e) }
@@ -45,9 +44,6 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
 
     fun searchDbFor(query: UiEtfQuery) {
         queryInteractor.executeSqlString(queryInteractor.buildSqlStringFrom(query), db)
-            .doOnEvent { data, _ ->
-                Timber.d("received ${data.size} results from search")
-            }
             .subscribeOn(Schedulers.io())
             .subscribe(
                 {

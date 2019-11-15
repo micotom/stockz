@@ -24,11 +24,6 @@ class EtfDetailViewModel(
     private val fBoerseRepo: FBoerseRepo
 ) : ViewModel() {
 
-    private companion object {
-        @SuppressLint("SimpleDateFormat")
-        private val dateFormatter = SimpleDateFormat("yyyy-MM-dd")
-    }
-
     sealed class ViewState {
         object Loading : ViewState()
         data class Error(val error: Throwable) : ViewState()

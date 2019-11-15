@@ -21,7 +21,6 @@ class FilterDialogViewModel(
     private val disposables = CompositeDisposable()
 
     init {
-        Timber.d("view model init")
         getBenchmarks()
         getPublishers()
     }
@@ -59,7 +58,6 @@ class FilterDialogViewModel(
     }
 
     override fun onCleared() {
-        Timber.d("view model cleared")
         disposables.clear()
         super.onCleared()
     }
