@@ -49,7 +49,7 @@ class FilterDialogViewModel(
                     replicationMethods = replicationMethods.prepend(UiEtfQuery.ALL_PLACEHOLDER)
                 )
             }
-            .subscribeOn(Schedulers.io())
+            .subscribeOn(schedulers.ioScheduler)
             .subscribe(
                 { (publishers, benchmarks, profitUses,
                       replicationMethods) ->

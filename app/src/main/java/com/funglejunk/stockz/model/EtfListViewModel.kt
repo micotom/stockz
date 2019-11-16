@@ -8,11 +8,12 @@ import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDbInterface
+import com.funglejunk.stockz.util.RxSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-class EtfListViewModel(dbInflater: XetraMasterDataInflater, val db: XetraDbInterface) : ViewModel() {
+class EtfListViewModel(dbInflater: XetraMasterDataInflater, val db: XetraDbInterface,
+                       val schedulers: RxSchedulers) : ViewModel() {
 
     private val disposables: CompositeDisposable = CompositeDisposable()
     private val queryInteractor = UiQueryDbInteractor()
@@ -32,7 +33,7 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater, val db: XetraDbInter
             .flatMap {
                 db.etfFlattenedDao().getAll()
             }
-            .subscribeOn(Schedulers.io())
+            .subscribeOn(schedulers.ioScheduler)
             .subscribe(
                 {
                     etfData.mutable().postValue(it)
@@ -43,7 +44,7 @@ class EtfListViewModel(dbInflater: XetraMasterDataInflater, val db: XetraDbInter
 
     fun searchDbFor(query: UiEtfQuery) {
         queryInteractor.executeSqlString(queryInteractor.buildSqlStringFrom(query), db)
-            .subscribeOn(Schedulers.io())
+            .subscribeOn(schedulers.ioScheduler)
             .subscribe(
                 {
                     etfData.mutable().postValue(it)
