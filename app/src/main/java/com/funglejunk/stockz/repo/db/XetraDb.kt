@@ -31,6 +31,24 @@ import kotlin.concurrent.withLock
 abstract class XetraDb : RoomDatabase(), XetraDbInterface {
 
     companion object {
+        private val initLock = ReentrantLock()
+        private var isCreated = false
+
+        fun create(context: Context): XetraDbInterface =
+            initLock.withLock {
+                if (isCreated) {
+                    throw RuntimeException("XetraDb must not be initialized outside di framework")
+                }
+                isCreated = true
+                Room.databaseBuilder(
+                    context,
+                    XetraDb::class.java, "xetra-db"
+                ).build()
+            }
+    }
+
+    /*
+    companion object {
 
         private val lock = ReentrantLock()
         private var db: XetraDb? = null
@@ -54,6 +72,7 @@ abstract class XetraDb : RoomDatabase(), XetraDbInterface {
             }()
         }
     }
+     */
 
     abstract override fun perfDao(): XetraPerformanceEntryDao
 
@@ -123,8 +142,8 @@ interface XetraEtfFlattenedDao {
 
     @Query(
         MAPPING_SELECT +
-            "LEFT JOIN xetraetfpublisher ON xetradbetf.publ_id = xetraetfpublisher.rowid " +
-            "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid"
+                "LEFT JOIN xetraetfpublisher ON xetradbetf.publ_id = xetraetfpublisher.rowid " +
+                "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid"
     )
     fun getAll(): Single<List<Etf>>
 }

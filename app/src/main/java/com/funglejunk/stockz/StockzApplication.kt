@@ -28,8 +28,6 @@ class StockzApplication : Application() {
                 listOf(dbModule, repoModule, vmModule, schedulersModule)
             )
         }
-
-        XetraDb.init(this)
     }
 
 }

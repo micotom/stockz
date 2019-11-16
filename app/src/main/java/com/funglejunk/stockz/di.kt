@@ -14,7 +14,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val dbModule = module {
-    single<XetraDbInterface> { XetraDb.get() }
+    single { XetraDb.create(get()) }
     single { XetraMasterDataInflater(get(), get()) }
 }
 
