@@ -21,3 +21,5 @@ fun <T> Fragment.withSafeContext(f: (Context) -> T) = context?.let { f(it) }
 
 fun Disposable.addTo(compositeDisposable: CompositeDisposable) =
     compositeDisposable.add(this)
+
+fun Float.round() = kotlin.math.round(this * 100) / 100

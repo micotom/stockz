@@ -1,10 +1,34 @@
 package com.funglejunk.stockz.ui.view
 
 import com.funglejunk.stockz.data.DrawableHistoricData
+import com.funglejunk.stockz.round
 import com.funglejunk.stockz.toFboerseString
+import timber.log.Timber
 import java.time.LocalDate
 
 class ChartViewPresenter {
+
+    fun calculateHorizontalLines(
+        data: DrawableHistoricData,
+        viewHeight: Int
+    ): List<Pair<String, Float>> {
+        val minValue = data.data.minBy { it.value }?.value
+        val maxValue = data.data.maxBy { it.value }?.value
+        return when (maxValue == null || minValue == null) {
+            true -> emptyList()
+            false -> {
+                val numberOfLines = 10
+                val valueSteps = (maxValue - minValue) / numberOfLines
+                val verticalDistance = viewHeight.toFloat() / numberOfLines
+                (0..numberOfLines).map {
+                    val y = (numberOfLines - it) * verticalDistance
+                    val label = (it * valueSteps + minValue).round().toString()
+                    label to y
+                }
+
+            }
+        }
+    }
 
     fun calculateLabels(data: DrawableHistoricData, viewWidth: Int): List<Pair<LocalDate, Float>> {
         val distanceYValues = viewWidth.toFloat() / data.size

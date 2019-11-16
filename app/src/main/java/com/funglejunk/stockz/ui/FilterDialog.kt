@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.model.FilterDialogViewModel
+import com.funglejunk.stockz.round
 import com.funglejunk.stockz.withSafeContext
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.slider.Slider
@@ -104,8 +105,6 @@ class FilterDialog : BottomSheetDialogFragment() {
         publisher = publisher_dropdown.textOrIfEmpty { UiEtfQuery.PUBLISHER_EMPTY },
         benchmark = benchmark_dropdown.textOrIfEmpty { UiEtfQuery.BENCHMARK_EMPTY }
     )
-
-    private fun Float.round() = round(this * 100) / 100
 
     private fun TextInputEditText.textOrIfEmpty(f: () -> String) =
         when (text?.toString().isNullOrEmpty()) {
