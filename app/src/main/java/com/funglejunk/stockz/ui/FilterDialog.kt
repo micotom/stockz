@@ -107,13 +107,13 @@ class FilterDialog : BottomSheetDialogFragment() {
     )
 
     private fun TextInputEditText.textOrIfEmpty(f: () -> String) =
-        when (text?.toString().isNullOrEmpty()) {
+        when (text?.toString().isNullOrEmpty() || text?.toString() == UiEtfQuery.ALL_PLACEHOLDER) {
             true -> f()
             else -> text.toString()
         }
 
     private fun AutoCompleteTextView.textOrIfEmpty(f: () -> String) =
-        when (text.toString().isEmpty()) {
+        when (text.toString().isEmpty() || text?.toString() == UiEtfQuery.ALL_PLACEHOLDER) {
             true -> f()
             else -> text.toString()
         }

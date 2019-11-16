@@ -43,10 +43,10 @@ class FilterDialogViewModel(
                 val replicationMethods = etfs.map { it.replicationMethod }.toSet()
                     .sortedBy { it.toUpperCase() }
                 FilteredUiParams(
-                    publishers = publishers,
-                    benchmarks = benchmarks,
-                    profitUses = profitUses,
-                    replicationMethods = replicationMethods
+                    publishers = publishers.prepend(UiEtfQuery.ALL_PLACEHOLDER),
+                    benchmarks = benchmarks.prepend(UiEtfQuery.ALL_PLACEHOLDER),
+                    profitUses = profitUses.prepend(UiEtfQuery.ALL_PLACEHOLDER),
+                    replicationMethods = replicationMethods.prepend(UiEtfQuery.ALL_PLACEHOLDER)
                 )
             }
             .subscribeOn(Schedulers.io())
@@ -105,5 +105,22 @@ class FilterDialogViewModel(
         val profitUses: Collection<String>,
         val replicationMethods: Collection<String>
     )
+
+    private operator fun <T> List<T>.plus(other: T) =
+        mutableListOf<T>().apply {
+            addAll(this)
+            add(other)
+        }
+
+    private operator fun <T> T.plus(collection: Collection<T>) =
+        mutableListOf<T>().apply {
+            add(this@plus)
+            addAll(collection)
+        }
+
+    private fun <T> List<T>.prepend(element: T) = mutableListOf<T>().apply {
+        add(element)
+        addAll(this@prepend)
+    }
 
 }

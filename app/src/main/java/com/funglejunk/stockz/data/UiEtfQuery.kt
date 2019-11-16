@@ -17,6 +17,8 @@ data class UiEtfQuery(
 
         private const val STRING_EMPTY = ""
 
+        const val ALL_PLACEHOLDER = "- All -"
+
         const val TER_MAX = 1.0f
         const val NAME_EMPTY = STRING_EMPTY
         const val PROFIT_USE_EMPTY = STRING_EMPTY
