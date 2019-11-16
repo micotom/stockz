@@ -40,4 +40,20 @@ class FBoerseRepoImpl : FBoerseRepo {
             }
         }
     }
+
+    /*
+    All endpoints reverse engineered
+    https://api.boerse-frankfurt.de/data/bid_ask_overview?isin=IE00BKX55T58&mic=XETR
+    https://api.boerse-frankfurt.de/data/price_information?isin=DE0008469008&mic=XETR
+    https://api.boerse-frankfurt.de/data/quote_box?isin=IE00BKX55T58&mic=XETR *
+    https://api.boerse-frankfurt.de/data/xetra_trading_parameter?isin=IE00BKX55T58
+    https://api.boerse-frankfurt.de/data/performance?isin=IE00BKX55T58&mic=XETR *
+    https://api.boerse-frankfurt.de/data/etp_master_data?isin=IE00BKX55T58
+    https://api.boerse-frankfurt.de/data/asset_under_management?isin=IE00BKX55T58
+    https://api.boerse-frankfurt.de/data/investment_focus?isin=IE00BKX55T58
+    https://api.boerse-frankfurt.de/data/fees_etp?isin=IE00BKX55T58
+    https://api.boerse-frankfurt.de/data/benchmark?isin=IE00BKX55T58
+    https://api.boerse-frankfurt.de/data/data_sheet_header?isin=IE00BKX55T58
+    https://api.boerse-frankfurt.de/data/instrument_information?slug=ishares-msci-em-latin-america-ucits-etf-usd-dist&instrumentType=ETP
+     */
 }

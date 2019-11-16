@@ -8,13 +8,13 @@ import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDb
+import com.funglejunk.stockz.repo.db.XetraDbInterface
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-class EtfListViewModel(dbInflater: XetraMasterDataInflater) : ViewModel() {
+class EtfListViewModel(dbInflater: XetraMasterDataInflater, val db: XetraDbInterface) : ViewModel() {
 
-    private val db = XetraDb.get()
     private val disposables: CompositeDisposable = CompositeDisposable()
     private val queryInteractor = UiQueryDbInteractor()
 

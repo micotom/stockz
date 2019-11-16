@@ -5,6 +5,7 @@ import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.repo.db.XetraDb
 import com.funglejunk.stockz.repo.db.XetraDbEtf
+import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.db.XetraEtfFlattenedDao
 import io.reactivex.Single
 
@@ -54,7 +55,7 @@ class UiQueryDbInteractor {
         }
     }
 
-    fun executeSqlString(query: String, db: XetraDb): Single<List<Etf>> {
+    fun executeSqlString(query: String, db: XetraDbInterface): Single<List<Etf>> {
         return if (query.isEmpty()) {
             db.etfFlattenedDao().getAll()
         } else {

@@ -28,7 +28,7 @@ import kotlin.concurrent.withLock
     ],
     version = 4
 )
-abstract class XetraDb : RoomDatabase() {
+abstract class XetraDb : RoomDatabase(), XetraDbInterface {
 
     companion object {
 
@@ -55,15 +55,15 @@ abstract class XetraDb : RoomDatabase() {
         }
     }
 
-    abstract fun perfDao(): XetraPerformanceEntryDao
+    abstract override fun perfDao(): XetraPerformanceEntryDao
 
-    abstract fun etfDao(): XetraEtfInfoDao
+    abstract override fun etfDao(): XetraEtfInfoDao
 
-    abstract fun publisherDao(): XetraEtfPublisherDao
+    abstract override fun publisherDao(): XetraEtfPublisherDao
 
-    abstract fun benchmarkDao(): XetraEtfBenchmarkDao
+    abstract override fun benchmarkDao(): XetraEtfBenchmarkDao
 
-    abstract fun etfFlattenedDao(): XetraEtfFlattenedDao
+    abstract override fun etfFlattenedDao(): XetraEtfFlattenedDao
 }
 
 @Entity(

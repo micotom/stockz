@@ -2,16 +2,13 @@ package com.funglejunk.stockz.model
 
 import android.content.Context
 import com.funglejunk.stockz.data.Etf
-import com.funglejunk.stockz.repo.db.XetraDb
-import com.funglejunk.stockz.repo.db.XetraDbEtf
-import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
-import com.funglejunk.stockz.repo.db.XetraEtfPublisher
+import com.funglejunk.stockz.repo.db.*
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import timber.log.Timber
 
-class XetraMasterDataInflater(private val context: Context, private val db: XetraDb) {
+class XetraMasterDataInflater(private val context: Context, private val db: XetraDbInterface) {
 
     private companion object {
         const val NAME_INDEX = 1
