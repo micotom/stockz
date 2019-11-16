@@ -3,7 +3,8 @@ package com.funglejunk.stockz.ui.view
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.round
 import com.funglejunk.stockz.toFboerseString
-import timber.log.Timber
+import com.funglejunk.stockz.toMonthDayString
+import com.funglejunk.stockz.toYearString
 import java.time.LocalDate
 
 class ChartViewPresenter {
@@ -58,7 +59,7 @@ class ChartViewPresenter {
             currentYear = dataYear
             isNewYear
         }.map { (date, value) ->
-            date.toFboerseString() to value
+            date.toYearString() to value
         }
     }
 
@@ -70,7 +71,8 @@ class ChartViewPresenter {
             currentMonth = dateMonth
             isNewMonth
         }.map { (date, value) ->
-            date.toFboerseString() to value
+            date.toMonthDayString() to value
         }
     }
+
 }

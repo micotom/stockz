@@ -3,10 +3,7 @@ package com.funglejunk.stockz.ui.view
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.DashPathEffect
-import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
@@ -23,23 +20,33 @@ class ChartView : View {
 
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
+
+    constructor(
+        context: Context?,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(
         context,
         attrs,
         defStyleAttr,
         defStyleRes
     )
 
-    private val yPaint = Paint().apply {
+    private val chartPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.primaryColor)
         isAntiAlias = true
         style = Paint.Style.STROKE
         strokeWidth = resources.displayMetrics.density * 2
     }
 
-    private val xPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.cardBorderColor)
+    private val horizontalLabelLinePaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.primaryLightColor)
         style = Paint.Style.FILL
         pathEffect = DashPathEffect(floatArrayOf(10f, 20f), 0f)
     }
@@ -48,6 +55,16 @@ class ChartView : View {
         color = ContextCompat.getColor(context, R.color.primaryLightColor)
         style = Paint.Style.FILL
         textSize = resources.displayMetrics.density * 8
+    }
+
+    private val verticalPrimaryLinePaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.cardBorderColor)
+        style = Paint.Style.FILL
+    }
+
+    private val verticalSecondaryLinePaint = Paint().apply {
+        color = ContextCompat.getColor(context, R.color.cardBorderColor)
+        style = Paint.Style.FILL
     }
 
     private var path = Path()
@@ -94,6 +111,7 @@ class ChartView : View {
                         drawLabels = true
                         invalidate()
                     }
+
                     override fun onAnimationRepeat(animation: Animator?) = Unit
                     override fun onAnimationCancel(animation: Animator?) = Unit
                     override fun onAnimationStart(animation: Animator?) = Unit
@@ -105,7 +123,7 @@ class ChartView : View {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawPath(path, yPaint)
+        canvas.drawPath(path, chartPaint)
 
         if (drawLabels) {
             drawLabels = false
@@ -116,36 +134,50 @@ class ChartView : View {
                         label, 0f, value + (textLabelPaint.textSize / 2.5f), textLabelPaint
                     )
                 }
-                canvas.drawLine(
-                    HORIZONTAL_LABEL_OFFSET, height - value, width.toFloat(), height - value, xPaint
-                )
-            }
-
-            /*
-            val yearMarkers = presenter.getYearMarkers(labels)
-            val monthMarkers = presenter.getMonthMarkers(labels)
-
-            val markersToDraw = when (monthMarkers.size <= 6) {
-                true -> monthMarkers
-                false -> yearMarkers
-            }
-
-            val twoDp = resources.displayMetrics.density * 2
-
-            markersToDraw.forEachIndexed { index, (dateStr, x) ->
-                val textHeight = when (index % 2 == 0) {
-                    true -> xPaint.textSize + twoDp
-                    false -> height.toFloat() - twoDp
+                if (index != horizontalLines.size - 1) {
+                    canvas.drawLine(
+                        HORIZONTAL_LABEL_OFFSET, height - value, width.toFloat(), height - value, horizontalLabelLinePaint
+                    )
                 }
+            }
+
+            val textBound = Rect()
+
+            presenter.getYearMarkers(labels).forEach { (label, x) ->
+                textLabelPaint.getTextBounds(label, 0, label.length, textBound)
+                val xOffset = textBound.width() / 2f
                 canvas.drawText(
-                    dateStr, x, textHeight, xPaint
+                    label, x - xOffset, 0f + textLabelPaint.textSize, textLabelPaint
                 )
-                when (index % 2 == 0) {
-                    true -> canvas.drawLine(x, textHeight + twoDp, x, height.toFloat(), xPaint)
-                    false -> canvas.drawLine(x, 0.0f, x, height.toFloat() - (textHeight + twoDp), xPaint)
+                canvas.drawLine(
+                    x, textLabelPaint.textSize * 2, x, height.toFloat() - textLabelPaint.textSize, verticalPrimaryLinePaint
+                )
+                canvas.drawCircle(
+                    x, textLabelPaint.textSize * 2, 4f, textLabelPaint
+                )
+            }
+
+            presenter.getMonthMarkers(labels).filterIndexed { index, _ ->
+                index % 3 == 0
+            }.forEach { (label, x) ->
+                if (x > HORIZONTAL_LABEL_OFFSET) {
+                    textLabelPaint.getTextBounds(label, 0, label.length, textBound)
+                    val xOffset = textBound.width() / 2f
+                    canvas.drawText(
+                        label, x - xOffset, height.toFloat(), textLabelPaint
+                    )
+                    canvas.drawLine(
+                        x,
+                        textLabelPaint.textSize,
+                        x,
+                        height.toFloat() - (textLabelPaint.textSize * 2),
+                        verticalSecondaryLinePaint
+                    )
+                    canvas.drawCircle(
+                        x, height.toFloat() - (textLabelPaint.textSize * 2), 4f, textLabelPaint
+                    )
                 }
             }
-             */
         }
     }
 

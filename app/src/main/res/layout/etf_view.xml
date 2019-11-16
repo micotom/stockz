@@ -7,7 +7,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginTop="36dp">
+        android:layout_marginTop="36dp"
+        android:background="?android:selectableItemBackground">
 
     <androidx.constraintlayout.widget.Guideline
             android:id="@+id/center_vertical_guideline"

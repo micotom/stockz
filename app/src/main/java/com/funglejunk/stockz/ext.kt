@@ -11,7 +11,15 @@ import java.time.format.DateTimeFormatter
 
 private val localDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
+private val monthDayDateFormatter = DateTimeFormatter.ofPattern("MM-dd")
+
+private val yearDateFormatter = DateTimeFormatter.ofPattern("yyyy")
+
 fun LocalDate.toFboerseString() = format(localDateFormatter)
+
+fun LocalDate.toMonthDayString() = format(monthDayDateFormatter)
+
+fun LocalDate.toYearString() = format(yearDateFormatter)
 
 fun String.toLocalDate() = LocalDate.parse(this, localDateFormatter)
 
