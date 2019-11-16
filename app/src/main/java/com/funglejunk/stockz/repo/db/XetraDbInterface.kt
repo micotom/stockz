@@ -11,5 +11,4 @@ interface XetraDbInterface {
     fun benchmarkDao(): XetraEtfBenchmarkDao
 
     fun etfFlattenedDao(): XetraEtfFlattenedDao
-
 }

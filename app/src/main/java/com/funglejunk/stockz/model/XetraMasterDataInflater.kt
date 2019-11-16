@@ -2,7 +2,10 @@ package com.funglejunk.stockz.model
 
 import android.content.Context
 import com.funglejunk.stockz.data.Etf
-import com.funglejunk.stockz.repo.db.*
+import com.funglejunk.stockz.repo.db.XetraDbEtf
+import com.funglejunk.stockz.repo.db.XetraDbInterface
+import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
+import com.funglejunk.stockz.repo.db.XetraEtfPublisher
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single

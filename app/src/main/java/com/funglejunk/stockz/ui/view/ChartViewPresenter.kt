@@ -2,7 +2,6 @@ package com.funglejunk.stockz.ui.view
 
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.round
-import com.funglejunk.stockz.toFboerseString
 import com.funglejunk.stockz.toMonthDayString
 import com.funglejunk.stockz.toYearString
 import java.time.LocalDate
@@ -26,7 +25,6 @@ class ChartViewPresenter {
                     val label = (it * valueSteps + minValue).round().toString()
                     label to y
                 }
-
             }
         }
     }
@@ -74,5 +72,4 @@ class ChartViewPresenter {
             date.toMonthDayString() to value
         }
     }
-
 }

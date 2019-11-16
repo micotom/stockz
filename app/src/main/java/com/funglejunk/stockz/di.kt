@@ -5,7 +5,6 @@ import com.funglejunk.stockz.model.EtfListViewModel
 import com.funglejunk.stockz.model.FilterDialogViewModel
 import com.funglejunk.stockz.model.XetraMasterDataInflater
 import com.funglejunk.stockz.repo.db.XetraDb
-import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepoImpl
 import com.funglejunk.stockz.util.AndroidRuntimeSchedulers

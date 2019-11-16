@@ -12,8 +12,11 @@ import com.funglejunk.stockz.util.RxSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 
-class EtfListViewModel(dbInflater: XetraMasterDataInflater, val db: XetraDbInterface,
-                       val schedulers: RxSchedulers) : ViewModel() {
+class EtfListViewModel(
+    dbInflater: XetraMasterDataInflater,
+    val db: XetraDbInterface,
+    val schedulers: RxSchedulers
+) : ViewModel() {
 
     private val disposables: CompositeDisposable = CompositeDisposable()
     private val queryInteractor = UiQueryDbInteractor()

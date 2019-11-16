@@ -6,11 +6,9 @@ import androidx.lifecycle.ViewModel
 import com.funglejunk.stockz.addTo
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
-import com.funglejunk.stockz.repo.db.XetraDb
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.util.RxSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 class FilterDialogViewModel(
@@ -122,5 +120,4 @@ class FilterDialogViewModel(
         add(element)
         addAll(this@prepend)
     }
-
 }

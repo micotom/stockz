@@ -1,6 +1,5 @@
 package com.funglejunk.stockz.model
 
-import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,7 +14,6 @@ import com.funglejunk.stockz.util.RxSchedulers
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import timber.log.Timber
 
