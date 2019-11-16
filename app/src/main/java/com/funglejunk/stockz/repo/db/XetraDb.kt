@@ -47,33 +47,6 @@ abstract class XetraDb : RoomDatabase(), XetraDbInterface {
             }
     }
 
-    /*
-    companion object {
-
-        private val lock = ReentrantLock()
-        private var db: XetraDb? = null
-
-        fun init(context: Context) {
-            return lock.withLock {
-                if (db == null) {
-                    db = Room.databaseBuilder(
-                        context,
-                        XetraDb::class.java, "xetra-db"
-                    ).build()
-                }
-            }
-        }
-
-        fun get() = lock.withLock {
-            db?.let {
-                it
-            } ?: {
-                throw RuntimeException("Database not initialized")
-            }()
-        }
-    }
-     */
-
     abstract override fun perfDao(): XetraPerformanceEntryDao
 
     abstract override fun etfDao(): XetraEtfInfoDao
