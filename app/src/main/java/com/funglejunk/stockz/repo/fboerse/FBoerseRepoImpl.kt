@@ -1,10 +1,11 @@
 package com.funglejunk.stockz.repo.fboerse
 
-import arrow.core.Try
+import arrow.core.Either
 import com.funglejunk.stockz.data.fboerse.FBoerseData
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.rx.rxResponseString
 import io.reactivex.Single
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
@@ -22,7 +23,8 @@ class FBoerseRepoImpl : FBoerseRepo {
         val MIC_PARAM = "mic" to "XETR"
     }
 
-    override fun getHistory(isin: String, minDate: LocalDate, maxDate: LocalDate): Single<Try<FBoerseData>> {
+    override fun getHistory(isin: String, minDate: LocalDate, maxDate: LocalDate):
+            Single<Either<Throwable, FBoerseData>> {
         return BASE_URL.httpGet(
             listOf(
                 OFFSET_PARAM,
@@ -32,13 +34,18 @@ class FBoerseRepoImpl : FBoerseRepo {
                 MIN_DATE_ID to minDate,
                 MAX_DATE_ID to maxDate
             )
-        ).rxResponseString().map {
-            Try.invoke {
-                Json.nonstrict.parse(FBoerseData.serializer(), it)
-            }.map {
-                it.copy(content = it.content.sortedBy { it.date })
+        ).rxResponseString().map { response ->
+            runBlocking {
+                parseFBoerseDataString(response)
+                    .map { data ->
+                        data.copy(content = data.content.sortedBy { it.date })
+                    }
             }
         }
+    }
+
+    private suspend fun parseFBoerseDataString(content: String) = Either.catch {
+        Json.nonstrict.parse(FBoerseData.serializer(), content)
     }
 
     /*
