@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath 'com.android.tools.build:gradle:3.5.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_version"
@@ -15,7 +15,7 @@ buildscript {
 
 ext {
     fuel_version = '2.2.1'
-    arrow_version = '0.10.1'
+    arrow_version = '0.10.3'
     koin_version = '2.0.1'
     room_version = '2.2.1'
 }
