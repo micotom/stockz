@@ -4,8 +4,11 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import arrow.core.Either
+import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.BiFunction
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -31,3 +34,17 @@ fun Disposable.addTo(compositeDisposable: CompositeDisposable) =
     compositeDisposable.add(this)
 
 fun Float.round() = kotlin.math.round(this * 100) / 100
+
+fun Double.round() = kotlin.math.round(this * 100) / 100
+
+fun <T, V> Single<T>.zipToPairWith(other: Single<V>) =
+    zipWith(other, BiFunction<T, V, Pair<T, V>> { t, v ->
+        t to v
+    })
+
+fun <T, E: Either<Throwable, T>> Single<E>.flatten() = flatMap {
+    it.fold(
+        { e -> Single.error<T>(e) },
+        { Single.just(it) }
+    )
+}

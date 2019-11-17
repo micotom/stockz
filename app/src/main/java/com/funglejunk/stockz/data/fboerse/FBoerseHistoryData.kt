@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FBoerseData(
+data class FBoerseHistoryData(
     val isin: String,
     @SerialName("data")
     val content: List<Data>,

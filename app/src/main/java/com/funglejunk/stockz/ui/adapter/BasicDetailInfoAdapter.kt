@@ -9,7 +9,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
 
-class BasicDetailInfoAdapter(private val data: List<Pair<String, String>>) : RecyclerView.Adapter<BasicDetailInfoAdapter.Holder>() {
+class BasicDetailInfoAdapter(private val data: MutableList<Pair<String, String>>) :
+    RecyclerView.Adapter<BasicDetailInfoAdapter.Holder>() {
 
     companion object {
         const val ANIM_DURATION = 500L
@@ -42,6 +43,11 @@ class BasicDetailInfoAdapter(private val data: List<Pair<String, String>>) : Rec
         })
 
         super.onAttachedToRecyclerView(recyclerView)
+    }
+
+    fun addItems(items: List<Pair<String, String>>) {
+        data.addAll(items)
+        notifyDataSetChanged()
     }
 
     private fun setAnimation(itemView: View, itemPosition: Int) {

@@ -3,13 +3,13 @@ package com.funglejunk.stockz.model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.funglejunk.stockz.*
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.Etf
-import com.funglejunk.stockz.data.fboerse.FBoerseData
-import com.funglejunk.stockz.mutable
+import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.data.fboerse.FBoersePerfData
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
-import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.RxSchedulers
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -25,7 +25,8 @@ class EtfDetailViewModel(
     sealed class ViewState {
         object Loading : ViewState()
         data class Error(val error: Throwable) : ViewState()
-        data class NewChartData(val drawableHistoricValues: DrawableHistoricData) : ViewState()
+        data class NewChartData(val drawableHistoricValues: DrawableHistoricData,
+                                val performanceData: FBoersePerfData) : ViewState()
     }
 
     val viewStateData: LiveData<ViewState> = MutableLiveData()
@@ -48,19 +49,18 @@ class EtfDetailViewModel(
         toDate: LocalDate = LocalDate.now()
     ) {
         viewStateData.mutable().postValue(ViewState.Loading)
-        fBoerseRepo.getHistory(isin, fromDate, toDate).flatMap {
-            it.fold(
-                { e -> Single.error<FBoerseData>(e) },
-                { Single.just(it) }
-            )
-        }.map {
+        fBoerseRepo.getHistory(isin, fromDate, toDate).flatten().map {
             it.content.map { dayData ->
                 ChartValue(dayData.date.toLocalDate(), dayData.close.toFloat())
             }
         }.map {
             DrawableHistoricData(it)
-        }.subscribeOn(schedulers.ioScheduler).subscribe(
-            { drawableDate -> viewStateData.mutable().postValue(ViewState.NewChartData(drawableDate)) },
+        }.zipToPairWith(
+            fBoerseRepo.getHistoryPerfData(isin).flatten()
+        ).subscribeOn(schedulers.ioScheduler).subscribe(
+            { (drawableData, perfData) ->
+                viewStateData.mutable().postValue(ViewState.NewChartData(drawableData, perfData))
+            },
             { e ->
                 Timber.e(e)
                 viewStateData.mutable().postValue(ViewState.Error(e))
@@ -73,6 +73,4 @@ class EtfDetailViewModel(
         super.onCleared()
     }
 
-    private fun Disposable.addTo(compositeDisposable: CompositeDisposable) =
-        compositeDisposable.add(this)
 }
