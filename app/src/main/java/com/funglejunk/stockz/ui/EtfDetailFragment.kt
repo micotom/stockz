@@ -76,17 +76,17 @@ class EtfDetailFragment : Fragment() {
     // TODO inflate strings from resources
     private fun showBasicData(etf: Etf) {
         stock_name.text = etf.name
+        publisher_name.text = etf.publisherName
+        isin.text = etf.isin
         val leftData = listOf(
-            "Isin" to etf.isin,
             "Symbol" to etf.symbol,
-            "Publisher" to etf.publisherName,
             "Benchmark" to etf.benchmarkName,
+            "Replication" to etf.replicationMethod,
             "Listing Date" to etf.listingDate
         )
         val rightData = listOf(
             "TER" to "${etf.ter} %",
             "Profit Use" to etf.profitUse,
-            "Replication" to etf.replicationMethod,
             "Fund Currency" to etf.fundCurrency,
             "Trading Currency" to etf.tradingCurrency
         )
