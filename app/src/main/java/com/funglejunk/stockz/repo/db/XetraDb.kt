@@ -119,6 +119,13 @@ interface XetraEtfFlattenedDao {
                 "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid"
     )
     suspend fun getAll(): List<Etf>
+
+    @Query(
+        MAPPING_SELECT +
+                "LEFT JOIN xetraetfpublisher ON xetradbetf.publ_id = xetraetfpublisher.rowid " +
+                "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid"
+    )
+    fun getAllDeprecated(): Single<List<Etf>>
 }
 
 @Dao

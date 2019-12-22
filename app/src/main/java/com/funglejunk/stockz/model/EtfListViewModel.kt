@@ -50,7 +50,7 @@ class EtfListViewModel(
                         db.etfFlattenedDao().getAll()
                     }.bind()
                     continueOn(main)
-                    etfData.mutable().value = etfs
+                    etfData.mutable().postValue(etfs)
                 }
             )
         }.unsafeRunSync()

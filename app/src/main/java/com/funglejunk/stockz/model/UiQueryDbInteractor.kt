@@ -56,7 +56,7 @@ class UiQueryDbInteractor {
 
     fun executeSqlString(query: String, db: XetraDbInterface): Single<List<Etf>> {
         return if (query.isEmpty()) {
-            db.etfFlattenedDao().getAll()
+            db.etfFlattenedDao().getAllDeprecated()
         } else {
             db.etfFlattenedDao().search(SimpleSQLiteQuery(query))
         }
