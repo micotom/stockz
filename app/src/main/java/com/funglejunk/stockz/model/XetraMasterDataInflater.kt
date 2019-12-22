@@ -1,15 +1,19 @@
 package com.funglejunk.stockz.model
 
 import android.content.Context
+import arrow.core.Either
+import arrow.fx.IO
+import arrow.fx.extensions.fx
+import arrow.fx.extensions.io.applicativeError.handleErrorWith
+import arrow.fx.extensions.io.dispatchers.dispatchers
 import com.funglejunk.stockz.data.Etf
+import com.funglejunk.stockz.not
 import com.funglejunk.stockz.repo.db.XetraDbEtf
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.repo.db.XetraEtfPublisher
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
-import timber.log.Timber
+
+typealias ReadFromDiskResult = Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>
 
 class XetraMasterDataInflater(private val context: Context, private val db: XetraDbInterface) {
 
@@ -27,62 +31,45 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         const val BENCH_INDEX = 21
     }
 
-    fun init(): Completable {
-        return isInflated().flatMapCompletable { isInflated ->
-            when (isInflated) {
-                true -> Completable.complete()
-                false -> readFromDisk().flatMapCompletable { (etfs, publishers, benchmarks) ->
-                    inflateBenchmarks(benchmarks)
-                        .doOnEvent { insertCount, _ ->
-                            Timber.w("insert count for benchmarks: ${insertCount.size} vs. ${benchmarks.size}")
-                        }
-                        .flatMap {
-                            inflatePublishers(publishers)
-                        }
-                        .doOnEvent { insertCount, _ ->
-                            Timber.w("insert count for publishers: ${insertCount.size} vs. ${publishers.size}")
-                        }
-                        .flatMap {
-                            inflateEtfs(etfs)
-                        }
-                        .doOnEvent { insertCount, _ ->
-                            Timber.w("insert count for etfs: ${insertCount.size} vs. ${etfs.size}")
-                        }
-                        .flatMapCompletable {
-                            Completable.complete()
-                        }
-                }
-            }
+    class DbInflateException(t: Throwable) : Throwable("Error inflating: ${t.localizedMessage}")
+
+    fun init(): IO<Either<DbInflateException, Unit>> = IO.fx {
+        val needToInflate = not(isInflated()).bind()
+        if (needToInflate) {
+            val diskResult = effect {
+                readFromDisk()
+            }.bind()
+            val (etfs, publishers, benchmarks) = diskResult
+            inflateBenchmarks(benchmarks)
+                .followedBy(
+                    inflatePublishers(publishers)
+                )
+                .followedBy(
+                    inflateEtfs(etfs)
+                )
+                .followedBy(
+                    IO.just(Either.Right(Unit))
+                ).bind()
+        } else {
+            Either.right(Unit)
         }
-    }
+    }.handleErrorWith { t -> IO.just(Either.left(DbInflateException(t))) }
 
-    private fun isInflated(): Single<Boolean> {
-        val etfDao = db.etfDao()
-        return etfDao.getEntryCount().map { it > 0 }
-    }
+    private fun isInflated(): IO<Boolean> = IO { db.etfDao().getEntryCount() > 0 }
 
-    private fun readFromDisk(): Single<Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>> {
-        return Single.fromCallable {
-            context.assets.open("xetra_etf_datasheet.csv").bufferedReader().use {
-                it.readText()
-            }
-        }.map { fileContent ->
-            fileContent.split("\n")
-        }.flatMap { lines ->
-            parseLines(lines)
+    private fun readFromDisk(): ReadFromDiskResult {
+        val inputStream = context.assets.open("xetra_etf_datasheet.csv")
+        val fileContent = inputStream.bufferedReader().use {
+            it.readText()
         }
+        val lines = fileContent.split("\n")
+        return parseLines(lines)
     }
 
-    private fun parseLines(lines: List<String>):
-            Single<Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>> {
-        val publishers = mutableSetOf<XetraEtfPublisher>()
-        val benchmarks = mutableSetOf<XetraEtfBenchmark>()
-        val etfs = mutableListOf<Etf>()
-        return Observable.fromIterable(lines).filter {
-            it.isNotEmpty()
-        }.map { line ->
-            line.split(";")
-        }.map { columns ->
+    private fun parseLines(lines: List<String>): ReadFromDiskResult {
+        val cleanLines = lines.filter { it.isNotEmpty() }
+        val rowsAndColumns = cleanLines.map { it.split(";") }
+        val entries = rowsAndColumns.map { columns ->
             val publisher = XetraEtfPublisher(name = columns[PUBLISHER_INDEX])
             val benchmark = XetraEtfBenchmark(name = columns[BENCH_INDEX])
             val etf = Etf(
@@ -99,65 +86,44 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
                 benchmarkName = benchmark.name
             )
             Triple(etf, publisher, benchmark)
-        }.toList().flatMap { allContent ->
-            Observable.fromIterable(allContent)
-                .doOnNext { (etf, publisher, benchmark) ->
-                    etfs.add(etf)
-                    publishers.add(publisher)
-                    benchmarks.add(benchmark)
-                }
-                .toList()
-                .map { _ ->
-                    Triple(etfs, publishers, benchmarks)
-                }
         }
+        val etfs = entries.map { it.first }
+        val publishers = entries.map { it.second }.toSet()
+        val benchmarks = entries.map { it.third }.toSet()
+        return Triple(etfs, publishers, benchmarks)
     }
 
-    private fun inflatePublishers(publishers: Collection<XetraEtfPublisher>): Single<Array<Long>> {
-        return Single.fromCallable {
+    private fun inflatePublishers(publishers: Collection<XetraEtfPublisher>): IO<Array<Long>> =
+        IO {
             db.publisherDao().insert(*(publishers.toTypedArray()))
         }
-    }
 
-    private fun inflateBenchmarks(benchmarks: Collection<XetraEtfBenchmark>): Single<Array<Long>> {
-        return Single.fromCallable {
+    private fun inflateBenchmarks(benchmarks: Collection<XetraEtfBenchmark>): IO<Array<Long>> =
+        IO {
             db.benchmarkDao().insert(*(benchmarks.toTypedArray()))
         }
-    }
 
-    private fun inflateEtfs(etfs: Collection<Etf>): Single<Array<Long>> {
+    private fun inflateEtfs(etfs: Collection<Etf>): IO<Array<Long>> = IO {
         val benchmarkDao = db.benchmarkDao()
         val publisherDao = db.publisherDao()
-        return Observable.fromIterable(etfs)
-            .flatMap { etf ->
-                benchmarkDao.getBenchmarkByName(etf.benchmarkName).toObservable().map { benchmark ->
-                    etf.publisherName to XetraDbEtf(
-                        name = etf.name,
-                        isin = etf.isin,
-                        publisherId = -1,
-                        symbol = etf.symbol,
-                        listingDate = etf.listingDate,
-                        ter = etf.ter,
-                        profitUse = etf.profitUse,
-                        replicationMethod = etf.replicationMethod,
-                        fundCurrency = etf.fundCurrency,
-                        tradingCurrency = etf.tradingCurrency,
-                        benchmarkId = benchmark.rowid
-                    )
-                }
-            }
-            .flatMap { (publisherName, etf) ->
-                publisherDao.getPublisherByName(publisherName).toObservable()
-                    .map {
-                        etf.copy(publisherId = it.rowid)
-                    }
-            }
-            .toList()
-            .flatMap { finalEtfs ->
-                Single.fromCallable {
-                    db.etfDao().insert(*(finalEtfs.toTypedArray()))
-                }
-            }
+        val dbEtfs = etfs.map { etf ->
+            val etfBenchmark = benchmarkDao.getBenchmarkByName(etf.benchmarkName)
+            val publisher = publisherDao.getPublisherByName(etf.publisherName)
+            XetraDbEtf(
+                name = etf.name,
+                isin = etf.isin,
+                publisherId = publisher.rowid,
+                symbol = etf.symbol,
+                listingDate = etf.listingDate,
+                ter = etf.ter,
+                profitUse = etf.profitUse,
+                replicationMethod = etf.replicationMethod,
+                fundCurrency = etf.fundCurrency,
+                tradingCurrency = etf.tradingCurrency,
+                benchmarkId = etfBenchmark.rowid
+            )
+        }
+        db.etfDao().insert(*(dbEtfs.toTypedArray()))
     }
 
     private fun String.formatPercentage() =

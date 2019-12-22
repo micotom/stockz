@@ -118,17 +118,17 @@ interface XetraEtfFlattenedDao {
                 "LEFT JOIN xetraetfpublisher ON xetradbetf.publ_id = xetraetfpublisher.rowid " +
                 "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid"
     )
-    fun getAll(): Single<List<Etf>>
+    suspend fun getAll(): List<Etf>
 }
 
 @Dao
 interface XetraEtfInfoDao {
 
     @Query("SELECT COUNT(*) FROM xetradbetf")
-    fun getEntryCount(): Single<Int>
+    suspend fun getEntryCount(): Int
 
     @Insert
-    fun insert(vararg publisher: XetraDbEtf): Array<Long>
+    suspend fun insert(vararg publisher: XetraDbEtf): Array<Long>
 }
 
 @Entity
@@ -141,10 +141,10 @@ data class XetraEtfPublisher(
 interface XetraEtfPublisherDao {
 
     @Insert
-    fun insert(vararg publisher: XetraEtfPublisher): Array<Long>
+    suspend fun insert(vararg publisher: XetraEtfPublisher): Array<Long>
 
     @Query("SELECT * from xetraetfpublisher WHERE name LIKE (:name)")
-    fun getPublisherByName(name: String): Single<XetraEtfPublisher>
+    suspend fun getPublisherByName(name: String): XetraEtfPublisher
 
     @Query("SELECT * from xetraetfpublisher WHERE rowid LIKE (:id) LIMIT 1")
     fun getPublisherById(id: Int): Single<XetraEtfPublisher>
@@ -163,10 +163,10 @@ data class XetraEtfBenchmark(
 interface XetraEtfBenchmarkDao {
 
     @Insert
-    fun insert(vararg benchmark: XetraEtfBenchmark): Array<Long>
+    suspend fun insert(vararg benchmark: XetraEtfBenchmark): Array<Long>
 
     @Query("SELECT * from xetraetfbenchmark WHERE name LIKE (:name)")
-    fun getBenchmarkByName(name: String): Single<XetraEtfBenchmark>
+    suspend fun getBenchmarkByName(name: String): XetraEtfBenchmark
 
     @Query("SELECT * from xetraetfbenchmark WHERE rowid LIKE (:id) LIMIT 1")
     fun getBenchmarkById(id: Int): Single<XetraEtfBenchmark>

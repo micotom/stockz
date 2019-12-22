@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import arrow.core.Either
+import arrow.fx.IO
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -48,3 +49,7 @@ fun <T, E: Either<Throwable, T>> Single<E>.flatten() = flatMap {
         { Single.just(it) }
     )
 }
+
+fun not(b: Boolean) = !b
+
+fun not(b: IO<Boolean>) = b.map { !it }

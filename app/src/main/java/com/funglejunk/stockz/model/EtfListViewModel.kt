@@ -3,6 +3,9 @@ package com.funglejunk.stockz.model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import arrow.fx.IO
+import arrow.fx.extensions.fx
+import arrow.fx.extensions.io.dispatchers.dispatchers
 import com.funglejunk.stockz.addTo
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.UiEtfQuery
@@ -19,6 +22,11 @@ class EtfListViewModel(
     val schedulers: RxSchedulers
 ) : ViewModel() {
 
+    companion object {
+        private val background = IO.dispatchers().io()
+        private val main = IO.dispatchers().default()
+    }
+
     private val disposables: CompositeDisposable = CompositeDisposable()
     private val queryInteractor = UiQueryDbInteractor()
 
@@ -29,21 +37,23 @@ class EtfListViewModel(
     }
 
     private fun loadEtfs(dbInflater: XetraMasterDataInflater) {
-        dbInflater.init()
-            .doOnEvent {
-                Timber.d("db inflation complete.")
-            }
-            .toSingleDefault(true)
-            .flatMap {
-                db.etfFlattenedDao().getAll()
-            }
-            .subscribeOn(schedulers.ioScheduler)
-            .subscribe(
-                {
-                    etfData.mutable().postValue(it)
+        IO.fx {
+            continueOn(background)
+            dbInflater.init().bind().fold(
+                { e ->
+                    continueOn(main)
+                    Timber.e("Error inflating db: $e")
                 },
-                { e -> Timber.e(e) }
-            ).addTo(disposables)
+                { _ ->
+                    Timber.d("db inflation complete.")
+                    val etfs = effect {
+                        db.etfFlattenedDao().getAll()
+                    }.bind()
+                    continueOn(main)
+                    etfData.mutable().value = etfs
+                }
+            )
+        }.unsafeRunSync()
     }
 
     fun searchDbFor(query: UiEtfQuery) {
