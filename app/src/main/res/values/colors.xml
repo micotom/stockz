@@ -9,11 +9,7 @@
     <color name="primaryTextColor">#ffffff</color>
     <color name="secondaryTextColor">#000000</color>
 
+    <color name="secondaryColorDimmed">#3380cbc4</color>
+
     <color name="cardBorderColor">#22004d40</color>
 </resources>
-
-<!--
-<resources>
-
-</resources>
--->

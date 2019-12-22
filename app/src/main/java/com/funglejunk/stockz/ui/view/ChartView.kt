@@ -52,7 +52,7 @@ class ChartView : View {
     private val horizontalLabelLinePaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.primaryLightColor)
         style = Paint.Style.FILL
-        pathEffect = DashPathEffect(floatArrayOf(10f, 20f), 0f)
+        pathEffect = DashPathEffect(floatArrayOf(3f, 6f), 50f)
     }
 
     private val textLabelPaint = Paint().apply {
