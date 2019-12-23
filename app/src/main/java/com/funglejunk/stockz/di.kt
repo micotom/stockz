@@ -23,7 +23,7 @@ val repoModule = module {
 
 val vmModule = module {
     viewModel { EtfDetailViewModel(get(), get()) }
-    viewModel { EtfListViewModel(XetraMasterDataInflater(get(), get()), get(), get()) }
+    viewModel { EtfListViewModel(XetraMasterDataInflater(get(), get()), get()) }
     viewModel { FilterDialogViewModel(AndroidRuntimeSchedulers(), get()) }
 }
 

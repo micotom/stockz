@@ -1,6 +1,9 @@
 package com.funglejunk.stockz.model
 
 import androidx.sqlite.db.SimpleSQLiteQuery
+import arrow.core.Either
+import arrow.fx.IO
+import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.repo.db.XetraDbEtf
@@ -54,11 +57,19 @@ class UiQueryDbInteractor {
         }
     }
 
-    fun executeSqlString(query: String, db: XetraDbInterface): Single<List<Etf>> {
-        return if (query.isEmpty()) {
-            db.etfFlattenedDao().getAllDeprecated()
-        } else {
-            db.etfFlattenedDao().search(SimpleSQLiteQuery(query))
+    fun executeSqlString(query: String, db: XetraDbInterface): IO<Either<Throwable, List<Etf>>> =
+        IO.fx {
+            effect {
+                if (query.isEmpty()) {
+                    val result = db.etfFlattenedDao().getAll()
+                    Either.right(result)
+                } else {
+                    val result = db.etfFlattenedDao().search(SimpleSQLiteQuery(query))
+                    Either.right(result)
+                }
+            }.handleErrorWith {
+                IO.just(Either.left(it))
+            }.bind()
         }
-    }
+
 }

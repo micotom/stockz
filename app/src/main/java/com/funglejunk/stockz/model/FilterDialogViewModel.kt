@@ -3,10 +3,13 @@ package com.funglejunk.stockz.model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import arrow.fx.IO
+import arrow.fx.extensions.fx
 import com.funglejunk.stockz.addTo
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDbInterface
+import com.funglejunk.stockz.util.FViewModel
 import com.funglejunk.stockz.util.RxSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
@@ -14,7 +17,7 @@ import timber.log.Timber
 class FilterDialogViewModel(
     private val schedulers: RxSchedulers,
     private val db: XetraDbInterface
-) : ViewModel() {
+) : FViewModel() {
 
     val benchmarkNamesLiveData: LiveData<List<String>> = MutableLiveData()
     val publisherNamesLiveData: LiveData<List<String>> = MutableLiveData()
@@ -30,8 +33,10 @@ class FilterDialogViewModel(
     }
 
     fun onQueryParamsUpdate(temporaryQuery: UiEtfQuery) {
-        queryInteractor.executeSqlString(queryInteractor.buildSqlStringFrom(temporaryQuery), db)
-            .map { etfs ->
+        val action = IO.fx {
+            val sqlQueryString = queryInteractor.buildSqlStringFrom(temporaryQuery)
+            val qResult = queryInteractor.executeSqlString(sqlQueryString, db).bind()
+            qResult.map { etfs ->
                 val publishers = etfs.map { it.publisherName }.toSet()
                     .sortedBy { it.toUpperCase() }
                 val benchmarks = etfs.map { it.benchmarkName }.toSet()
@@ -47,17 +52,18 @@ class FilterDialogViewModel(
                     replicationMethods = replicationMethods.prepend(UiEtfQuery.ALL_PLACEHOLDER)
                 )
             }
-            .subscribeOn(schedulers.ioScheduler)
-            .subscribe(
-                { (publishers, benchmarks, profitUses,
-                      replicationMethods) ->
-                    publisherNamesLiveData.mutable().postValue(publishers.toList())
-                    benchmarkNamesLiveData.mutable().postValue(benchmarks.toList())
-                    profitUseLiveData.mutable().postValue(profitUses.toList())
-                    replicationLiveData.mutable().postValue(replicationMethods.toList())
-                },
-                { e -> Timber.e(e) }
-            ).addTo(disposables)
+        }
+        runIO(
+            action,
+            { e -> Timber.e(e) },
+            { (publishers, benchmarks, profitUses,
+                  replicationMethods) ->
+                publisherNamesLiveData.mutable().postValue(publishers.toList())
+                benchmarkNamesLiveData.mutable().postValue(benchmarks.toList())
+                profitUseLiveData.mutable().postValue(profitUses.toList())
+                replicationLiveData.mutable().postValue(replicationMethods.toList())
+            }
+        )
     }
 
     private fun initBenchmarks() {

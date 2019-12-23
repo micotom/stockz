@@ -93,12 +93,12 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         return Triple(etfs, publishers, benchmarks)
     }
 
-    private fun inflatePublishers(publishers: Collection<XetraEtfPublisher>): IO<Array<Long>> =
+    private fun inflatePublishers(publishers: Collection<XetraEtfPublisher>) =
         IO {
             db.publisherDao().insert(*(publishers.toTypedArray()))
         }
 
-    private fun inflateBenchmarks(benchmarks: Collection<XetraEtfBenchmark>): IO<Array<Long>> =
+    private fun inflateBenchmarks(benchmarks: Collection<XetraEtfBenchmark>) =
         IO {
             db.benchmarkDao().insert(*(benchmarks.toTypedArray()))
         }

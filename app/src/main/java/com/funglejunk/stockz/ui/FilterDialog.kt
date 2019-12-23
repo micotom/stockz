@@ -31,6 +31,7 @@ class FilterDialog : BottomSheetDialogFragment() {
         }
     }
 
+    // TODO unitialized on config change
     private lateinit var queryDataListener: QueryDataListener
 
     private val viewModel: FilterDialogViewModel by viewModel()

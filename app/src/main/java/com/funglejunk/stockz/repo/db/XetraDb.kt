@@ -111,7 +111,7 @@ interface XetraEtfFlattenedDao {
     }
 
     @RawQuery
-    fun search(query: SupportSQLiteQuery): Single<List<Etf>>
+    suspend fun search(query: SupportSQLiteQuery): List<Etf>
 
     @Query(
         MAPPING_SELECT +
