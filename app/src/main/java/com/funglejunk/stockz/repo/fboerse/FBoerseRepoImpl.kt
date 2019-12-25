@@ -3,13 +3,11 @@ package com.funglejunk.stockz.repo.fboerse
 import arrow.core.Either
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
+import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.rx.rxResponseString
-import io.reactivex.Single
-import kotlinx.coroutines.runBlocking
-import java.time.LocalDate
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
+import java.time.LocalDate
 
 @UnstableDefault
 class FBoerseRepoImpl : FBoerseRepo {
@@ -26,8 +24,8 @@ class FBoerseRepoImpl : FBoerseRepo {
         val MIC_PARAM = "mic" to "XETR"
     }
 
-    override fun getHistory(isin: String, minDate: LocalDate, maxDate: LocalDate):
-            Single<Either<Throwable, FBoerseHistoryData>> {
+    override suspend fun getHistory(isin: String, minDate: LocalDate, maxDate: LocalDate):
+            Either<Throwable, FBoerseHistoryData> {
         return (BASE_URL + PRICE_HISTORY_EP).httpGet(
             listOf(
                 OFFSET_PARAM,
@@ -37,53 +35,53 @@ class FBoerseRepoImpl : FBoerseRepo {
                 MIN_DATE_ID to minDate,
                 MAX_DATE_ID to maxDate
             )
-        ).rxResponseString().map { response ->
-            runBlocking {
+        ).awaitStringResponseResult().third.fold(
+            { response ->
                 parseFBoerseDataString(response)
                     .map { data ->
                         data.copy(content = data.content.sortedBy { it.date })
                     }
-            }
-        }
+            },
+            { error -> Either.left(error) }
+        )
     }
 
     private suspend fun parseFBoerseDataString(content: String) = Either.catch {
         Json.nonstrict.parse(FBoerseHistoryData.serializer(), content)
     }
 
-    override fun getHistoryPerfData(isin: String): Single<Either<Throwable, FBoersePerfData>> {
+    override suspend fun getHistoryPerfData(isin: String): Either<Throwable, FBoersePerfData> {
         return (BASE_URL + PERFORMANCE_EP).httpGet(
             listOf(
                 MIC_PARAM,
                 ISIN_PARAM_ID to isin
             )
-        ).rxResponseString().map { response ->
-            runBlocking {
-                parseFBoersePerfString(response)
-            }
-        }
+        ).awaitStringResponseResult().third.fold(
+            { response -> parseFBoersePerfString(response) },
+            { e -> Either.left(e) }
+        )
     }
 
     private suspend fun parseFBoersePerfString(content: String) = Either.catch {
         Json.nonstrict.parse(FBoersePerfData.serializer(), content)
     }
 
-    /*
-    All endpoints reverse engineered
-    https://api.boerse-frankfurt.de/data/bid_ask_overview?isin=IE00BKX55T58&mic=XETR
-    https://api.boerse-frankfurt.de/data/price_information?isin=DE0008469008&mic=XETR
-    https://api.boerse-frankfurt.de/data/quote_box?isin=IE00BKX55T58&mic=XETR *
-    https://api.boerse-frankfurt.de/data/xetra_trading_parameter?isin=IE00BKX55T58
-    https://api.boerse-frankfurt.de/data/performance?isin=IE00BKX55T58&mic=XETR *
-    https://api.boerse-frankfurt.de/data/etp_master_data?isin=IE00BKX55T58
-    https://api.boerse-frankfurt.de/data/asset_under_management?isin=IE00BKX55T58
-    https://api.boerse-frankfurt.de/data/investment_focus?isin=IE00BKX55T58
-    https://api.boerse-frankfurt.de/data/fees_etp?isin=IE00BKX55T58
-    https://api.boerse-frankfurt.de/data/benchmark?isin=IE00BKX55T58
-    https://api.boerse-frankfurt.de/data/data_sheet_header?isin=IE00BKX55T58
-    https://api.boerse-frankfurt.de/data/instrument_information?slug=ishares-msci-em-latin-america-ucits-etf-usd-dist&instrumentType=ETP
-     */
+/*
+All endpoints reverse engineered
+https://api.boerse-frankfurt.de/data/bid_ask_overview?isin=IE00BKX55T58&mic=XETR
+https://api.boerse-frankfurt.de/data/price_information?isin=DE0008469008&mic=XETR
+https://api.boerse-frankfurt.de/data/quote_box?isin=IE00BKX55T58&mic=XETR *
+https://api.boerse-frankfurt.de/data/xetra_trading_parameter?isin=IE00BKX55T58
+https://api.boerse-frankfurt.de/data/performance?isin=IE00BKX55T58&mic=XETR *
+https://api.boerse-frankfurt.de/data/etp_master_data?isin=IE00BKX55T58
+https://api.boerse-frankfurt.de/data/asset_under_management?isin=IE00BKX55T58
+https://api.boerse-frankfurt.de/data/investment_focus?isin=IE00BKX55T58
+https://api.boerse-frankfurt.de/data/fees_etp?isin=IE00BKX55T58
+https://api.boerse-frankfurt.de/data/benchmark?isin=IE00BKX55T58
+https://api.boerse-frankfurt.de/data/data_sheet_header?isin=IE00BKX55T58
+https://api.boerse-frankfurt.de/data/instrument_information?slug=ishares-msci-em-latin-america-ucits-etf-usd-dist&instrumentType=ETP
+ */
 
-    // STOXX Europe 50 Index
+// STOXX Europe 50 Index
 
 }

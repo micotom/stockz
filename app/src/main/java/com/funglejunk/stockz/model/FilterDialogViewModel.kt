@@ -1,30 +1,24 @@
 package com.funglejunk.stockz.model
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import arrow.core.Either
 import arrow.fx.IO
 import arrow.fx.extensions.fx
-import com.funglejunk.stockz.addTo
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.util.FViewModel
-import com.funglejunk.stockz.util.RxSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 
-class FilterDialogViewModel(
-    private val schedulers: RxSchedulers,
-    private val db: XetraDbInterface
-) : FViewModel() {
+class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
 
     val benchmarkNamesLiveData: LiveData<List<String>> = MutableLiveData()
     val publisherNamesLiveData: LiveData<List<String>> = MutableLiveData()
     val profitUseLiveData: LiveData<List<String>> = MutableLiveData()
     val replicationLiveData: LiveData<List<String>> = MutableLiveData()
 
-    private val disposables = CompositeDisposable()
     private val queryInteractor = UiQueryDbInteractor()
 
     init {
@@ -32,6 +26,7 @@ class FilterDialogViewModel(
         initPublishers()
     }
 
+    @SuppressLint("DefaultLocale")
     fun onQueryParamsUpdate(temporaryQuery: UiEtfQuery) {
         val action = IO.fx {
             val sqlQueryString = queryInteractor.buildSqlStringFrom(temporaryQuery)
@@ -66,41 +61,40 @@ class FilterDialogViewModel(
         )
     }
 
+    @SuppressLint("DefaultLocale")
     private fun initBenchmarks() {
-        val dao = db.benchmarkDao()
-        dao.getAll()
-            .map {
-                it.map { benchmark -> benchmark.name }
-            }
-            .map {
-                it.sortedBy { name -> name.toUpperCase() }
-            }
-            .subscribeOn(schedulers.ioScheduler)
-            .subscribe(
-                { benchmarks -> benchmarkNamesLiveData.mutable().postValue(benchmarks) },
-                { e -> Timber.e(e) }
-            ).addTo(disposables)
+        val action = IO.fx {
+            effect {
+                Either.catch {
+                    db.benchmarkDao().getAll().map {
+                        it.name
+                    }.sortedBy { it.toUpperCase() }
+                }
+            }.bind()
+        }
+        runIO(
+            action,
+            { e -> Timber.e(e) },
+            { benchmarks -> benchmarkNamesLiveData.mutable().postValue(benchmarks) }
+        )
     }
 
+    @SuppressLint("DefaultLocale")
     private fun initPublishers() {
-        val dao = db.publisherDao()
-        dao.getAll()
-            .map {
-                it.map { publisher -> publisher.name }
-            }
-            .map {
-                it.sortedBy { name -> name.toUpperCase() }
-            }
-            .subscribeOn(schedulers.ioScheduler)
-            .subscribe(
-                { publishers -> publisherNamesLiveData.mutable().postValue(publishers) },
-                { e -> Timber.e(e) }
-            ).addTo(disposables)
-    }
-
-    override fun onCleared() {
-        disposables.clear()
-        super.onCleared()
+        val action = IO.fx {
+            effect {
+                Either.catch {
+                    db.publisherDao().getAll().map {
+                        it.name
+                    }.sortedBy { it.toUpperCase() }
+                }
+            }.bind()
+        }
+        runIO(
+            action,
+            { e -> Timber.e(e) },
+            { publishers -> publisherNamesLiveData.mutable().postValue(publishers) }
+        )
     }
 
     private data class FilteredUiParams(

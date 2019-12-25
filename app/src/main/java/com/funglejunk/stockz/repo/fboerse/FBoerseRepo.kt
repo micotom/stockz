@@ -7,8 +7,8 @@ import io.reactivex.Single
 import java.time.LocalDate
 
 interface FBoerseRepo {
-    fun getHistory(isin: String, minDate: LocalDate, maxDate: LocalDate):
-            Single<Either<Throwable, FBoerseHistoryData>>
+    suspend fun getHistory(isin: String, minDate: LocalDate, maxDate: LocalDate):
+            Either<Throwable, FBoerseHistoryData>
 
-    fun getHistoryPerfData(isin: String): Single<Either<Throwable, FBoersePerfData>>
+    suspend fun getHistoryPerfData(isin: String): Either<Throwable, FBoersePerfData>
 }

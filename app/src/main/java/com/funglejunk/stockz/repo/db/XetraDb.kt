@@ -157,7 +157,7 @@ interface XetraEtfPublisherDao {
     fun getPublisherById(id: Int): Single<XetraEtfPublisher>
 
     @Query("SELECT * from xetraetfpublisher")
-    fun getAll(): Single<List<XetraEtfPublisher>>
+    suspend fun getAll(): List<XetraEtfPublisher>
 }
 
 @Entity
@@ -179,7 +179,7 @@ interface XetraEtfBenchmarkDao {
     fun getBenchmarkById(id: Int): Single<XetraEtfBenchmark>
 
     @Query("SELECT * from xetraetfbenchmark")
-    fun getAll(): Single<List<XetraEtfBenchmark>>
+    suspend fun getAll(): List<XetraEtfBenchmark>
 }
 
 @Entity(primaryKeys = ["isin", "date"])

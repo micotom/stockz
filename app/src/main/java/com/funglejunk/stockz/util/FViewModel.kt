@@ -7,6 +7,7 @@ import arrow.fx.IO
 import arrow.fx.Promise
 import arrow.fx.extensions.fx
 import arrow.fx.extensions.io.async.async
+import arrow.fx.fix
 import kotlinx.coroutines.Dispatchers
 
 abstract class FViewModel : ViewModel() {
@@ -19,14 +20,19 @@ abstract class FViewModel : ViewModel() {
         onSuccess: (A) -> Unit
     ) = IO.fx {
         continueOn(Dispatchers.IO)
-        when (val result = io.bind()) {
-            is Either.Left -> onFailure(result.a)
-            is Either.Right -> onSuccess(result.b)
-        }
+        io.bind().fold(
+            { e -> onFailure(e) },
+            { result -> onSuccess(result) }
+        )
     }.lifecycleAware().unsafeRunSync()
 
     private fun <A> IO<A>.lifecycleAware() = IO.racePair(
         Dispatchers.IO, this, endPromise.get()
     )
+
+    override fun onCleared() {
+        endPromise.complete(Unit).fix().unsafeRunAsync { }
+        super.onCleared()
+    }
 
 }
