@@ -61,14 +61,14 @@ class UiQueryDbInteractor {
         IO.fx {
             effect {
                 if (query.isEmpty()) {
-                    val result = db.etfFlattenedDao().getAll()
-                    Either.right(result)
+                    Either.catch {
+                        db.etfFlattenedDao().getAll()
+                    }
                 } else {
-                    val result = db.etfFlattenedDao().search(SimpleSQLiteQuery(query))
-                    Either.right(result)
+                    Either.catch {
+                        db.etfFlattenedDao().search(SimpleSQLiteQuery(query))
+                    }
                 }
-            }.handleErrorWith {
-                IO.just(Either.left(it))
             }.bind()
         }
 

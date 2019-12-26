@@ -28,18 +28,14 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
 
     @SuppressLint("DefaultLocale")
     fun onQueryParamsUpdate(temporaryQuery: UiEtfQuery) {
+        val sqlQueryString = queryInteractor.buildSqlStringFrom(temporaryQuery)
         val action = IO.fx {
-            val sqlQueryString = queryInteractor.buildSqlStringFrom(temporaryQuery)
             val qResult = queryInteractor.executeSqlString(sqlQueryString, db).bind()
             qResult.map { etfs ->
-                val publishers = etfs.map { it.publisherName }.toSet()
-                    .sortedBy { it.toUpperCase() }
-                val benchmarks = etfs.map { it.benchmarkName }.toSet()
-                    .sortedBy { it.toUpperCase() }
-                val profitUses = etfs.map { it.profitUse }.toSet()
-                    .sortedBy { it.toUpperCase() }
-                val replicationMethods = etfs.map { it.replicationMethod }.toSet()
-                    .sortedBy { it.toUpperCase() }
+                val publishers = etfs.map { it.publisherName }.toSortedSet()
+                val benchmarks = etfs.map { it.benchmarkName }.toSortedSet()
+                val profitUses = etfs.map { it.profitUse }.toSortedSet()
+                val replicationMethods = etfs.map { it.replicationMethod }.toSortedSet()
                 FilteredUiParams(
                     publishers = publishers.prepend(UiEtfQuery.ALL_PLACEHOLDER),
                     benchmarks = benchmarks.prepend(UiEtfQuery.ALL_PLACEHOLDER),
@@ -116,8 +112,11 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
             addAll(collection)
         }
 
-    private fun <T> List<T>.prepend(element: T) = mutableListOf<T>().apply {
+    private fun <T> Collection<T>.prepend(element: T) = mutableListOf<T>().apply {
         add(element)
         addAll(this@prepend)
     }
+
+    @SuppressLint("DefaultLocale")
+    private fun List<String>.toSortedSet() = sortedBy { it.toUpperCase() }.toSet()
 }
