@@ -14,6 +14,7 @@ import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.FViewModel
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import java.time.LocalDate
 
@@ -49,7 +50,7 @@ class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
         }.unsafeRunSync()
 
         val action = IO.fx {
-            val chartData = effect {
+            val chartDataIO = effect {
                 fBoerseRepo.getHistory(isin, fromDate, toDate).map {
                     it.content.map { dayData ->
                         ChartValue(dayData.date.toLocalDate(), dayData.close.toFloat())
@@ -57,11 +58,17 @@ class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
                 }.map {
                     DrawableHistoricData(it)
                 }
-            }.bind()
-            val historyData = effect {
+            }
+            val historyDataIO = effect {
                 fBoerseRepo.getHistoryPerfData(isin)
+            }
+            IO.parMapN(
+                Dispatchers.IO,
+                chartDataIO,
+                historyDataIO
+            ) { chartData, historyData ->
+                chartData.flattenWith(historyData)
             }.bind()
-            chartData.flattenWith(historyData)
         }
 
         runIO(
