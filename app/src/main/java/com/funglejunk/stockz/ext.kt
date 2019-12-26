@@ -20,8 +20,6 @@ private val monthDayDateFormatter = DateTimeFormatter.ofPattern("MM-dd")
 
 private val yearDateFormatter = DateTimeFormatter.ofPattern("yyyy")
 
-fun LocalDate.toFboerseString() = format(localDateFormatter)
-
 fun LocalDate.toMonthDayString() = format(monthDayDateFormatter)
 
 fun LocalDate.toYearString() = format(yearDateFormatter)
@@ -32,17 +30,9 @@ fun <T> LiveData<T>.mutable() = this as MutableLiveData<T>
 
 fun <T> Fragment.withSafeContext(f: (Context) -> T) = context?.let { f(it) }
 
-fun Disposable.addTo(compositeDisposable: CompositeDisposable) =
-    compositeDisposable.add(this)
-
 fun Float.round() = kotlin.math.round(this * 100) / 100
 
 fun Double.round() = kotlin.math.round(this * 100) / 100
-
-fun <T, V> Single<T>.zipToPairWith(other: Single<V>) =
-    zipWith(other, BiFunction<T, V, Pair<T, V>> { t, v ->
-        t to v
-    })
 
 fun <T, E: Either<Throwable, T>> Single<E>.flatten() = flatMap {
     it.fold(
