@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import arrow.core.Either
 import arrow.fx.IO
+import com.github.kittinunf.fuel.core.ResponseResultOf
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -53,3 +54,8 @@ fun <T, E: Either<Throwable, T>> Single<E>.flatten() = flatMap {
 fun not(b: Boolean) = !b
 
 fun not(b: IO<Boolean>) = b.map { !it }
+
+fun <T: Any> ResponseResultOf<T>.toEither(): Either<Throwable, T> = third.fold(
+    { Either.right(it) },
+    { Either.left(it) }
+)

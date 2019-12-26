@@ -1,10 +1,13 @@
 package com.funglejunk.stockz.repo.fboerse
 
 import arrow.core.Either
+import arrow.core.flatMap
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
+import com.funglejunk.stockz.toEither
 import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.github.kittinunf.fuel.httpGet
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
@@ -35,19 +38,18 @@ class FBoerseRepoImpl : FBoerseRepo {
                 MIN_DATE_ID to minDate,
                 MAX_DATE_ID to maxDate
             )
-        ).awaitStringResponseResult().third.fold(
-            { response ->
-                parseFBoerseDataString(response)
-                    .map { data ->
-                        data.copy(content = data.content.sortedBy { it.date })
-                    }
-            },
-            { error -> Either.left(error) }
-        )
+        ).awaitStringResponseResult().toEither().flatMap { response ->
+            parseFBoerseDataString(response)
+                .map { data ->
+                    data.copy(content = data.content.sortedBy { it.date })
+                }
+        }
     }
 
-    private suspend fun parseFBoerseDataString(content: String) = Either.catch {
-        Json.nonstrict.parse(FBoerseHistoryData.serializer(), content)
+    private fun parseFBoerseDataString(content: String) = runBlocking {
+        Either.catch {
+            Json.nonstrict.parse(FBoerseHistoryData.serializer(), content)
+        }
     }
 
     override suspend fun getHistoryPerfData(isin: String): Either<Throwable, FBoersePerfData> {
@@ -56,14 +58,15 @@ class FBoerseRepoImpl : FBoerseRepo {
                 MIC_PARAM,
                 ISIN_PARAM_ID to isin
             )
-        ).awaitStringResponseResult().third.fold(
-            { response -> parseFBoersePerfString(response) },
-            { e -> Either.left(e) }
-        )
+        ).awaitStringResponseResult().toEither().flatMap { response ->
+            parseFBoersePerfString(response)
+        }
     }
 
-    private suspend fun parseFBoersePerfString(content: String) = Either.catch {
-        Json.nonstrict.parse(FBoersePerfData.serializer(), content)
+    private fun parseFBoersePerfString(content: String) = runBlocking {
+        Either.catch {
+            Json.nonstrict.parse(FBoersePerfData.serializer(), content)
+        }
     }
 
 /*

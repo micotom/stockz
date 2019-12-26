@@ -1,30 +1,15 @@
 package com.funglejunk.stockz.repo.db
 
 import android.content.Context
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Database
-import androidx.room.Delete
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Insert
-import androidx.room.PrimaryKey
-import androidx.room.Query
-import androidx.room.RawQuery
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.funglejunk.stockz.data.Etf
-import io.reactivex.Maybe
-import io.reactivex.Single
-import java.lang.RuntimeException
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 @Database(
     entities = [
-        XetraPerformanceEntry::class, XetraDbEtf::class, XetraEtfPublisher::class,
-        XetraEtfBenchmark::class
+        XetraDbEtf::class, XetraEtfPublisher::class, XetraEtfBenchmark::class
     ],
     version = 4
 )
@@ -46,8 +31,6 @@ abstract class XetraDb : RoomDatabase(), XetraDbInterface {
                 ).build()
             }
     }
-
-    abstract override fun perfDao(): XetraPerformanceEntryDao
 
     abstract override fun etfDao(): XetraEtfInfoDao
 
@@ -120,12 +103,6 @@ interface XetraEtfFlattenedDao {
     )
     suspend fun getAll(): List<Etf>
 
-    @Query(
-        MAPPING_SELECT +
-                "LEFT JOIN xetraetfpublisher ON xetradbetf.publ_id = xetraetfpublisher.rowid " +
-                "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid"
-    )
-    fun getAllDeprecated(): Single<List<Etf>>
 }
 
 @Dao
@@ -153,9 +130,6 @@ interface XetraEtfPublisherDao {
     @Query("SELECT * from xetraetfpublisher WHERE name LIKE (:name)")
     suspend fun getPublisherByName(name: String): XetraEtfPublisher
 
-    @Query("SELECT * from xetraetfpublisher WHERE rowid LIKE (:id) LIMIT 1")
-    fun getPublisherById(id: Int): Single<XetraEtfPublisher>
-
     @Query("SELECT * from xetraetfpublisher")
     suspend fun getAll(): List<XetraEtfPublisher>
 }
@@ -175,35 +149,6 @@ interface XetraEtfBenchmarkDao {
     @Query("SELECT * from xetraetfbenchmark WHERE name LIKE (:name)")
     suspend fun getBenchmarkByName(name: String): XetraEtfBenchmark
 
-    @Query("SELECT * from xetraetfbenchmark WHERE rowid LIKE (:id) LIMIT 1")
-    fun getBenchmarkById(id: Int): Single<XetraEtfBenchmark>
-
     @Query("SELECT * from xetraetfbenchmark")
     suspend fun getAll(): List<XetraEtfBenchmark>
-}
-
-@Entity(primaryKeys = ["isin", "date"])
-data class XetraPerformanceEntry(
-    @ColumnInfo(name = "isin") val isin: String,
-    @ColumnInfo(name = "date") val date: String,
-    @ColumnInfo(name = "closePrice") val value: Double
-)
-
-@Dao
-interface XetraPerformanceEntryDao {
-
-    @Query("SELECT * FROM xetraperformanceentry WHERE isin LIKE (:isin)")
-    fun getAllEntriesForIsin(isin: String): Single<List<XetraPerformanceEntry>>
-
-    @Query("SELECT * FROM xetraperformanceentry WHERE isin LIKE (:isin) ORDER BY date DESC LIMIT 1")
-    fun getNewestEntryForIsin(isin: String): Maybe<XetraPerformanceEntry>
-
-    @Query("SELECT COUNT(*) FROM xetraperformanceentry WHERE isin LIKE (:isin) AND date LIKE (:date)")
-    fun entryCount(isin: String, date: String): Single<Int>
-
-    @Insert
-    fun insert(vararg isinEntries: XetraPerformanceEntry)
-
-    @Delete
-    fun delete(isinEntry: XetraPerformanceEntry)
 }

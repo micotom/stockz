@@ -42,10 +42,8 @@ class EtfListFragment : Fragment() {
     }
 
     private fun initFilterSheet() {
-
         fab_filter.setOnClickListener {
             FilterDialog.newInstance { query ->
-                Timber.d("execute query: $query")
                 viewModel.searchDbFor(query)
             }.also {
                 activity?.let { safeActivity ->

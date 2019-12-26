@@ -31,15 +31,16 @@ class EtfListViewModel(
 
     private fun loadEtfs(dbInflater: XetraMasterDataInflater) =
         IO.fx {
-            when (val inflateResult = dbInflater.init().bind()) {
-                is Either.Right -> {
-                    val etfs = effect {
-                        db.etfFlattenedDao().getAll()
+            dbInflater.init().bind().fold(
+                { Either.left(it) },
+                {
+                    effect {
+                        Either.catch {
+                            db.etfFlattenedDao().getAll()
+                        }
                     }.bind()
-                    Either.right(etfs)
                 }
-                is Either.Left -> Either.left(inflateResult.a)
-            }
+            )
         }
 
     fun searchDbFor(query: UiEtfQuery) {
