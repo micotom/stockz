@@ -9,7 +9,6 @@ import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.repo.db.XetraDbEtf
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.db.XetraEtfFlattenedDao
-import io.reactivex.Single
 
 class UiQueryDbInteractor {
 

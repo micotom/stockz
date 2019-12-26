@@ -33,7 +33,7 @@ class StockzApplication : Application() {
             androidLogger()
             androidContext(this@StockzApplication)
             modules(
-                listOf(dbModule, repoModule, vmModule, schedulersModule)
+                listOf(dbModule, repoModule, vmModule)
             )
         }
     }

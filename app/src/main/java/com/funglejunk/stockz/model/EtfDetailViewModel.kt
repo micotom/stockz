@@ -2,26 +2,20 @@ package com.funglejunk.stockz.model
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import arrow.core.Either
 import arrow.core.extensions.fx
-import arrow.core.flatMap
 import arrow.fx.IO
 import arrow.fx.extensions.fx
-import com.funglejunk.stockz.*
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.Etf
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
+import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
+import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.FViewModel
-import com.funglejunk.stockz.util.RxSchedulers
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import java.time.LocalDate
 import timber.log.Timber
+import java.time.LocalDate
 
 class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
 

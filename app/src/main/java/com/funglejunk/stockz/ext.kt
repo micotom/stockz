@@ -7,10 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import arrow.core.Either
 import arrow.fx.IO
 import com.github.kittinunf.fuel.core.ResponseResultOf
-import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.functions.BiFunction
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -33,13 +29,6 @@ fun <T> Fragment.withSafeContext(f: (Context) -> T) = context?.let { f(it) }
 fun Float.round() = kotlin.math.round(this * 100) / 100
 
 fun Double.round() = kotlin.math.round(this * 100) / 100
-
-fun <T, E: Either<Throwable, T>> Single<E>.flatten() = flatMap {
-    it.fold(
-        { e -> Single.error<T>(e) },
-        { Single.just(it) }
-    )
-}
 
 fun not(b: Boolean) = !b
 
