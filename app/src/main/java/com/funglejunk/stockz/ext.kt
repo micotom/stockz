@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import arrow.core.Either
 import arrow.fx.IO
 import com.github.kittinunf.fuel.core.ResponseResultOf
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 

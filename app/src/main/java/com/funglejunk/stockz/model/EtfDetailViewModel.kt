@@ -15,7 +15,6 @@ import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.FViewModel
 import kotlinx.coroutines.Dispatchers
-import timber.log.Timber
 import java.time.LocalDate
 
 class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
@@ -72,12 +71,8 @@ class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
         }
 
         runIO(
-            action,
-            { e ->
-                Timber.e(e)
-                viewStateData.mutable().postValue(ViewState.Error(e))
-            },
-            { (drawableData, perfData) ->
+            io = action,
+            onSuccess = { (drawableData, perfData) ->
                 viewStateData.mutable().postValue(ViewState.NewChartData(drawableData, perfData))
             }
         )

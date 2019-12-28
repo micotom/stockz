@@ -2,16 +2,20 @@ package com.funglejunk.stockz.model
 
 import android.content.Context
 import arrow.core.Either
+import arrow.core.extensions.fx
+import arrow.core.fix
 import arrow.fx.IO
 import arrow.fx.extensions.fx
-import arrow.fx.extensions.io.applicativeError.handleErrorWith
-import arrow.fx.extensions.io.dispatchers.dispatchers
+import arrow.fx.fix
+import arrow.fx.handleErrorWith
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.not
 import com.funglejunk.stockz.repo.db.XetraDbEtf
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.repo.db.XetraEtfPublisher
+import com.funglejunk.stockz.util.logError
+import kotlinx.coroutines.runBlocking
 
 typealias ReadFromDiskResult = Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>
 
@@ -31,67 +35,74 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         const val BENCH_INDEX = 21
     }
 
-    class DbInflateException(t: Throwable) : Throwable("Error inflating: ${t.localizedMessage}")
-
-    fun init(): IO<Either<DbInflateException, Unit>> = IO.fx {
+    fun init(): IO<Either<Throwable, Unit>> = IO.fx {
         val needToInflate = not(isInflated()).bind()
         if (needToInflate) {
-            val diskResult = effect {
-                readFromDisk()
-            }.bind()
-            val (etfs, publishers, benchmarks) = diskResult
-            inflateBenchmarks(benchmarks)
-                .followedBy(
-                    inflatePublishers(publishers)
-                )
-                .followedBy(
-                    inflateEtfs(etfs)
-                )
-                .followedBy(
-                    IO.just(Either.Right(Unit))
-                ).bind()
+            val diskResult = readFromDisk().bind()
+            diskResult.fold(
+                { IO.invoke { logError(it) } },
+                {
+                    inflateDiskReadings(it)
+                }
+            ).bind()
+            Either.right(Unit)
         } else {
             Either.right(Unit)
         }
-    }.handleErrorWith { t -> IO.just(Either.left(DbInflateException(t))) }
+    }
+
+    private fun inflateDiskReadings(diskResult: ReadFromDiskResult) = IO.fx {
+        val (etfs, publishers, benchmarks) = diskResult
+        inflateBenchmarks(benchmarks) // TODO validate
+            .followedBy(
+                inflatePublishers(publishers) // TODO validate
+            )
+            .followedBy(
+                inflateEtfs(etfs) // TODO validate
+            ).bind()
+        Unit
+    }.fix()
 
     private fun isInflated(): IO<Boolean> = IO { db.etfDao().getEntryCount() > 0 }
 
-    private fun readFromDisk(): ReadFromDiskResult {
+    private fun readFromDisk(): IO<Either<Throwable, ReadFromDiskResult>> = IO {
         val inputStream = context.assets.open("xetra_etf_datasheet.csv")
         val fileContent = inputStream.bufferedReader().use {
             it.readText()
         }
         val lines = fileContent.split("\n")
-        return parseLines(lines)
+        parseLines(lines)
     }
 
-    private fun parseLines(lines: List<String>): ReadFromDiskResult {
-        val cleanLines = lines.filter { it.isNotEmpty() }
-        val rowsAndColumns = cleanLines.map { it.split(";") }
-        val entries = rowsAndColumns.map { columns ->
-            val publisher = XetraEtfPublisher(name = columns[PUBLISHER_INDEX])
-            val benchmark = XetraEtfBenchmark(name = columns[BENCH_INDEX])
-            val etf = Etf(
-                name = columns[NAME_INDEX],
-                isin = columns[ISIN_INDEX],
-                symbol = columns[SYMBOL_INDEX],
-                listingDate = columns[LISTING_DATE_INDEX],
-                ter = columns[TER_INDEX].formatPercentage().toDouble(),
-                profitUse = columns[PROF_USE_INDEX],
-                replicationMethod = columns[REPL_METHOD_INDEX],
-                fundCurrency = columns[FUND_CURR_INDEX],
-                tradingCurrency = columns[TRADE_CURR_INDEX],
-                publisherName = publisher.name,
-                benchmarkName = benchmark.name
-            )
-            Triple(etf, publisher, benchmark)
+    private fun parseLines(lines: List<String>): Either<Throwable, ReadFromDiskResult> =
+        runBlocking {
+            Either.catch {
+                val cleanLines = lines.filter { it.isNotEmpty() }
+                val rowsAndColumns = cleanLines.map { it.split(";") }
+                val entries = rowsAndColumns.map { columns ->
+                    val publisher = XetraEtfPublisher(name = columns[PUBLISHER_INDEX])
+                    val benchmark = XetraEtfBenchmark(name = columns[BENCH_INDEX])
+                    val etf = Etf(
+                        name = columns[NAME_INDEX],
+                        isin = columns[ISIN_INDEX],
+                        symbol = columns[SYMBOL_INDEX],
+                        listingDate = columns[LISTING_DATE_INDEX],
+                        ter = columns[TER_INDEX].formatPercentage().toDouble(),
+                        profitUse = columns[PROF_USE_INDEX],
+                        replicationMethod = columns[REPL_METHOD_INDEX],
+                        fundCurrency = columns[FUND_CURR_INDEX],
+                        tradingCurrency = columns[TRADE_CURR_INDEX],
+                        publisherName = publisher.name,
+                        benchmarkName = benchmark.name
+                    )
+                    Triple(etf, publisher, benchmark)
+                }
+                val etfs = entries.map { it.first }
+                val publishers = entries.map { it.second }.toSet()
+                val benchmarks = entries.map { it.third }.toSet()
+                Triple(etfs, publishers, benchmarks)
+            }
         }
-        val etfs = entries.map { it.first }
-        val publishers = entries.map { it.second }.toSet()
-        val benchmarks = entries.map { it.third }.toSet()
-        return Triple(etfs, publishers, benchmarks)
-    }
 
     private fun inflatePublishers(publishers: Collection<XetraEtfPublisher>) =
         IO {

@@ -16,7 +16,7 @@ abstract class FViewModel : ViewModel() {
 
     fun <A> runIO(
         io: IO<Either<Throwable, A>>,
-        onFailure: (Throwable) -> Unit,
+        onFailure: (Throwable) -> Unit = logError,
         onSuccess: (A) -> Unit
     ) = IO.fx {
         continueOn(Dispatchers.IO)

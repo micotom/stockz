@@ -9,8 +9,8 @@ import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDbInterface
+import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.util.FViewModel
-import timber.log.Timber
 
 class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
 
@@ -32,23 +32,26 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
         val action = IO.fx {
             val qResult = queryInteractor.executeSqlString(sqlQueryString, db).bind()
             qResult.map { etfs ->
-                val publishers = etfs.map { it.publisherName }.toSortedSet()
-                val benchmarks = etfs.map { it.benchmarkName }.toSortedSet()
-                val profitUses = etfs.map { it.profitUse }.toSortedSet()
-                val replicationMethods = etfs.map { it.replicationMethod }.toSortedSet()
+                val publishers =
+                    etfs.map { it.publisherName }.alphSorted().prependPlaceholder()
+                val benchmarks =
+                    etfs.map { it.benchmarkName }.alphSorted().prependPlaceholder()
+                val profitUses =
+                    etfs.map { it.profitUse }.alphSorted().prependPlaceholder()
+                val replicationMethods =
+                    etfs.map { it.replicationMethod }.alphSorted().prependPlaceholder()
                 FilteredUiParams(
-                    publishers = publishers.prepend(UiEtfQuery.ALL_PLACEHOLDER),
-                    benchmarks = benchmarks.prepend(UiEtfQuery.ALL_PLACEHOLDER),
-                    profitUses = profitUses.prepend(UiEtfQuery.ALL_PLACEHOLDER),
-                    replicationMethods = replicationMethods.prepend(UiEtfQuery.ALL_PLACEHOLDER)
+                    publishers = publishers,
+                    benchmarks = benchmarks,
+                    profitUses = profitUses,
+                    replicationMethods = replicationMethods
                 )
             }
         }
         runIO(
-            action,
-            { e -> Timber.e(e) },
-            { (publishers, benchmarks, profitUses,
-                  replicationMethods) ->
+            io = action,
+            onSuccess = { (publishers, benchmarks, profitUses,
+                              replicationMethods) ->
                 publisherNamesLiveData.mutable().postValue(publishers.toList())
                 benchmarkNamesLiveData.mutable().postValue(benchmarks.toList())
                 profitUseLiveData.mutable().postValue(profitUses.toList())
@@ -64,14 +67,13 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
                 Either.catch {
                     db.benchmarkDao().getAll().map {
                         it.name
-                    }.sortedBy { it.toUpperCase() }
+                    }.alphSorted()
                 }
             }.bind()
         }
         runIO(
-            action,
-            { e -> Timber.e(e) },
-            { benchmarks -> benchmarkNamesLiveData.mutable().postValue(benchmarks) }
+            io = action,
+            onSuccess = { benchmarks -> benchmarkNamesLiveData.mutable().postValue(benchmarks) }
         )
     }
 
@@ -87,9 +89,8 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
             }.bind()
         }
         runIO(
-            action,
-            { e -> Timber.e(e) },
-            { publishers -> publisherNamesLiveData.mutable().postValue(publishers) }
+            io = action,
+            onSuccess = { publishers -> publisherNamesLiveData.mutable().postValue(publishers) }
         )
     }
 
@@ -118,5 +119,7 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
     }
 
     @SuppressLint("DefaultLocale")
-    private fun List<String>.toSortedSet() = sortedBy { it.toUpperCase() }.toSet()
+    private fun List<String>.alphSorted() = toSet().sortedBy { it.toUpperCase() }
+
+    private fun List<String>.prependPlaceholder() = prepend(UiEtfQuery.ALL_PLACEHOLDER)
 }

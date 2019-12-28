@@ -10,7 +10,7 @@ import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.util.FViewModel
-import timber.log.Timber
+import com.funglejunk.stockz.util.logError
 
 class EtfListViewModel(
     dbInflater: XetraMasterDataInflater,
@@ -23,9 +23,8 @@ class EtfListViewModel(
 
     init {
         runIO(
-            loadEtfs(dbInflater),
-            { t -> Timber.e("Error inflating db: ${t.message}") },
-            { data -> etfData.mutable().postValue(data) }
+            io = loadEtfs(dbInflater),
+            onSuccess = { data -> etfData.mutable().postValue(data) }
         )
     }
 
@@ -49,9 +48,8 @@ class EtfListViewModel(
             queryInteractor.executeSqlString(sqlQueryString, db)
         }()
         runIO(
-            action,
-            { e -> Timber.e("Error searching db: $e") },
-            { data -> etfData.mutable().postValue(data) }
+            io = action,
+            onSuccess = { data -> etfData.mutable().postValue(data) }
         )
     }
 
