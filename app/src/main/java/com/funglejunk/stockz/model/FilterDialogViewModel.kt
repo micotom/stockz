@@ -80,10 +80,6 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
             io = initPublishersAction(),
             onSuccess = IO.just { _ -> Unit }
         )
-        /*
-        initBenchmarks()
-        initPublishers()
-         */
     }
 
     fun onQueryParamsUpdate(temporaryQuery: UiEtfQuery) {
@@ -92,77 +88,6 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
             onSuccess = onSearchResult
         )
     }
-
-    /*
-
-    fun onQueryParamsUpdate(temporaryQuery: UiEtfQuery) {
-        val sqlQueryString = queryInteractor.buildSqlStringFrom(temporaryQuery)
-        val action = IO.fx {
-            val qResult = queryInteractor.executeSqlString(sqlQueryString, db).bind()
-            qResult.map { etfs ->
-                val publishers =
-                    etfs.map { it.publisherName }.alphSorted().prependPlaceholder()
-                val benchmarks =
-                    etfs.map { it.benchmarkName }.alphSorted().prependPlaceholder()
-                val profitUses =
-                    etfs.map { it.profitUse }.alphSorted().prependPlaceholder()
-                val replicationMethods =
-                    etfs.map { it.replicationMethod }.alphSorted().prependPlaceholder()
-                FilteredUiParams(
-                    publishers = publishers,
-                    benchmarks = benchmarks,
-                    profitUses = profitUses,
-                    replicationMethods = replicationMethods
-                )
-            }
-        }
-        runIO(
-            io = action,
-            onSuccess = { (publishers, benchmarks, profitUses,
-                              replicationMethods) ->
-                publisherNamesLiveData.mutable().postValue(publishers.toList())
-                benchmarkNamesLiveData.mutable().postValue(benchmarks.toList())
-                profitUseLiveData.mutable().postValue(profitUses.toList())
-                replicationLiveData.mutable().postValue(replicationMethods.toList())
-            }
-        )
-    }
-
-    @SuppressLint("DefaultLocale")
-    private fun initBenchmarks() {
-        val action = IO.fx {
-            effect {
-                Either.catch {
-                    db.benchmarkDao().getAll().map {
-                        it.name
-                    }.alphSorted()
-                }
-            }.bind()
-        }
-        runIO(
-            io = action,
-            onSuccess = { benchmarks -> benchmarkNamesLiveData.mutable().postValue(benchmarks) }
-        )
-    }
-
-    @SuppressLint("DefaultLocale")
-    private fun initPublishers() {
-        val action = IO.fx {
-            effect {
-                Either.catch {
-                    db.publisherDao().getAll().map {
-                        it.name
-                    }.sortedBy { it.toUpperCase() }
-                }
-            }.bind()
-        }
-        runIO(
-            io = action,
-            onSuccess = { publishers -> publisherNamesLiveData.mutable().postValue(publishers) }
-        )
-    }
-
-     */
 
     private data class FilteredUiParams(
         val publishers: SearchResult,
