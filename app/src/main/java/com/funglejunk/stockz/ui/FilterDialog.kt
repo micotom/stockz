@@ -15,7 +15,6 @@ import com.funglejunk.stockz.withSafeContext
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
-import kotlin.math.round
 import kotlinx.android.synthetic.main.filter_dialog.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

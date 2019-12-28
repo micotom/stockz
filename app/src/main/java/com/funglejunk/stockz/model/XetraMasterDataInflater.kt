@@ -2,12 +2,9 @@ package com.funglejunk.stockz.model
 
 import android.content.Context
 import arrow.core.Either
-import arrow.core.extensions.fx
-import arrow.core.fix
 import arrow.fx.IO
 import arrow.fx.extensions.fx
 import arrow.fx.fix
-import arrow.fx.handleErrorWith
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.not
 import com.funglejunk.stockz.repo.db.XetraDbEtf

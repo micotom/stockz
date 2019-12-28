@@ -9,7 +9,6 @@ import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDbInterface
-import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.util.FViewModel
 
 typealias SearchResult = List<String>

@@ -3,16 +3,13 @@ package com.funglejunk.stockz.model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import arrow.core.Either
-import arrow.core.extensions.fx
 import arrow.fx.IO
 import arrow.fx.extensions.fx
-import arrow.fx.handleErrorWith
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.util.FViewModel
-import com.funglejunk.stockz.util.logError
 
 typealias EtfRetrievalResult = Either<Throwable, List<Etf>>
 

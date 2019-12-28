@@ -1,15 +1,12 @@
 package com.funglejunk.stockz
 
 import android.app.Application
+import android.os.StrictMode
 import com.facebook.stetho.Stetho
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import timber.log.Timber
-import android.os.StrictMode
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-
 
 
 @Suppress("unused")
