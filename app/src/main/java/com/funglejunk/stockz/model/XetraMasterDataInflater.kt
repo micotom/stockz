@@ -12,7 +12,6 @@ import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.repo.db.XetraEtfPublisher
 import com.funglejunk.stockz.util.logError
-import kotlinx.coroutines.runBlocking
 
 typealias ReadFromDiskResult = Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>
 
@@ -71,34 +70,32 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         parseLines(lines)
     }
 
-    private fun parseLines(lines: List<String>): Either<Throwable, ReadFromDiskResult> =
-        runBlocking {
-            Either.catch {
-                val cleanLines = lines.filter { it.isNotEmpty() }
-                val rowsAndColumns = cleanLines.map { it.split(";") }
-                val entries = rowsAndColumns.map { columns ->
-                    val publisher = XetraEtfPublisher(name = columns[PUBLISHER_INDEX])
-                    val benchmark = XetraEtfBenchmark(name = columns[BENCH_INDEX])
-                    val etf = Etf(
-                        name = columns[NAME_INDEX],
-                        isin = columns[ISIN_INDEX],
-                        symbol = columns[SYMBOL_INDEX],
-                        listingDate = columns[LISTING_DATE_INDEX],
-                        ter = columns[TER_INDEX].formatPercentage().toDouble(),
-                        profitUse = columns[PROF_USE_INDEX],
-                        replicationMethod = columns[REPL_METHOD_INDEX],
-                        fundCurrency = columns[FUND_CURR_INDEX],
-                        tradingCurrency = columns[TRADE_CURR_INDEX],
-                        publisherName = publisher.name,
-                        benchmarkName = benchmark.name
-                    )
-                    Triple(etf, publisher, benchmark)
-                }
-                val etfs = entries.map { it.first }
-                val publishers = entries.map { it.second }.toSet()
-                val benchmarks = entries.map { it.third }.toSet()
-                Triple(etfs, publishers, benchmarks)
+    private suspend fun parseLines(lines: List<String>): Either<Throwable, ReadFromDiskResult> =
+        Either.catch {
+            val cleanLines = lines.filter { it.isNotEmpty() }
+            val rowsAndColumns = cleanLines.map { it.split(";") }
+            val entries = rowsAndColumns.map { columns ->
+                val publisher = XetraEtfPublisher(name = columns[PUBLISHER_INDEX])
+                val benchmark = XetraEtfBenchmark(name = columns[BENCH_INDEX])
+                val etf = Etf(
+                    name = columns[NAME_INDEX],
+                    isin = columns[ISIN_INDEX],
+                    symbol = columns[SYMBOL_INDEX],
+                    listingDate = columns[LISTING_DATE_INDEX],
+                    ter = columns[TER_INDEX].formatPercentage().toDouble(),
+                    profitUse = columns[PROF_USE_INDEX],
+                    replicationMethod = columns[REPL_METHOD_INDEX],
+                    fundCurrency = columns[FUND_CURR_INDEX],
+                    tradingCurrency = columns[TRADE_CURR_INDEX],
+                    publisherName = publisher.name,
+                    benchmarkName = benchmark.name
+                )
+                Triple(etf, publisher, benchmark)
             }
+            val etfs = entries.map { it.first }
+            val publishers = entries.map { it.second }.toSet()
+            val benchmarks = entries.map { it.third }.toSet()
+            Triple(etfs, publishers, benchmarks)
         }
 
     private fun inflatePublishers(publishers: Collection<XetraEtfPublisher>) =
@@ -112,11 +109,9 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         }
 
     private fun inflateEtfs(etfs: Collection<Etf>): IO<Array<Long>> = IO {
-        val benchmarkDao = db.benchmarkDao()
-        val publisherDao = db.publisherDao()
         val dbEtfs = etfs.map { etf ->
-            val etfBenchmark = benchmarkDao.getBenchmarkByName(etf.benchmarkName)
-            val publisher = publisherDao.getPublisherByName(etf.publisherName)
+            val etfBenchmark = db.benchmarkDao().getBenchmarkByName(etf.benchmarkName)
+            val publisher = db.publisherDao().getPublisherByName(etf.publisherName)
             XetraDbEtf(
                 name = etf.name,
                 isin = etf.isin,
