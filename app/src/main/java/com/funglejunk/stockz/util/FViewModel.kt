@@ -16,15 +16,21 @@ abstract class FViewModel : ViewModel() {
 
     fun <A> runIO(
         io: IO<Either<Throwable, A>>,
-        onFailure: (Throwable) -> Unit = logError,
-        onSuccess: (A) -> Unit
+        onFailure: IO<(Throwable) -> Unit> = IO.invoke { logError },
+        onSuccess: IO<(A) -> Unit>
     ) = IO.fx {
         continueOn(Dispatchers.IO)
         io.bind().fold(
-            { e -> onFailure(e) },
-            { result -> onSuccess(result) }
+            {
+                val failureIO = onFailure.bind()
+                failureIO.invoke(it)
+            },
+            {
+                val successIO = onSuccess.bind()
+                successIO.invoke(it)
+            }
         )
-    }.lifecycleAware().unsafeRunSync()
+    }.lifecycleAware().unsafeRunAsync {  }
 
     private fun <A> IO<A>.lifecycleAware() = IO.racePair(
         Dispatchers.IO, this, endPromise.get()

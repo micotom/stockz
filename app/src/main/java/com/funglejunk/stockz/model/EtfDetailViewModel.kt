@@ -17,6 +17,9 @@ import com.funglejunk.stockz.util.FViewModel
 import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
 
+typealias StockData = Pair<DrawableHistoricData, FBoersePerfData>
+typealias StockDataResult = Either<Throwable, StockData>
+
 class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
 
     sealed class ViewState {
@@ -31,24 +34,9 @@ class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
     val viewStateData: LiveData<ViewState> = MutableLiveData()
     private var etfArg: Etf? = null
 
-    fun setEtfArgs(etf: Etf) {
-        val receivedNewEtfArg = null == etfArg || etfArg != etf
-        if (receivedNewEtfArg) {
-            fetchFboerseHistoy(etf.isin)
-        }
-        etfArg = etf.copy()
-    }
-
-    private fun fetchFboerseHistoy(
-        isin: String,
-        fromDate: LocalDate = LocalDate.of(2010, 1, 1),
-        toDate: LocalDate = LocalDate.now()
-    ) {
+    private val fetchHistoryAction: (String, LocalDate, LocalDate) -> IO<StockDataResult> = {
+        isin, fromDate, toDate ->
         IO.fx {
-            viewStateData.mutable().postValue(ViewState.Loading)
-        }.unsafeRunSync()
-
-        val action = IO.fx {
             val chartDataIO = effect {
                 fBoerseRepo.getHistory(isin, fromDate, toDate).map {
                     it.content.map { dayData ->
@@ -69,13 +57,37 @@ class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
                 chartData.flattenWith(historyData)
             }.bind()
         }
+    }
 
+    private val showLoadingIO: IO<Unit> = IO.fx {
+        viewStateData.mutable().postValue(ViewState.Loading)
+    }
+
+    private val onHistoryFetchedIO: IO<(StockData) -> Unit> = IO.just { (drawableData, perfData) ->
+        viewStateData.mutable().postValue(ViewState.NewChartData(drawableData, perfData))
+    }
+
+    private fun fetchFboerseHistoy(
+        isin: String,
+        fromDate: LocalDate = LocalDate.of(2010, 1, 1),
+        toDate: LocalDate = LocalDate.now()
+    ) {
+        val action = IO.fx {
+            showLoadingIO.bind()
+            fetchHistoryAction(isin, fromDate, toDate).bind()
+        }
         runIO(
             io = action,
-            onSuccess = { (drawableData, perfData) ->
-                viewStateData.mutable().postValue(ViewState.NewChartData(drawableData, perfData))
-            }
+            onSuccess = onHistoryFetchedIO
         )
+    }
+
+    fun setEtfArgs(etf: Etf) {
+        val receivedNewEtfArg = null == etfArg || etfArg != etf
+        if (receivedNewEtfArg) {
+            fetchFboerseHistoy(etf.isin)
+        }
+        etfArg = etf.copy()
     }
 
     private fun <E, A, B> Either<E, A>.flattenWith(other: Either<E, B>) =

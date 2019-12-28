@@ -12,21 +12,89 @@ import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.util.FViewModel
 
+typealias SearchResult = List<String>
+
 class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
 
-    val benchmarkNamesLiveData: LiveData<List<String>> = MutableLiveData()
-    val publisherNamesLiveData: LiveData<List<String>> = MutableLiveData()
-    val profitUseLiveData: LiveData<List<String>> = MutableLiveData()
-    val replicationLiveData: LiveData<List<String>> = MutableLiveData()
+    val benchmarkNamesLiveData: LiveData<SearchResult> = MutableLiveData()
+    val publisherNamesLiveData: LiveData<SearchResult> = MutableLiveData()
+    val profitUseLiveData: LiveData<SearchResult> = MutableLiveData()
+    val replicationLiveData: LiveData<SearchResult> = MutableLiveData()
 
     private val queryInteractor = UiQueryDbInteractor()
 
-    init {
-        initBenchmarks()
-        initPublishers()
+    private val searchAction: (UiEtfQuery) -> IO<Either<Throwable, FilteredUiParams>> =
+        { temporaryQuery ->
+            val sqlQueryString = queryInteractor.buildSqlStringFrom(temporaryQuery)
+            IO.fx {
+                val queryResult = queryInteractor.executeSqlString(sqlQueryString, db).bind()
+                queryResult.map {
+                    FilteredUiParams(
+                        publishers = it.map { it.publisherName }.sortedWithPlaceholder(),
+                        benchmarks = it.map { it.benchmarkName }.sortedWithPlaceholder(),
+                        profitUses = it.map { it.profitUse }.sortedWithPlaceholder(),
+                        replicationMethods = it.map { it.replicationMethod }.sortedWithPlaceholder()
+                    )
+                }
+            }
+        }
+
+    private val onSearchResult: IO<(FilteredUiParams) -> Unit> =
+        IO.just { (publishers, benchmarks, profitUses, replicationMethods) ->
+            publisherNamesLiveData.mutable().postValue(publishers)
+            benchmarkNamesLiveData.mutable().postValue(benchmarks)
+            profitUseLiveData.mutable().postValue(profitUses)
+            replicationLiveData.mutable().postValue(replicationMethods)
+        }
+
+    private val initBenchmarkAction: () -> IO<Either<Throwable, SearchResult>> = {
+        IO.fx {
+            effect {
+                Either.catch {
+                    db.benchmarkDao().getAll().map {
+                        it.name
+                    }.alphSorted()
+                }
+            }.bind()
+        }
     }
 
-    @SuppressLint("DefaultLocale")
+    private val initPublishersAction: () -> IO<Either<Throwable, SearchResult>> = {
+        IO.fx {
+            effect {
+                Either.catch {
+                    db.publisherDao().getAll().map {
+                        it.name
+                    }.alphSorted()
+                }
+            }.bind()
+        }
+    }
+
+    init {
+        runIO(
+            io = initBenchmarkAction(),
+            onSuccess = IO.just { _ -> Unit }
+        )
+        runIO(
+            io = initPublishersAction(),
+            onSuccess = IO.just { _ -> Unit }
+        )
+        /*
+        initBenchmarks()
+        initPublishers()
+         */
+    }
+
+    fun onQueryParamsUpdate(temporaryQuery: UiEtfQuery) {
+        runIO(
+            io = searchAction(temporaryQuery),
+            onSuccess = onSearchResult
+        )
+    }
+
+    /*
+
     fun onQueryParamsUpdate(temporaryQuery: UiEtfQuery) {
         val sqlQueryString = queryInteractor.buildSqlStringFrom(temporaryQuery)
         val action = IO.fx {
@@ -94,11 +162,13 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
         )
     }
 
+     */
+
     private data class FilteredUiParams(
-        val publishers: Collection<String>,
-        val benchmarks: Collection<String>,
-        val profitUses: Collection<String>,
-        val replicationMethods: Collection<String>
+        val publishers: SearchResult,
+        val benchmarks: SearchResult,
+        val profitUses: SearchResult,
+        val replicationMethods: SearchResult
     )
 
     private operator fun <T> List<T>.plus(other: T) =
@@ -119,7 +189,10 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
     }
 
     @SuppressLint("DefaultLocale")
-    private fun List<String>.alphSorted() = toSet().sortedBy { it.toUpperCase() }
+    private fun SearchResult.alphSorted() = toSet().sortedBy { it.toUpperCase() }
 
-    private fun List<String>.prependPlaceholder() = prepend(UiEtfQuery.ALL_PLACEHOLDER)
+    private fun SearchResult.prependPlaceholder() = prepend(UiEtfQuery.ALL_PLACEHOLDER)
+
+    private fun SearchResult.sortedWithPlaceholder() = alphSorted().prependPlaceholder()
+
 }
