@@ -1,5 +1,6 @@
 package com.funglejunk.stockz.util
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import arrow.core.Either
 import arrow.fx.ForIO
@@ -36,8 +37,13 @@ abstract class FViewModel : ViewModel() {
         Dispatchers.IO, this, endPromise.get()
     )
 
-    override fun onCleared() {
+    @VisibleForTesting
+    fun cancelIO() {
         endPromise.complete(Unit).fix().unsafeRunAsync { }
+    }
+
+    override fun onCleared() {
+        cancelIO()
         super.onCleared()
     }
 
