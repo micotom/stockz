@@ -9,6 +9,7 @@ import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.repo.db.XetraDbEtf
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.db.XetraEtfFlattenedDao
+import com.funglejunk.stockz.util.EtfList
 
 class UiQueryDbInteractor {
 
@@ -53,7 +54,7 @@ class UiQueryDbInteractor {
         queryString
     }
 
-    fun executeSqlString(query: String, db: XetraDbInterface): IO<List<Etf>> =
+    fun executeSqlString(query: String, db: XetraDbInterface): IO<EtfList> =
         IO.fx {
             effect {
                 if (query.isEmpty()) {
