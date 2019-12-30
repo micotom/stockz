@@ -33,8 +33,3 @@ fun Double.round() = kotlin.math.round(this * 100) / 100
 fun not(b: Boolean) = !b
 
 fun not(b: IO<Boolean>) = b.map { not(it) }
-
-fun <T: Any> ResponseResultOf<T>.toEither(): Either<Throwable, T> = third.fold(
-    { Either.right(it) },
-    { Either.left(it) }
-)
