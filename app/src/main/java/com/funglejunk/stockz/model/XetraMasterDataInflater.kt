@@ -63,24 +63,17 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
     @Suppress("BlockingMethodInNonBlockingContext")
     private val readFromDisk: () -> IO<ReadFromDiskResult> = {
         IO {
-            context.assets.open("xetra_etf_datasheet.csv")
+            context.assets.open("xetra_etf_datasheet.csv").bufferedReader()
         }.bracket(
             release = { IO.invoke { it.close() } },
-            use = { inputStream ->
-                IO {
-                    inputStream.bufferedReader()
-                }.bracket(
-                    release = { IO.invoke { it.close() } },
-                    use = { reader ->
-                        val fileContent = reader.readText()
-                        val lines = fileContent.split("\n")
-                        IO.fx {
-                            effect {
-                                parseLines(lines)
-                            }.bind()
-                        }
-                    }
-                )
+            use = { reader ->
+                val fileContent = reader.readText()
+                val lines = fileContent.split("\n")
+                IO.fx {
+                    effect {
+                        parseLines(lines)
+                    }.bind()
+                }
             }
         )
     }
