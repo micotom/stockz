@@ -14,8 +14,7 @@ class ListInfoAdapter(
     private val data: List<Etf>,
     private val onClickListener: (Etf) -> Unit,
     private val parentWidth: Int
-) :
-    RecyclerView.Adapter<ListInfoAdapter.EtfViewHolder>() {
+) : RecyclerView.Adapter<ListInfoAdapter.EtfViewHolder>() {
 
     companion object {
         const val ANIM_DURATION = 500L
@@ -137,7 +136,8 @@ class ListInfoAdapter(
 
         val terText: TextView = rightColumn().findVg(R.id.ter).findTv(R.id.info_text)
         val profitUseText: TextView = rightColumn().findVg(R.id.profitUse).findTv(R.id.info_text)
-        val replicationText: TextView = rightColumn().findVg(R.id.replication).findTv(R.id.info_text)
+        val replicationText: TextView =
+            rightColumn().findVg(R.id.replication).findTv(R.id.info_text)
         val listingText: TextView = rightColumn().findVg(R.id.listing_date).findTv(R.id.info_text)
 
         private fun leftColumn() = view.findViewById<ViewGroup>(R.id.left_column)

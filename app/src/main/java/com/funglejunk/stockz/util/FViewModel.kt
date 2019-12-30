@@ -2,7 +2,6 @@ package com.funglejunk.stockz.util
 
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
-import arrow.core.Either
 import arrow.fx.*
 import arrow.fx.extensions.fx
 import arrow.fx.extensions.io.async.async

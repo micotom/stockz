@@ -2,6 +2,7 @@ package com.funglejunk.stockz.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -17,27 +18,37 @@ class EtfListFragment : Fragment() {
 
     private val viewModel: EtfListViewModel by viewModel()
 
+    private val itemClickListener: (Etf) -> Unit = { etf ->
+        findNavController().navigate(EtfListFragmentDirections.listToDetailAction(etf))
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ) = inflater.inflate(R.layout.etf_list_fragment, container, false)
+    ): View = inflater.inflate(R.layout.etf_list_fragment, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         initFilterSheet()
 
-        val itemClickListener: (Etf) -> Unit = { etf ->
-            findNavController().navigate(EtfListFragmentDirections.listToDetailAction(etf))
-        }
-
-        // TODO apply loading status
-        viewModel.etfData.observe(viewLifecycleOwner, Observer {
-            // TODO change args order and beautify lambda passing
-            recycler_view.adapter =
-                ListInfoAdapter(it, itemClickListener, this@EtfListFragment.view?.width ?: 0)
+        viewModel.viewStateData.observe(viewLifecycleOwner, Observer {
+            renderViewState(it)
         })
+    }
+
+    private fun renderViewState(state: EtfListViewModel.ViewState) {
+        when (state) {
+            EtfListViewModel.ViewState.Loading -> {
+                progressbar.visibility = View.VISIBLE
+            }
+            is EtfListViewModel.ViewState.EtfData -> {
+                progressbar.visibility = View.INVISIBLE
+                recycler_view.adapter =
+                    ListInfoAdapter(state.etfs, itemClickListener, view?.width ?: 0)
+            }
+        }
     }
 
     private fun initFilterSheet() {

@@ -15,12 +15,23 @@ class EtfListViewModel(
     val db: XetraDbInterface
 ) : FViewModel() {
 
-    val etfData: LiveData<EtfList> = MutableLiveData()
+    sealed class ViewState {
+        object Loading : ViewState()
+        data class EtfData(val etfs: EtfList) : ViewState()
+    }
+
+    val viewStateData: LiveData<ViewState> = MutableLiveData()
 
     private val queryInteractor = UiQueryDbInteractor()
 
+    private val showLoading: IO<Unit> = IO.fx {
+        viewStateData.mutable().postValue(ViewState.Loading)
+    }
+
     private val onEtfDataRetrieved: IO<(EtfList) -> Unit> = IO.just { data ->
-        etfData.mutable().postValue(data)
+        viewStateData.mutable().postValue(
+            ViewState.EtfData(data)
+        )
     }
 
     private val loadEtfAction: (XetraMasterDataInflater) -> IO<EtfList> =
@@ -40,15 +51,23 @@ class EtfListViewModel(
     }
 
     init {
+        val action = IO.fx {
+            showLoading.bind()
+            loadEtfAction(dbInflater).bind()
+        }
         runIO(
-            io = loadEtfAction(dbInflater),
+            io = action,
             onSuccess = onEtfDataRetrieved
         )
     }
 
     fun searchDbFor(query: UiEtfQuery) {
+        val action = IO.fx {
+            showLoading.bind()
+            searchDbIo(query).bind()
+        }
         runIO(
-            io = searchDbIo(query),
+            io = action,
             onSuccess = onEtfDataRetrieved
         )
     }
