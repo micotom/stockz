@@ -13,6 +13,7 @@ import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.repo.db.XetraEtfPublisher
 
 typealias ReadFromDiskResult = Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>
+typealias DbInsertionResult = Either<Throwable, Array<Long>>
 
 class XetraMasterDataInflater(private val context: Context, private val db: XetraDbInterface) {
 
@@ -30,40 +31,47 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         const val BENCH_INDEX = 21
     }
 
-    fun init(): IO<Either<Throwable, Unit>> = IO.fx {
-        val needToInflate = not(isInflated()).bind()
-        if (needToInflate) {
-            val diskResult = readFromDisk().bind()
-            diskResult.fold(
-                {
-                    Either.left(it)
-                },
-                {
-                    inflateDiskReadings(it).bind().map { Unit }
-                }
-            )
-        } else {
-            Either.right(Unit)
+    val init: () -> IO<Either<Throwable, Unit>> = {
+        IO.fx {
+            val needToInflate = not(isInflated()).bind()
+            if (needToInflate) {
+                val diskResult = readFromDisk().bind()
+                diskResult.fold(
+                    {
+                        Either.left(it)
+                    },
+                    {
+                        inflateDiskReadings(it).bind().map { Unit }
+                    }
+                )
+            } else {
+                Either.right(Unit)
+            }
         }
     }
 
-    private fun inflateDiskReadings(diskResult: ReadFromDiskResult): IO<Either<Throwable, Unit>> = IO.fx {
-        val (etfs, publishers, benchmarks) = diskResult
-        inflateBenchmarks(benchmarks) // TODO validate
-            .followedBy(
-                inflatePublishers(publishers) // TODO validate
-            )
-            .followedBy(
-                inflateEtfs(etfs) // TODO validate
-            ).map {
-                it.map { Unit }
-            }.bind()
-    }.fix()
+    private val inflateDiskReadings: (ReadFromDiskResult) -> IO<Either<Throwable, Unit>> =
+        { diskResult ->
+            IO.fx {
+                val (etfs, publishers, benchmarks) = diskResult
+                inflateBenchmarks(benchmarks) // TODO validate
+                    .followedBy(
+                        inflatePublishers(publishers) // TODO validate
+                    )
+                    .followedBy(
+                        inflateEtfs(etfs) // TODO validate
+                    ).map {
+                        it.map { Unit }
+                    }.bind()
+            }.fix()
+        }
 
-    private fun isInflated(): IO<Boolean> = IO { db.etfDao().getEntryCount() > 0 }
+    private val isInflated: () -> IO<Boolean> = {
+        IO { db.etfDao().getEntryCount() > 0 }
+    }
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    private fun readFromDisk(): IO<Either<Throwable, ReadFromDiskResult>> =
+    private val readFromDisk: () -> IO<Either<Throwable, ReadFromDiskResult>> = {
         IO {
             context.assets.open("xetra_etf_datasheet.csv")
         }.bracket(
@@ -85,6 +93,7 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
                 )
             }
         )
+    }
 
     private suspend fun parseLines(lines: List<String>): Either<Throwable, ReadFromDiskResult> =
         Either.catch {
@@ -114,40 +123,46 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
             Triple(etfs, publishers, benchmarks)
         }
 
-    private fun inflatePublishers(publishers: Collection<XetraEtfPublisher>) =
-        IO {
-            Either.catch {
-                db.publisherDao().insert(*(publishers.toTypedArray()))
+    private val inflatePublishers: (Collection<XetraEtfPublisher>) -> IO<DbInsertionResult> =
+        { publishers ->
+            IO {
+                Either.catch {
+                    db.publisherDao().insert(*(publishers.toTypedArray()))
+                }
             }
         }
 
-    private fun inflateBenchmarks(benchmarks: Collection<XetraEtfBenchmark>) =
-        IO {
-            Either.catch {
-                db.benchmarkDao().insert(*(benchmarks.toTypedArray()))
+    private val inflateBenchmarks: (Collection<XetraEtfBenchmark>) -> IO<DbInsertionResult> =
+        { benchmarks ->
+            IO {
+                Either.catch {
+                    db.benchmarkDao().insert(*(benchmarks.toTypedArray()))
+                }
             }
         }
 
-    private fun inflateEtfs(etfs: Collection<Etf>): IO<Either<Throwable, Array<Long>>> = IO {
-        val dbEtfs = etfs.map { etf ->
-            val etfBenchmark = db.benchmarkDao().getBenchmarkByName(etf.benchmarkName)
-            val publisher = db.publisherDao().getPublisherByName(etf.publisherName)
-            XetraDbEtf(
-                name = etf.name,
-                isin = etf.isin,
-                publisherId = publisher.rowid,
-                symbol = etf.symbol,
-                listingDate = etf.listingDate,
-                ter = etf.ter,
-                profitUse = etf.profitUse,
-                replicationMethod = etf.replicationMethod,
-                fundCurrency = etf.fundCurrency,
-                tradingCurrency = etf.tradingCurrency,
-                benchmarkId = etfBenchmark.rowid
-            )
-        }
-        Either.catch {
-            db.etfDao().insert(*(dbEtfs.toTypedArray()))
+    private val inflateEtfs: (Collection<Etf>) -> IO<DbInsertionResult> = { etfs ->
+        IO {
+            val dbEtfs = etfs.map { etf ->
+                val etfBenchmark = db.benchmarkDao().getBenchmarkByName(etf.benchmarkName)
+                val publisher = db.publisherDao().getPublisherByName(etf.publisherName)
+                XetraDbEtf(
+                    name = etf.name,
+                    isin = etf.isin,
+                    publisherId = publisher.rowid,
+                    symbol = etf.symbol,
+                    listingDate = etf.listingDate,
+                    ter = etf.ter,
+                    profitUse = etf.profitUse,
+                    replicationMethod = etf.replicationMethod,
+                    fundCurrency = etf.fundCurrency,
+                    tradingCurrency = etf.tradingCurrency,
+                    benchmarkId = etfBenchmark.rowid
+                )
+            }
+            Either.catch {
+                db.etfDao().insert(*(dbEtfs.toTypedArray()))
+            }
         }
     }
 
