@@ -28,24 +28,23 @@ class FBoerseRepoImpl : FBoerseRepo {
         minDate: LocalDate,
         maxDate: LocalDate
     ): FBoerseHistoryData = (BASE_URL + PRICE_HISTORY_EP).httpGet(
-            listOf(
-                OFFSET_PARAM,
-                LIMIT_PARAM,
-                MIC_PARAM,
-                ISIN_PARAM_ID to isin,
-                MIN_DATE_ID to minDate,
-                MAX_DATE_ID to maxDate
-            )
-        ).awaitObject(kotlinxDeserializerOf(FBoerseHistoryData.serializer()))
+        listOf(
+            OFFSET_PARAM,
+            LIMIT_PARAM,
+            MIC_PARAM,
+            ISIN_PARAM_ID to isin,
+            MIN_DATE_ID to minDate,
+            MAX_DATE_ID to maxDate
+        )
+    ).awaitObject(kotlinxDeserializerOf(FBoerseHistoryData.serializer()))
 
-    override suspend fun getHistoryPerfData(isin: String): FBoersePerfData {
-        return (BASE_URL + PERFORMANCE_EP).httpGet(
+    override suspend fun getHistoryPerfData(isin: String): FBoersePerfData =
+        (BASE_URL + PERFORMANCE_EP).httpGet(
             listOf(
                 MIC_PARAM,
                 ISIN_PARAM_ID to isin
             )
         ).awaitObject(kotlinxDeserializerOf(FBoersePerfData.serializer()))
-    }
 
 /*
 All endpoints reverse engineered
@@ -62,7 +61,5 @@ https://api.boerse-frankfurt.de/data/benchmark?isin=IE00BKX55T58
 https://api.boerse-frankfurt.de/data/data_sheet_header?isin=IE00BKX55T58
 https://api.boerse-frankfurt.de/data/instrument_information?slug=ishares-msci-em-latin-america-ucits-etf-usd-dist&instrumentType=ETP
  */
-
-// STOXX Europe 50 Index
 
 }
