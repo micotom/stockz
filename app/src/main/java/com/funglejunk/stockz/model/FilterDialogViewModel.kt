@@ -22,19 +22,17 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
 
     private val queryInteractor = UiQueryDbInteractor()
 
-    private val searchAction: (UiEtfQuery) -> IO<Either<Throwable, FilteredUiParams>> =
+    private val searchAction: (UiEtfQuery) -> IO<FilteredUiParams> =
         { temporaryQuery ->
             val sqlQueryString = queryInteractor.buildSqlStringFrom(temporaryQuery)
             IO.fx {
                 val queryResult = queryInteractor.executeSqlString(sqlQueryString, db).bind()
-                queryResult.map {
-                    FilteredUiParams(
-                        publishers = it.map { it.publisherName }.sortedWithPlaceholder(),
-                        benchmarks = it.map { it.benchmarkName }.sortedWithPlaceholder(),
-                        profitUses = it.map { it.profitUse }.sortedWithPlaceholder(),
-                        replicationMethods = it.map { it.replicationMethod }.sortedWithPlaceholder()
-                    )
-                }
+                FilteredUiParams(
+                    publishers = queryResult.map { it.publisherName }.sortedWithPlaceholder(),
+                    benchmarks = queryResult.map { it.benchmarkName }.sortedWithPlaceholder(),
+                    profitUses = queryResult.map { it.profitUse }.sortedWithPlaceholder(),
+                    replicationMethods = queryResult.map { it.replicationMethod }.sortedWithPlaceholder()
+                )
             }
         }
 
@@ -46,26 +44,22 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
             replicationLiveData.mutable().postValue(replicationMethods)
         }
 
-    private val initBenchmarkAction: () -> IO<Either<Throwable, SearchResult>> = {
+    private val initBenchmarkAction: () -> IO<SearchResult> = {
         IO.fx {
             effect {
-                Either.catch {
-                    db.benchmarkDao().getAll().map {
-                        it.name
-                    }.alphSorted()
-                }
+                db.benchmarkDao().getAll().map {
+                    it.name
+                }.alphSorted()
             }.bind()
         }
     }
 
-    private val initPublishersAction: () -> IO<Either<Throwable, SearchResult>> = {
+    private val initPublishersAction: () -> IO<SearchResult> = {
         IO.fx {
             effect {
-                Either.catch {
-                    db.publisherDao().getAll().map {
-                        it.name
-                    }.alphSorted()
-                }
+                db.publisherDao().getAll().map {
+                    it.name
+                }.alphSorted()
             }.bind()
         }
     }

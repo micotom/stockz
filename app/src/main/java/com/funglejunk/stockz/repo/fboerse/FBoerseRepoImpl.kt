@@ -1,15 +1,11 @@
 package com.funglejunk.stockz.repo.fboerse
 
-import arrow.core.Either
-import arrow.core.flatMap
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
-import com.funglejunk.stockz.toEither
-import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
+import com.github.kittinunf.fuel.coroutines.awaitObject
 import com.github.kittinunf.fuel.httpGet
-import kotlinx.coroutines.runBlocking
+import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.json.Json
 import java.time.LocalDate
 
 @UnstableDefault
@@ -27,9 +23,11 @@ class FBoerseRepoImpl : FBoerseRepo {
         val MIC_PARAM = "mic" to "XETR"
     }
 
-    override suspend fun getHistory(isin: String, minDate: LocalDate, maxDate: LocalDate):
-            Either<Throwable, FBoerseHistoryData> {
-        return (BASE_URL + PRICE_HISTORY_EP).httpGet(
+    override suspend fun getHistory(
+        isin: String,
+        minDate: LocalDate,
+        maxDate: LocalDate
+    ): FBoerseHistoryData = (BASE_URL + PRICE_HISTORY_EP).httpGet(
             listOf(
                 OFFSET_PARAM,
                 LIMIT_PARAM,
@@ -38,35 +36,15 @@ class FBoerseRepoImpl : FBoerseRepo {
                 MIN_DATE_ID to minDate,
                 MAX_DATE_ID to maxDate
             )
-        ).awaitStringResponseResult().toEither().flatMap { response ->
-            parseFBoerseDataString(response)
-                .map { data ->
-                    data.copy(content = data.content.sortedBy { it.date })
-                }
-        }
-    }
+        ).awaitObject(kotlinxDeserializerOf(FBoerseHistoryData.serializer()))
 
-    private fun parseFBoerseDataString(content: String) = runBlocking {
-        Either.catch {
-            Json.nonstrict.parse(FBoerseHistoryData.serializer(), content)
-        }
-    }
-
-    override suspend fun getHistoryPerfData(isin: String): Either<Throwable, FBoersePerfData> {
+    override suspend fun getHistoryPerfData(isin: String): FBoersePerfData {
         return (BASE_URL + PERFORMANCE_EP).httpGet(
             listOf(
                 MIC_PARAM,
                 ISIN_PARAM_ID to isin
             )
-        ).awaitStringResponseResult().toEither().flatMap { response ->
-            parseFBoersePerfString(response)
-        }
-    }
-
-    private fun parseFBoersePerfString(content: String) = runBlocking {
-        Either.catch {
-            Json.nonstrict.parse(FBoersePerfData.serializer(), content)
-        }
+        ).awaitObject(kotlinxDeserializerOf(FBoersePerfData.serializer()))
     }
 
 /*

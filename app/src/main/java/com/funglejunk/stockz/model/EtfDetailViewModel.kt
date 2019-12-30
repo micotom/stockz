@@ -2,8 +2,6 @@ package com.funglejunk.stockz.model
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import arrow.core.Either
-import arrow.core.extensions.fx
 import arrow.fx.IO
 import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.ChartValue
@@ -18,7 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
 
 typealias StockData = Pair<DrawableHistoricData, FBoersePerfData>
-typealias StockDataResult = Either<Throwable, StockData>
 
 class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
 
@@ -34,30 +31,29 @@ class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
     val viewStateData: LiveData<ViewState> = MutableLiveData()
     private var etfArg: Etf? = null
 
-    private val fetchHistoryAction: (String, LocalDate, LocalDate) -> IO<StockDataResult> = {
-        isin, fromDate, toDate ->
-        IO.fx {
-            val chartDataIO = effect {
-                fBoerseRepo.getHistory(isin, fromDate, toDate).map {
-                    it.content.map { dayData ->
-                        ChartValue(dayData.date.toLocalDate(), dayData.close.toFloat())
-                    }
-                }.map {
-                    DrawableHistoricData(it)
+    private val fetchHistoryAction: (String, LocalDate, LocalDate) -> IO<StockData> =
+        { isin, fromDate, toDate ->
+            IO.fx {
+                val chartDataIO = effect {
+                    val history = fBoerseRepo.getHistory(isin, fromDate, toDate)
+                    val chartData = history.content
+                        .map { dayHistory ->
+                            ChartValue(dayHistory.date.toLocalDate(), dayHistory.close.toFloat())
+                        }
+                    DrawableHistoricData(chartData)
                 }
+                val historyDataIO = effect {
+                    fBoerseRepo.getHistoryPerfData(isin)
+                }
+                IO.parMapN(
+                    Dispatchers.IO,
+                    chartDataIO,
+                    historyDataIO
+                ) { chartData, historyData ->
+                    chartData to historyData
+                }.bind()
             }
-            val historyDataIO = effect {
-                fBoerseRepo.getHistoryPerfData(isin)
-            }
-            IO.parMapN(
-                Dispatchers.IO,
-                chartDataIO,
-                historyDataIO
-            ) { chartData, historyData ->
-                chartData.flattenWith(historyData)
-            }.bind()
         }
-    }
 
     private val showLoadingIO: IO<Unit> = IO.fx {
         viewStateData.mutable().postValue(ViewState.Loading)
@@ -89,12 +85,5 @@ class EtfDetailViewModel(private val fBoerseRepo: FBoerseRepo) : FViewModel() {
         }
         etfArg = etf.copy()
     }
-
-    private fun <E, A, B> Either<E, A>.flattenWith(other: Either<E, B>) =
-        Either.fx<E, Pair<A, B>> {
-            val a = bind()
-            val b = other.bind()
-            a to b
-        }
 
 }

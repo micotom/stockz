@@ -53,17 +53,13 @@ class UiQueryDbInteractor {
         queryString
     }
 
-    fun executeSqlString(query: String, db: XetraDbInterface): IO<Either<Throwable, List<Etf>>> =
+    fun executeSqlString(query: String, db: XetraDbInterface): IO<List<Etf>> =
         IO.fx {
             effect {
                 if (query.isEmpty()) {
-                    Either.catch {
-                        db.etfFlattenedDao().getAll()
-                    }
+                    db.etfFlattenedDao().getAll()
                 } else {
-                    Either.catch {
-                        db.etfFlattenedDao().search(SimpleSQLiteQuery(query))
-                    }
+                    db.etfFlattenedDao().search(SimpleSQLiteQuery(query))
                 }
             }.bind()
         }

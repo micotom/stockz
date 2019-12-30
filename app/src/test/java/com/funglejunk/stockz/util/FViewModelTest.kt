@@ -1,13 +1,9 @@
 package com.funglejunk.stockz.util
 
-import arrow.core.Either
 import arrow.fx.IO
 import arrow.fx.extensions.fx
 import arrow.fx.handleError
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -19,18 +15,17 @@ class FViewModelTest {
         var successCalled = false
         var failureCalled = false
         val nothingCalled = { !successCalled && !failureCalled }
-        val vm = object: FViewModel() {}
+        val vm = object : FViewModel() {}
         val longRunningOp = IO.fx {
-                @Suppress("DeferredResultUnused")
-                effect {
-                    withContext(Dispatchers.Default) {
-                        delay(8000)
-                    }
-                }.bind()
-            Either.right(Unit)
-            }.handleError {
-                Either.left(RuntimeException())
-            }
+            @Suppress("DeferredResultUnused")
+            effect {
+                withContext(Dispatchers.Default) {
+                    delay(8000)
+                }
+            }.bind()
+        }.handleError {
+            RuntimeException()
+        }
         vm.runIO(
             io = longRunningOp,
             onFailure = IO.just { _ ->
@@ -53,7 +48,7 @@ class FViewModelTest {
     fun `io is successful in time`() {
         var successCalled = false
         var failureCalled = false
-        val vm = object: FViewModel() {}
+        val vm = object : FViewModel() {}
         val longRunningOp = IO.fx {
             @Suppress("DeferredResultUnused")
             effect {
@@ -61,9 +56,8 @@ class FViewModelTest {
                     delay(500)
                 }
             }.bind()
-            Either.right(Unit)
         }.handleError {
-            Either.left(RuntimeException())
+            RuntimeException()
         }
         vm.runIO(
             io = longRunningOp,
@@ -84,26 +78,16 @@ class FViewModelTest {
         assertFalse(failureCalled)
     }
 
-    @Suppress("UNREACHABLE_CODE", "IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
     @Test
     fun `error handler is called on error`() {
         var successCalled = false
         var failureCalled = false
-        val vm = object: FViewModel() {}
-        val longRunningOp = IO.fx {
-            @Suppress("DeferredResultUnused")
-            effect {
-                withContext(Dispatchers.Default) {
-                    delay(500)
-                    throw RuntimeException()
-                }
-            }.bind()
-            Either.right(Unit)
-        }.handleError {
-            Either.left(RuntimeException())
+        val vm = object : FViewModel() {}
+        val op = IO.fx {
+            throw RuntimeException()
         }
         vm.runIO(
-            io = longRunningOp,
+            io = op,
             onFailure = IO.just { _ ->
                 failureCalled = true
             },
@@ -114,7 +98,6 @@ class FViewModelTest {
 
         runBlocking {
             delay(1000)
-            vm.cancelIO()
         }
 
         assertTrue(failureCalled)
