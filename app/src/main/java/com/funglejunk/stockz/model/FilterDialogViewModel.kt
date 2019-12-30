@@ -65,15 +65,23 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
         }
     }
 
+    private val onInitResult: IO<(Pair<SearchResult, SearchResult>) -> Unit> =
+        IO.just { (benchmarks, publishers) ->
+            benchmarkNamesLiveData.mutable().postValue(benchmarks)
+            publisherNamesLiveData.mutable().postValue(publishers)
+        }
+
     init {
         val action = IO.parMapN(
             Dispatchers.IO,
             initBenchmarkAction(),
             initPublishersAction()
-        ) { _, _ -> Unit }
+        ) { benchmarks, publishers ->
+            benchmarks to publishers
+        }
         runIO(
             io = action,
-            onSuccess = IO.just { _ -> Unit }
+            onSuccess = onInitResult
         )
     }
 
