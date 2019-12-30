@@ -1,10 +1,8 @@
 package com.funglejunk.stockz.model
 
 import android.content.Context
-import arrow.core.Either
 import arrow.fx.IO
 import arrow.fx.extensions.fx
-import arrow.fx.fix
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.not
 import com.funglejunk.stockz.repo.db.XetraDbEtf
@@ -13,7 +11,7 @@ import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.repo.db.XetraEtfPublisher
 
 typealias ReadFromDiskResult = Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>
-typealias DbInsertionResult = Either<Throwable, Array<Long>>
+typealias DbInsertionResult = Array<Long>
 
 class XetraMasterDataInflater(private val context: Context, private val db: XetraDbInterface) {
 
@@ -31,26 +29,17 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         const val BENCH_INDEX = 21
     }
 
-    val init: () -> IO<Either<Throwable, Unit>> = {
+    val init: () -> IO<Unit> = {
         IO.fx {
             val needToInflate = not(isInflated()).bind()
             if (needToInflate) {
                 val diskResult = readFromDisk().bind()
-                diskResult.fold(
-                    {
-                        Either.left(it)
-                    },
-                    {
-                        inflateDiskReadings(it).bind().map { Unit }
-                    }
-                )
-            } else {
-                Either.right(Unit)
+                inflateDiskReadings(diskResult).bind()
             }
         }
     }
 
-    private val inflateDiskReadings: (ReadFromDiskResult) -> IO<Either<Throwable, Unit>> =
+    private val inflateDiskReadings: (ReadFromDiskResult) -> IO<Unit> =
         { diskResult ->
             IO.fx {
                 val (etfs, publishers, benchmarks) = diskResult
@@ -63,7 +52,8 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
                     ).map {
                         it.map { Unit }
                     }.bind()
-            }.fix()
+                Unit
+            }
         }
 
     private val isInflated: () -> IO<Boolean> = {
@@ -71,7 +61,7 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    private val readFromDisk: () -> IO<Either<Throwable, ReadFromDiskResult>> = {
+    private val readFromDisk: () -> IO<ReadFromDiskResult> = {
         IO {
             context.assets.open("xetra_etf_datasheet.csv")
         }.bracket(
@@ -95,49 +85,44 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         )
     }
 
-    private suspend fun parseLines(lines: List<String>): Either<Throwable, ReadFromDiskResult> =
-        Either.catch {
-            val cleanLines = lines.filter { it.isNotEmpty() }
-            val rowsAndColumns = cleanLines.map { it.split(";") }
-            val entries = rowsAndColumns.map { columns ->
-                val publisher = XetraEtfPublisher(name = columns[PUBLISHER_INDEX])
-                val benchmark = XetraEtfBenchmark(name = columns[BENCH_INDEX])
-                val etf = Etf(
-                    name = columns[NAME_INDEX],
-                    isin = columns[ISIN_INDEX],
-                    symbol = columns[SYMBOL_INDEX],
-                    listingDate = columns[LISTING_DATE_INDEX],
-                    ter = columns[TER_INDEX].formatPercentage().toDouble(),
-                    profitUse = columns[PROF_USE_INDEX],
-                    replicationMethod = columns[REPL_METHOD_INDEX],
-                    fundCurrency = columns[FUND_CURR_INDEX],
-                    tradingCurrency = columns[TRADE_CURR_INDEX],
-                    publisherName = publisher.name,
-                    benchmarkName = benchmark.name
-                )
-                Triple(etf, publisher, benchmark)
-            }
-            val etfs = entries.map { it.first }
-            val publishers = entries.map { it.second }.toSet()
-            val benchmarks = entries.map { it.third }.toSet()
-            Triple(etfs, publishers, benchmarks)
+    private fun parseLines(lines: List<String>): ReadFromDiskResult {
+        val cleanLines = lines.filter { it.isNotEmpty() }
+        val rowsAndColumns = cleanLines.map { it.split(";") }
+        val entries = rowsAndColumns.map { columns ->
+            val publisher = XetraEtfPublisher(name = columns[PUBLISHER_INDEX])
+            val benchmark = XetraEtfBenchmark(name = columns[BENCH_INDEX])
+            val etf = Etf(
+                name = columns[NAME_INDEX],
+                isin = columns[ISIN_INDEX],
+                symbol = columns[SYMBOL_INDEX],
+                listingDate = columns[LISTING_DATE_INDEX],
+                ter = columns[TER_INDEX].formatPercentage().toDouble(),
+                profitUse = columns[PROF_USE_INDEX],
+                replicationMethod = columns[REPL_METHOD_INDEX],
+                fundCurrency = columns[FUND_CURR_INDEX],
+                tradingCurrency = columns[TRADE_CURR_INDEX],
+                publisherName = publisher.name,
+                benchmarkName = benchmark.name
+            )
+            Triple(etf, publisher, benchmark)
         }
+        val etfs = entries.map { it.first }
+        val publishers = entries.map { it.second }.toSet()
+        val benchmarks = entries.map { it.third }.toSet()
+        return Triple(etfs, publishers, benchmarks)
+    }
 
     private val inflatePublishers: (Collection<XetraEtfPublisher>) -> IO<DbInsertionResult> =
         { publishers ->
             IO {
-                Either.catch {
-                    db.publisherDao().insert(*(publishers.toTypedArray()))
-                }
+                db.publisherDao().insert(*(publishers.toTypedArray()))
             }
         }
 
     private val inflateBenchmarks: (Collection<XetraEtfBenchmark>) -> IO<DbInsertionResult> =
         { benchmarks ->
             IO {
-                Either.catch {
-                    db.benchmarkDao().insert(*(benchmarks.toTypedArray()))
-                }
+                db.benchmarkDao().insert(*(benchmarks.toTypedArray()))
             }
         }
 
@@ -160,9 +145,7 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
                     benchmarkId = etfBenchmark.rowid
                 )
             }
-            Either.catch {
-                db.etfDao().insert(*(dbEtfs.toTypedArray()))
-            }
+            db.etfDao().insert(*(dbEtfs.toTypedArray()))
         }
     }
 
