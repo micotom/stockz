@@ -10,6 +10,7 @@ import com.funglejunk.stockz.data.UiEtfQuery
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.util.FViewModel
+import kotlinx.coroutines.Dispatchers
 
 typealias SearchResult = List<String>
 
@@ -65,12 +66,13 @@ class FilterDialogViewModel(private val db: XetraDbInterface) : FViewModel() {
     }
 
     init {
+        val action = IO.parMapN(
+            Dispatchers.IO,
+            initBenchmarkAction(),
+            initPublishersAction()
+        ) { _, _ -> Unit }
         runIO(
-            io = initBenchmarkAction(),
-            onSuccess = IO.just { _ -> Unit }
-        )
-        runIO(
-            io = initPublishersAction(),
+            io = action,
             onSuccess = IO.just { _ -> Unit }
         )
     }
