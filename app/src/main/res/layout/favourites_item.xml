@@ -5,13 +5,12 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_margin="2dp"
-        android:paddingBottom="6dp">
+        android:paddingBottom="12dp">
 
     <TextView
             android:id="@+id/etf_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingBottom="6dp"
             android:textColor="@color/secondaryTextColor"
             android:textSize="18sp"
             tools:text="ETF NAME COMES HERE" />
