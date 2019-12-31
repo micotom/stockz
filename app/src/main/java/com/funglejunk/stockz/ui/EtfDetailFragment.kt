@@ -69,7 +69,10 @@ class EtfDetailFragment : Fragment() {
                 Timber.e("${event.error}")
             }
             is EtfDetailViewModel.ViewState.NewEtfFavouriteState -> {
-                fav_button.isEnabled = !event.isFavourite
+                fav_button.visibility = when (event.isFavourite) {
+                    true -> View.INVISIBLE
+                    false -> View.VISIBLE
+                }
             }
         }
     }
