@@ -33,6 +33,10 @@ class EtfListFragment : Fragment() {
 
         initFilterSheet()
 
+        fab_favourites.setOnClickListener {
+            findNavController().navigate(EtfListFragmentDirections.listToFavouritesAction())
+        }
+
         viewModel.viewStateData.observe(viewLifecycleOwner, Observer {
             renderViewState(it)
         })

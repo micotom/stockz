@@ -20,6 +20,9 @@
                     android:name="etf"
                     app:argType="com.funglejunk.stockz.data.Etf" />
         </action>
+        <action
+                android:id="@+id/list_to_favourites_action"
+                app:destination="@id/favourites_fragment" />
     </fragment>
 
     <fragment
@@ -31,11 +34,23 @@
                 app:argType="com.funglejunk.stockz.data.Etf" />
     </fragment>
 
+    <fragment
+            android:id="@+id/favourites_fragment"
+            android:name="com.funglejunk.stockz.ui.FavouritesFragment"
+            android:label="favourites_fragment">
+        <action
+                android:id="@+id/fav_to_detail_action"
+                app:destination="@id/detail_fragment">
+            <argument
+                    android:name="etf"
+                    app:argType="com.funglejunk.stockz.data.Etf" />
+        </action>
+    </fragment>
+
     <dialog
             android:id="@+id/filter_dialog"
             android:name="com.funglejunk.stockz.ui.FilterDialog"
             android:label="filter_dialog"
-            tools:layout="@layout/filter_dialog">
-    </dialog>
+            tools:layout="@layout/filter_dialog"></dialog>
 
 </navigation>

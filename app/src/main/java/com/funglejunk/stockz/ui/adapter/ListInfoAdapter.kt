@@ -28,9 +28,7 @@ class ListInfoAdapter(
         return EtfViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return data.size
-    }
+    override fun getItemCount(): Int = data.size
 
     override fun onBindViewHolder(holder: EtfViewHolder, position: Int) {
         val item = data[position]
