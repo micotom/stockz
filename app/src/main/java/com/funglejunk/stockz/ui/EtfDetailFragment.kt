@@ -41,6 +41,9 @@ class EtfDetailFragment : Fragment() {
             Timber.d("ETF: $etf")
             viewModel.setEtfArgs(etf)
             showBasicData(etf)
+            fav_button.setOnClickListener {
+                viewModel.addToFavourites(etf)
+            }
         }
     }
 
@@ -64,6 +67,9 @@ class EtfDetailFragment : Fragment() {
                 error_txt.visibility = View.VISIBLE
                 error_txt.text = "${event.error.message}"
                 Timber.e("${event.error}")
+            }
+            is EtfDetailViewModel.ViewState.NewEtfFavouriteState -> {
+                fav_button.isEnabled = !event.isFavourite
             }
         }
     }

@@ -7,11 +7,12 @@ import com.funglejunk.stockz.data.Etf
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
+//region Db
 @Database(
     entities = [
-        XetraDbEtf::class, XetraEtfPublisher::class, XetraEtfBenchmark::class
+        XetraDbEtf::class, XetraEtfPublisher::class, XetraEtfBenchmark::class, XetraFavourite::class
     ],
-    version = 4
+    version = 5
 )
 abstract class XetraDb : RoomDatabase(), XetraDbInterface {
 
@@ -39,8 +40,45 @@ abstract class XetraDb : RoomDatabase(), XetraDbInterface {
     abstract override fun benchmarkDao(): XetraEtfBenchmarkDao
 
     abstract override fun etfFlattenedDao(): XetraEtfFlattenedDao
-}
 
+    abstract override fun favouritesDao(): XetraFavouriteDao
+}
+//endregion
+
+//region Favourites
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = XetraDbEtf::class,
+            childColumns = ["isin"],
+            parentColumns = ["isin"]
+        )
+    ]
+)
+data class XetraFavourite(
+    @PrimaryKey(autoGenerate = false) @ColumnInfo(name = "isin") val isin: String
+)
+
+@Dao
+interface XetraFavouriteDao {
+    @Insert
+    suspend fun insert(favourite: XetraFavourite): Long
+
+    @Query(
+        "${XetraEtfFlattenedDao.MAPPING_SELECT} " +
+                "LEFT JOIN xetraetfpublisher ON xetradbetf.publ_id = xetraetfpublisher.rowid " +
+                "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid " +
+                "WHERE xetradbetf.isin IN xetrafavourite"
+    )
+    suspend fun getAll(): List<Etf>
+
+    @Query("SELECT COUNT(*) FROM xetrafavourite WHERE isin = :etfIsin")
+    suspend fun getRecordCount(etfIsin: String): Long
+}
+//endregion
+
+
+//region Etf
 @Entity(
     foreignKeys = [
         ForeignKey(
@@ -114,7 +152,9 @@ interface XetraEtfInfoDao {
     @Insert
     suspend fun insert(vararg publisher: XetraDbEtf): Array<Long>
 }
+//endregion
 
+//region Publisher
 @Entity
 data class XetraEtfPublisher(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rowid") val rowid: Int = 0,
@@ -123,7 +163,6 @@ data class XetraEtfPublisher(
 
 @Dao
 interface XetraEtfPublisherDao {
-
     @Insert
     suspend fun insert(vararg publisher: XetraEtfPublisher): Array<Long>
 
@@ -133,7 +172,9 @@ interface XetraEtfPublisherDao {
     @Query("SELECT * from xetraetfpublisher")
     suspend fun getAll(): List<XetraEtfPublisher>
 }
+//endregion
 
+//region Benchmark
 @Entity
 data class XetraEtfBenchmark(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rowid") val rowid: Int = 0,
@@ -152,3 +193,4 @@ interface XetraEtfBenchmarkDao {
     @Query("SELECT * from xetraetfbenchmark")
     suspend fun getAll(): List<XetraEtfBenchmark>
 }
+//endregion
