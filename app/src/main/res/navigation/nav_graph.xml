@@ -37,7 +37,15 @@
     <fragment
             android:id="@+id/favourites_fragment"
             android:name="com.funglejunk.stockz.ui.FavouritesFragment"
-            android:label="favourites_fragment" />
+            android:label="favourites_fragment">
+        <action
+                android:id="@+id/fav_to_detail_action"
+                app:destination="@id/detail_fragment">
+            <argument
+                    android:name="etf"
+                    app:argType="com.funglejunk.stockz.data.Etf" />
+        </action>
+    </fragment>
 
     <dialog
             android:id="@+id/filter_dialog"
