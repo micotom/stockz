@@ -74,6 +74,9 @@ interface XetraFavouriteDao {
 
     @Query("SELECT COUNT(*) FROM xetrafavourite WHERE isin = :etfIsin")
     suspend fun getRecordCount(etfIsin: String): Long
+
+    @Delete
+    suspend fun removeItem(record: XetraFavourite): Int
 }
 //endregion
 

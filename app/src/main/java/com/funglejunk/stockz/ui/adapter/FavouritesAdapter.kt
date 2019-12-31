@@ -9,7 +9,7 @@ import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.Etf
 
 class FavouritesAdapter(
-    private val data: List<Etf>,
+    private val data: MutableList<Etf>,
     private val onClickListener: (Etf) -> Unit
 ) : RecyclerView.Adapter<FavouritesAdapter.FavouriteHolder>() {
 
@@ -35,6 +35,13 @@ class FavouritesAdapter(
                 onClickListener(etfItem)
             }
         }
+    }
+
+    fun getItemAt(index: Int): Etf = data[index]
+
+    fun removeItem(index: Int) {
+        data.removeAt(index)
+        notifyItemRemoved(index)
     }
 
 }
