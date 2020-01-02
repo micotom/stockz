@@ -73,6 +73,7 @@ class ChartView : View {
     private val presenter = ChartViewPresenter()
     private val labels = mutableListOf<Pair<LocalDate, Float>>()
     private val horizontalLines = mutableListOf<Pair<String, Float>>()
+    private val textBound = Rect()
 
     fun draw(data: DrawableHistoricData) {
         post {
@@ -110,7 +111,7 @@ class ChartView : View {
                     )
                     invalidate()
                 }
-                addListener(object: AnimatorEndListener() {
+                addListener(object : AnimatorEndListener() {
                     override fun onAnimationEnd(animation: Animator?) {
                         drawLabels = true
                         invalidate()
@@ -136,12 +137,14 @@ class ChartView : View {
                 }
                 if (index != horizontalLines.size - 1) {
                     canvas.drawLine(
-                        HORIZONTAL_LABEL_OFFSET, height - value, width.toFloat(), height - value, horizontalLabelLinePaint
+                        HORIZONTAL_LABEL_OFFSET,
+                        height - value,
+                        width.toFloat(),
+                        height - value,
+                        horizontalLabelLinePaint
                     )
                 }
             }
-
-            val textBound = Rect()
 
             presenter.getYearMarkers(labels).forEach { (label, x) ->
                 textLabelPaint.getTextBounds(label, 0, label.length, textBound)
@@ -150,7 +153,11 @@ class ChartView : View {
                     label, x - xOffset, 0f + textLabelPaint.textSize, textLabelPaint
                 )
                 canvas.drawLine(
-                    x, textLabelPaint.textSize * 2, x, height.toFloat() - textLabelPaint.textSize, verticalPrimaryLinePaint
+                    x,
+                    textLabelPaint.textSize * 2,
+                    x,
+                    height.toFloat() - textLabelPaint.textSize,
+                    verticalPrimaryLinePaint
                 )
                 canvas.drawCircle(
                     x, textLabelPaint.textSize * 2, 4f, textLabelPaint
