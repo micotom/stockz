@@ -30,8 +30,13 @@ class ChartViewPresenter {
     }
 
     fun calculateLabels(data: DrawableHistoricData, viewWidth: Int): List<Pair<LocalDate, Float>> {
-        val distanceYValues = viewWidth.toFloat() / data.size
-        return data.mapIndexed { index, (date, _) -> date to index * distanceYValues }
+        return when (data.isNotEmpty()) {
+            true -> {
+                val distanceYValues = viewWidth.toFloat() / data.size
+                data.mapIndexed { index, (date, _) -> date to index * distanceYValues }
+            }
+            false -> emptyList()
+        }
     }
 
     fun calculateChartValues(data: DrawableHistoricData, viewHeight: Int): List<Float> {
@@ -50,26 +55,36 @@ class ChartViewPresenter {
 
     // Brings list with only first values from a year
     fun getYearMarkers(data: List<Pair<LocalDate, Float>>): List<Pair<String, Float>> {
-        var currentYear = data.first().first.year
-        return data.filter { (date, _) ->
-            val dataYear = date.year
-            val isNewYear = dataYear > currentYear
-            currentYear = dataYear
-            isNewYear
-        }.map { (date, value) ->
-            date.toYearString() to value
+        return when (data.isNotEmpty()) {
+            true -> {
+                var currentYear = data.first().first.year
+                data.filter { (date, _) ->
+                    val dataYear = date.year
+                    val isNewYear = dataYear > currentYear
+                    currentYear = dataYear
+                    isNewYear
+                }.map { (date, value) ->
+                    date.toYearString() to value
+                }
+            }
+            false -> emptyList()
         }
     }
 
     fun getMonthMarkers(data: List<Pair<LocalDate, Float>>): List<Pair<String, Float>> {
-        var currentMonth = data.first().first.month
-        return data.filter { (date, _) ->
-            val dateMonth = date.month
-            val isNewMonth = dateMonth > currentMonth
-            currentMonth = dateMonth
-            isNewMonth
-        }.map { (date, value) ->
-            date.toMonthDayString() to value
+        return when (data.isNotEmpty()) {
+            true -> {
+                var currentMonth = data.first().first.month
+                data.filter { (date, _) ->
+                    val dateMonth = date.month
+                    val isNewMonth = dateMonth > currentMonth
+                    currentMonth = dateMonth
+                    isNewMonth
+                }.map { (date, value) ->
+                    date.toMonthDayString() to value
+                }
+            }
+            false -> emptyList()
         }
     }
 }
