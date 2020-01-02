@@ -28,7 +28,7 @@ class EtfDetailViewModel(
 
     sealed class ViewState {
         object Loading : ViewState()
-        data class Error(val error: Throwable) : ViewState() // TODO use in io error handling!
+        data class Error(val error: Throwable) : ViewState()
         data class NewChartData(
             val drawableHistoricValues: DrawableHistoricData,
             val performanceData: FBoersePerfData
