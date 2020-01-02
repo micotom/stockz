@@ -38,16 +38,16 @@ class EtfDetailFragment : Fragment() {
 
         arguments?.let {
             val etf = EtfDetailFragmentArgs.fromBundle(it).etf
-            Timber.d("ETF: $etf")
             viewModel.setEtfArgs(etf)
-            showBasicData(etf)
+            showBasicData(etf) // TODO check if necessary, makes list flicker
             fav_button.setOnClickListener {
                 viewModel.addToFavourites(etf)
             }
         }
     }
 
-    private fun renderNewViewState(event: EtfDetailViewModel.ViewState?) {
+    private fun renderNewViewState(event: EtfDetailViewModel.ViewState) {
+        Timber.w("New view state: ${event::class.java.simpleName}")
         when (event) {
             EtfDetailViewModel.ViewState.Loading -> {
                 error_txt.visibility = View.INVISIBLE
@@ -65,8 +65,7 @@ class EtfDetailFragment : Fragment() {
                 progressbar.visibility = View.INVISIBLE
                 mychart.visibility = View.INVISIBLE
                 error_txt.visibility = View.VISIBLE
-                error_txt.text = "${event.error.message}"
-                Timber.e("${event.error}")
+                error_txt.text = "Something went wrong :(\n${event.error.message}" // TODO externalize to string resources
             }
             is EtfDetailViewModel.ViewState.NewEtfFavouriteState -> {
                 fav_button.visibility = when (event.isFavourite) {
