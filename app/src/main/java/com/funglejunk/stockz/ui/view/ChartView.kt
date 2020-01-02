@@ -73,6 +73,7 @@ class ChartView : View {
     private val presenter = ChartViewPresenter()
     private val labels = mutableListOf<Pair<LocalDate, Float>>()
     private val horizontalLines = mutableListOf<Pair<String, Float>>()
+    private val textBound = Rect()
 
     fun draw(data: DrawableHistoricData) {
         post {
@@ -88,6 +89,10 @@ class ChartView : View {
             }
 
             val yValues = presenter.calculateChartValues(data, height)
+
+            if (yValues.isEmpty()) {
+                return@post
+            }
 
             path.also {
                 it.reset()
@@ -106,15 +111,11 @@ class ChartView : View {
                     )
                     invalidate()
                 }
-                addListener(object : Animator.AnimatorListener {
+                addListener(object : AnimatorEndListener() {
                     override fun onAnimationEnd(animation: Animator?) {
                         drawLabels = true
                         invalidate()
                     }
-
-                    override fun onAnimationRepeat(animation: Animator?) = Unit
-                    override fun onAnimationCancel(animation: Animator?) = Unit
-                    override fun onAnimationStart(animation: Animator?) = Unit
                 })
                 start()
             }
@@ -136,12 +137,14 @@ class ChartView : View {
                 }
                 if (index != horizontalLines.size - 1) {
                     canvas.drawLine(
-                        HORIZONTAL_LABEL_OFFSET, height - value, width.toFloat(), height - value, horizontalLabelLinePaint
+                        HORIZONTAL_LABEL_OFFSET,
+                        height - value,
+                        width.toFloat(),
+                        height - value,
+                        horizontalLabelLinePaint
                     )
                 }
             }
-
-            val textBound = Rect()
 
             presenter.getYearMarkers(labels).forEach { (label, x) ->
                 textLabelPaint.getTextBounds(label, 0, label.length, textBound)
@@ -150,7 +153,11 @@ class ChartView : View {
                     label, x - xOffset, 0f + textLabelPaint.textSize, textLabelPaint
                 )
                 canvas.drawLine(
-                    x, textLabelPaint.textSize * 2, x, height.toFloat() - textLabelPaint.textSize, verticalPrimaryLinePaint
+                    x,
+                    textLabelPaint.textSize * 2,
+                    x,
+                    height.toFloat() - textLabelPaint.textSize,
+                    verticalPrimaryLinePaint
                 )
                 canvas.drawCircle(
                     x, textLabelPaint.textSize * 2, 4f, textLabelPaint
@@ -191,5 +198,15 @@ class ChartView : View {
         Timber.d("onDetachedFromWindow()")
         animator?.cancel()
         super.onDetachedFromWindow()
+    }
+
+    private abstract class AnimatorEndListener : Animator.AnimatorListener {
+        override fun onAnimationRepeat(animation: Animator?) = Unit
+
+        abstract override fun onAnimationEnd(animation: Animator?)
+
+        override fun onAnimationCancel(animation: Animator?) = Unit
+
+        override fun onAnimationStart(animation: Animator?) = Unit
     }
 }

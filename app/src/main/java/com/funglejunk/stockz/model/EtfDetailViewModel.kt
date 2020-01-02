@@ -48,6 +48,7 @@ class EtfDetailViewModel(
                         .map { dayHistory ->
                             ChartValue(dayHistory.date.toLocalDate(), dayHistory.close.toFloat())
                         }
+                        .sortedBy { it.date }
                     DrawableHistoricData(chartData)
                 }
                 val historyDataIO = effect {
@@ -63,12 +64,21 @@ class EtfDetailViewModel(
             }
         }
 
-    private val showLoadingIO: IO<Unit> = IO.fx {
-        viewStateData.mutable().postValue(ViewState.Loading)
+    private val showLoadingIO: () -> IO<Unit> = {
+        IO.fx {
+            viewStateData.mutable().postValue(ViewState.Loading)
+        }
     }
 
     private val onHistoryFetchedIO: IO<(StockData) -> Unit> = IO.just { (drawableData, perfData) ->
         viewStateData.mutable().postValue(ViewState.NewChartData(drawableData, perfData))
+    }
+
+    private val onHistoryFetchError: IO<(Throwable) -> Unit> = IO.just { throwable ->
+        Timber.e(throwable)
+        viewStateData.mutable().postValue(
+            ViewState.Error(throwable)
+        )
     }
 
     private fun fetchFboerseHistoy(
@@ -77,20 +87,22 @@ class EtfDetailViewModel(
         toDate: LocalDate = LocalDate.now()
     ) {
         val action = IO.fx {
-            showLoadingIO.bind()
-            fetchHistoryAction(isin, fromDate, toDate).bind()
+            showLoadingIO().followedBy(
+                fetchHistoryAction(isin, fromDate, toDate)
+            ).bind()
         }
         runIO(
             io = action,
-            onSuccess = onHistoryFetchedIO
+            onSuccess = onHistoryFetchedIO,
+            onFailure = onHistoryFetchError
         )
     }
 
     fun setEtfArgs(etf: Etf) {
         val receivedNewEtfArg = null == etfArg || etfArg != etf
         if (receivedNewEtfArg) {
-            fetchFboerseHistoy(etf.isin)
             applyFavouriteState(etf)
+            fetchFboerseHistoy(etf.isin) // TODO should maybe run combined with favourite state
         }
         etfArg = etf.copy()
     }
