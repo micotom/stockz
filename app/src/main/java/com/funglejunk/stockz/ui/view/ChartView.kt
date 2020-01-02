@@ -89,101 +89,115 @@ class ChartView : View {
             }
 
             val yValues = presenter.calculateChartValues(data, height)
-
-            if (yValues.isEmpty()) {
-                return@post
+            if (yValues.isNotEmpty()) {
+                path.also {
+                    it.reset()
+                    it.moveTo(HORIZONTAL_LABEL_OFFSET, height - yValues[0])
+                }
+                val widthAsFloat = width.toFloat() - HORIZONTAL_LABEL_OFFSET
+                animator = initGraphAnimator(yValues, widthAsFloat, data).also {
+                    it.start()
+                }
             }
+        }
+    }
 
-            path.also {
-                it.reset()
-                it.moveTo(HORIZONTAL_LABEL_OFFSET, height - yValues[0])
+    private fun initGraphAnimator(
+        yValues: List<Float>,
+        widthAsFloat: Float,
+        data: DrawableHistoricData
+    ): ValueAnimator {
+        return ValueAnimator.ofInt(1, yValues.size - 1).apply {
+            duration = 1500
+            val distanceYValues = widthAsFloat / data.size
+            addUpdateListener {
+                val animatedIndex = it.animatedValue as Int
+                path.lineTo(
+                    distanceYValues * animatedIndex + HORIZONTAL_LABEL_OFFSET,
+                    height - yValues[animatedIndex]
+                )
+                invalidate()
             }
-
-            val widthAsFloat = width.toFloat() - HORIZONTAL_LABEL_OFFSET
-            animator = ValueAnimator.ofInt(1, yValues.size - 1).apply {
-                duration = 1500
-                val distanceYValues = widthAsFloat / data.size
-                addUpdateListener {
-                    val animatedIndex = it.animatedValue as Int
-                    path.lineTo(
-                        distanceYValues * animatedIndex + HORIZONTAL_LABEL_OFFSET,
-                        height - yValues[animatedIndex]
-                    )
+            addListener(object : AnimatorEndListener() {
+                override fun onAnimationEnd(animation: Animator?) {
+                    drawLabels = true
                     invalidate()
                 }
-                addListener(object : AnimatorEndListener() {
-                    override fun onAnimationEnd(animation: Animator?) {
-                        drawLabels = true
-                        invalidate()
-                    }
-                })
-                start()
-            }
+            })
         }
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawPath(path, chartPaint)
 
         if (drawLabels) {
             drawLabels = false
+            drawHorizontalLines(canvas)
+            drawYearMarkers(canvas)
+            drawMonthMarkers(canvas)
+        }
+        canvas.drawPath(path, chartPaint)
+    }
 
-            horizontalLines.forEachIndexed { index, (label, value) ->
-                if (index != 0 && index != horizontalLines.size - 1) {
-                    canvas.drawText(
-                        label, 0f, value + (textLabelPaint.textSize / 2.5f), textLabelPaint
-                    )
-                }
-                if (index != horizontalLines.size - 1) {
-                    canvas.drawLine(
-                        HORIZONTAL_LABEL_OFFSET,
-                        height - value,
-                        width.toFloat(),
-                        height - value,
-                        horizontalLabelLinePaint
-                    )
-                }
-            }
-
-            presenter.getYearMarkers(labels).forEach { (label, x) ->
+    private fun drawMonthMarkers(canvas: Canvas) {
+        presenter.getMonthMarkers(labels).filterIndexed { index, _ ->
+            index % 3 == 0
+        }.forEach { (label, x) ->
+            if (x > HORIZONTAL_LABEL_OFFSET) {
                 textLabelPaint.getTextBounds(label, 0, label.length, textBound)
                 val xOffset = textBound.width() / 2f
                 canvas.drawText(
-                    label, x - xOffset, 0f + textLabelPaint.textSize, textLabelPaint
+                    label, x - xOffset, height.toFloat(), textLabelPaint
                 )
                 canvas.drawLine(
                     x,
-                    textLabelPaint.textSize * 2,
+                    textLabelPaint.textSize,
                     x,
-                    height.toFloat() - textLabelPaint.textSize,
-                    verticalPrimaryLinePaint
+                    height.toFloat() - (textLabelPaint.textSize * 2),
+                    verticalSecondaryLinePaint
                 )
                 canvas.drawCircle(
-                    x, textLabelPaint.textSize * 2, 4f, textLabelPaint
+                    x, height.toFloat() - (textLabelPaint.textSize * 2), 4f, textLabelPaint
                 )
             }
+        }
+    }
 
-            presenter.getMonthMarkers(labels).filterIndexed { index, _ ->
-                index % 3 == 0
-            }.forEach { (label, x) ->
-                if (x > HORIZONTAL_LABEL_OFFSET) {
-                    textLabelPaint.getTextBounds(label, 0, label.length, textBound)
-                    val xOffset = textBound.width() / 2f
-                    canvas.drawText(
-                        label, x - xOffset, height.toFloat(), textLabelPaint
-                    )
-                    canvas.drawLine(
-                        x,
-                        textLabelPaint.textSize,
-                        x,
-                        height.toFloat() - (textLabelPaint.textSize * 2),
-                        verticalSecondaryLinePaint
-                    )
-                    canvas.drawCircle(
-                        x, height.toFloat() - (textLabelPaint.textSize * 2), 4f, textLabelPaint
-                    )
-                }
+    private fun drawYearMarkers(canvas: Canvas) {
+        presenter.getYearMarkers(labels).forEach { (label, x) ->
+            textLabelPaint.getTextBounds(label, 0, label.length, textBound)
+            val xOffset = textBound.width() / 2f
+            canvas.drawText(
+                label, x - xOffset, 0f + textLabelPaint.textSize, textLabelPaint
+            )
+            canvas.drawLine(
+                x,
+                textLabelPaint.textSize * 2,
+                x,
+                height.toFloat() - textLabelPaint.textSize,
+                verticalPrimaryLinePaint
+            )
+            canvas.drawCircle(
+                x, textLabelPaint.textSize * 2, 4f, textLabelPaint
+            )
+        }
+    }
+
+    private fun drawHorizontalLines(canvas: Canvas) {
+        horizontalLines.forEachIndexed { index, (label, value) ->
+            if (index != 0 && index != horizontalLines.size - 1) {
+                canvas.drawText(
+                    label, 0f, value + (textLabelPaint.textSize / 2.5f), textLabelPaint
+                )
+            }
+            if (index != horizontalLines.size - 1) {
+                canvas.drawLine(
+                    HORIZONTAL_LABEL_OFFSET,
+                    height - value,
+                    width.toFloat(),
+                    height - value,
+                    horizontalLabelLinePaint
+                )
             }
         }
     }
@@ -202,11 +216,8 @@ class ChartView : View {
 
     private abstract class AnimatorEndListener : Animator.AnimatorListener {
         override fun onAnimationRepeat(animation: Animator?) = Unit
-
         abstract override fun onAnimationEnd(animation: Animator?)
-
         override fun onAnimationCancel(animation: Animator?) = Unit
-
         override fun onAnimationStart(animation: Animator?) = Unit
     }
 }
