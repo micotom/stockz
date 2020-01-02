@@ -133,7 +133,7 @@
             android:layout_height="32dp"
             android:elevation="2dp"
             android:indeterminate="true"
-            android:visibility="invisible"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="@id/mychart"
             app:layout_constraintLeft_toLeftOf="@id/mychart"
             app:layout_constraintRight_toRightOf="@id/mychart"
