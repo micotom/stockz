@@ -39,7 +39,7 @@ class EtfDetailFragment : Fragment() {
         arguments?.let {
             val etf = EtfDetailFragmentArgs.fromBundle(it).etf
             viewModel.setEtfArgs(etf)
-            showBasicData(etf) // TODO check if necessary, makes list flicker
+            showBasicData(etf)
             fav_button.setOnClickListener {
                 viewModel.addToFavourites(etf)
             }
@@ -47,7 +47,7 @@ class EtfDetailFragment : Fragment() {
     }
 
     private fun renderNewViewState(event: EtfDetailViewModel.ViewState) {
-        Timber.w("New view state: ${event::class.java.simpleName}")
+        Timber.d("New view state: ${event::class.java.simpleName}")
         when (event) {
             EtfDetailViewModel.ViewState.Loading -> {
                 error_txt.visibility = View.INVISIBLE
@@ -59,7 +59,7 @@ class EtfDetailFragment : Fragment() {
                 progressbar.visibility = View.INVISIBLE
                 mychart.visibility = View.VISIBLE
                 renderChartData(event.drawableHistoricValues)
-                showPerformanceData(event.performanceData)
+                showExtendedData(event.etf, event.performanceData)
             }
             is EtfDetailViewModel.ViewState.Error -> {
                 progressbar.visibility = View.INVISIBLE
@@ -80,41 +80,34 @@ class EtfDetailFragment : Fragment() {
         mychart.draw(data)
     }
 
-    // TODO inflate strings from resources
     private fun showBasicData(etf: Etf) {
         stock_name.text = etf.name
         publisher_name.text = etf.publisherName
         isin.text = etf.isin
+    }
+
+    // TODO inflate strings from resources
+    private fun showExtendedData(etf: Etf, data: FBoersePerfData) {
         val leftData = listOf(
             "Symbol" to etf.symbol,
             "Benchmark" to etf.benchmarkName,
             "Replication" to etf.replicationMethod,
-            "Listing Date" to etf.listingDate
+            "Listing Date" to etf.listingDate,
+            "1 Month" to "${data.months1.changeInPercent.round()}%",
+            "3 Months" to "${data.months3.changeInPercent.round()}%",
+            "6 Months" to "${data.months6.changeInPercent.round()}%"
         )
         val rightData = listOf(
             "TER" to "${etf.ter} %",
             "Profit Use" to etf.profitUse,
             "Fund Currency" to etf.fundCurrency,
-            "Trading Currency" to etf.tradingCurrency
+            "Trading Currency" to etf.tradingCurrency,
+            "1 Year" to "${data.years1.changeInPercent.round()}%",
+            "2 Years" to "${data.years2.changeInPercent.round()}%",
+            "3 Years" to "${data.years3.changeInPercent.round()}%"
         )
+
         left_column.adapter = BasicDetailInfoAdapter(leftData.toMutableList())
         right_column.adapter = BasicDetailInfoAdapter(rightData.toMutableList())
-    }
-
-    private fun showPerformanceData(data: FBoersePerfData) {
-        (left_column.adapter as BasicDetailInfoAdapter).addItems(
-            listOf(
-                "1 Month" to "${data.months1.changeInPercent.round()}%",
-                "3 Months" to "${data.months3.changeInPercent.round()}%",
-                "6 Months" to "${data.months6.changeInPercent.round()}%"
-            )
-        )
-        (right_column.adapter as BasicDetailInfoAdapter).addItems(
-            listOf(
-                "1 Year" to "${data.years1.changeInPercent.round()}%",
-                "2 Years" to "${data.years2.changeInPercent.round()}%",
-                "3 Years" to "${data.years3.changeInPercent.round()}%"
-            )
-        )
     }
 }

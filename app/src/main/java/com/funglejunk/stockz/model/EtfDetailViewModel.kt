@@ -30,6 +30,7 @@ class EtfDetailViewModel(
         object Loading : ViewState()
         data class Error(val error: Throwable) : ViewState()
         data class NewChartData(
+            val etf: Etf,
             val drawableHistoricValues: DrawableHistoricData,
             val performanceData: FBoersePerfData
         ) : ViewState()
@@ -71,7 +72,9 @@ class EtfDetailViewModel(
     }
 
     private val onHistoryFetchedIO: IO<(StockData) -> Unit> = IO.just { (drawableData, perfData) ->
-        viewStateData.mutable().postValue(ViewState.NewChartData(drawableData, perfData))
+        etfArg?.let {
+            viewStateData.mutable().postValue(ViewState.NewChartData(it, drawableData, perfData))
+        }
     }
 
     private val onHistoryFetchError: IO<(Throwable) -> Unit> = IO.just { throwable ->
