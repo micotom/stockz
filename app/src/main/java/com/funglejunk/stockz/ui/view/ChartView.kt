@@ -89,6 +89,10 @@ class ChartView : View {
 
             val yValues = presenter.calculateChartValues(data, height)
 
+            if (yValues.isEmpty()) {
+                return@post
+            }
+
             path.also {
                 it.reset()
                 it.moveTo(HORIZONTAL_LABEL_OFFSET, height - yValues[0])
@@ -106,15 +110,11 @@ class ChartView : View {
                     )
                     invalidate()
                 }
-                addListener(object : Animator.AnimatorListener {
+                addListener(object: AnimatorEndListener() {
                     override fun onAnimationEnd(animation: Animator?) {
                         drawLabels = true
                         invalidate()
                     }
-
-                    override fun onAnimationRepeat(animation: Animator?) = Unit
-                    override fun onAnimationCancel(animation: Animator?) = Unit
-                    override fun onAnimationStart(animation: Animator?) = Unit
                 })
                 start()
             }
@@ -191,5 +191,15 @@ class ChartView : View {
         Timber.d("onDetachedFromWindow()")
         animator?.cancel()
         super.onDetachedFromWindow()
+    }
+
+    private abstract class AnimatorEndListener : Animator.AnimatorListener {
+        override fun onAnimationRepeat(animation: Animator?) = Unit
+
+        abstract override fun onAnimationEnd(animation: Animator?)
+
+        override fun onAnimationCancel(animation: Animator?) = Unit
+
+        override fun onAnimationStart(animation: Animator?) = Unit
     }
 }
