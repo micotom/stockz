@@ -12,7 +12,7 @@ import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.DrawableHistoricData
 import timber.log.Timber
 
-class ChartView : View {
+class ChartView : View, ChartViewInterface {
 
     private companion object {
         const val HORIZONTAL_LABEL_OFFSET = 72f
@@ -65,11 +65,7 @@ class ChartView : View {
                 data,
                 width.toFloat(),
                 height.toFloat(),
-                pathResetFunc,
-                animInitFunc,
-                drawMonthMarkersFunc,
-                drawYearMarkersFunc,
-                drawHorizontalBarsFunc
+                this
             )
             funcRegister.pathResetFunc.invoke(path)
             animator = funcRegister.animatorInitFunc.invoke()
@@ -92,14 +88,14 @@ class ChartView : View {
         canvas.drawPath(path, chartPaint)
     }
 
-    private val pathResetFunc: PathResetFunc = { startY ->
+    override val pathResetFunc: PathResetFunc = { startY ->
         { path ->
             path.reset()
             path.moveTo(HORIZONTAL_LABEL_OFFSET, height - startY)
         }
     }
 
-    private val animInitFunc: AnimatorInitFunc =
+    override val animatorInitFunc: AnimatorInitFunc =
         { chartPoints, xValueSpreadBetweenPoints ->
             {
                 ValueAnimator.ofInt(1, chartPoints.size - 1).apply {
@@ -122,7 +118,7 @@ class ChartView : View {
             }
         }
 
-    private val drawMonthMarkersFunc: MonthMarkersDrawFunc =
+    override val monthMarkersDrawFunc: MonthMarkersDrawFunc =
         { markers ->
             { canvas ->
                 val verticalSecondaryLinePaint = Paint().apply {
@@ -153,7 +149,7 @@ class ChartView : View {
             }
         }
 
-    private val drawYearMarkersFunc: YearMarkersDrawFunc = { markers ->
+    override val yearMarkerDrawFunc: YearMarkersDrawFunc = { markers ->
         { canvas ->
             val yearLinesPaint = Paint().apply {
                 color = ContextCompat.getColor(context, R.color.primaryLightColor) //R.color.cardBorderColor)
@@ -191,7 +187,7 @@ class ChartView : View {
         }
     }
 
-    private val drawHorizontalBarsFunc: HorizontalBarsDrawFunc = { lines ->
+    override val horizontalBarsDrawFunc: HorizontalBarsDrawFunc = { lines ->
         { canvas ->
             val horizontalLabelLinePaint = Paint().apply {
                 color = ContextCompat.getColor(context, R.color.primaryLightColor)

@@ -35,11 +35,7 @@ class ChartInteractor {
         data: DrawableHistoricData,
         viewWidth: Float,
         viewHeight: Float,
-        pathResetFunc: PathResetFunc,
-        animInit: AnimatorInitFunc,
-        monthMarkersDrawFunc: MonthMarkersDrawFunc,
-        yearMarkerDrawFunc: YearMarkersDrawFunc,
-        horizontalBarsDrawFunc: HorizontalBarsDrawFunc
+        chartView: ChartViewInterface
     ): DrawFuncRegister {
 
         val xSpreadFactor = viewWidth / data.size
@@ -55,11 +51,15 @@ class ChartInteractor {
         val verticalYearLines = calculateVerticalYearLines(data, viewHeight, xSpreadFactor)
 
         return DrawFuncRegister(
-            pathResetFunc = pathResetFunc.partially1(firstY).invoke(),
-            animatorInitFunc = animInit.partially1(chartYValues).partially1(xSpreadFactor).invoke(),
-            monthMarkersDrawFunc = monthMarkersDrawFunc.partially1(verticalMonthLines).invoke(),
-            yearMarkersDrawFunc = yearMarkerDrawFunc.partially1(verticalYearLines).invoke(),
-            horizontalBarsDrawFunc = horizontalBarsDrawFunc.partially1(horizontalValueLines).invoke()
+            pathResetFunc = chartView.pathResetFunc.partially1(firstY).invoke(),
+            animatorInitFunc = chartView.animatorInitFunc.partially1(chartYValues).partially1(
+                xSpreadFactor
+            ).invoke(),
+            monthMarkersDrawFunc = chartView.monthMarkersDrawFunc.partially1(verticalMonthLines).invoke(),
+            yearMarkersDrawFunc = chartView.yearMarkerDrawFunc.partially1(verticalYearLines).invoke(),
+            horizontalBarsDrawFunc = chartView.horizontalBarsDrawFunc.partially1(
+                horizontalValueLines
+            ).invoke()
         )
     }
 
@@ -116,7 +116,7 @@ class ChartInteractor {
         data: DrawableHistoricData,
         viewWidth: Float,
         viewHeight: Float
-        ): List<LabelWithLineCoordinates> {
+    ): List<LabelWithLineCoordinates> {
         val minValue = data.data.minBy { it.value }?.value
         val maxValue = data.data.maxBy { it.value }?.value
         return when (maxValue == null || minValue == null) {
