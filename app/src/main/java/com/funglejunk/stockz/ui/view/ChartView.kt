@@ -61,8 +61,6 @@ class ChartView : View {
 
     fun draw(data: DrawableHistoricData) {
         post {
-            Timber.d("drawing width: $width, drawing height: $height")
-
             funcRegister = ChartInteractor().prepareDrawing(
                 data,
                 width.toFloat(),
@@ -195,7 +193,6 @@ class ChartView : View {
 
     private val drawHorizontalBarsFunc: HorizontalBarsDrawFunc = { lines ->
         { canvas ->
-            Timber.e("called!")
             val horizontalLabelLinePaint = Paint().apply {
                 color = ContextCompat.getColor(context, R.color.primaryLightColor)
                 style = Paint.Style.FILL

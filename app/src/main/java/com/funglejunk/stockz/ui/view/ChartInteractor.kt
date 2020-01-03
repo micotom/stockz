@@ -21,7 +21,7 @@ typealias PathResetFunc = (Float) -> (Path) -> Unit
 
 typealias DrawFunc = (Canvas) -> Unit
 
-class ChartInteractor : ChartInteractorInterface {
+class ChartInteractor {
 
     data class DrawFuncRegister(
         val pathResetFunc: (Path) -> Unit,
@@ -31,7 +31,7 @@ class ChartInteractor : ChartInteractorInterface {
         val yearMarkersDrawFunc: DrawFunc
     )
 
-    override fun prepareDrawing(
+    fun prepareDrawing(
         data: DrawableHistoricData,
         viewWidth: Float,
         viewHeight: Float,
@@ -49,24 +49,17 @@ class ChartInteractor : ChartInteractorInterface {
             false -> 0f
         }
 
-        val pathReset = pathResetFunc.partially1(firstY).invoke()
-
         val verticalMonthLines =
             calculateVerticalMonthLines(data, viewHeight, xSpreadFactor)
         val horizontalValueLines = calculateHorizontalValueLines(data, viewWidth, viewHeight)
         val verticalYearLines = calculateVerticalYearLines(data, viewHeight, xSpreadFactor)
 
-        val animator = animInit.partially1(chartYValues).partially1(xSpreadFactor).invoke()
-        val monthMarkers = monthMarkersDrawFunc.partially1(verticalMonthLines).invoke()
-        val yearMarkers = yearMarkerDrawFunc.partially1(verticalYearLines).invoke()
-        val horizontalBars = horizontalBarsDrawFunc.partially1(horizontalValueLines).invoke()
-
         return DrawFuncRegister(
-            pathResetFunc = pathReset,
-            animatorInitFunc = animator,
-            monthMarkersDrawFunc = monthMarkers,
-            yearMarkersDrawFunc = yearMarkers,
-            horizontalBarsDrawFunc = horizontalBars
+            pathResetFunc = pathResetFunc.partially1(firstY).invoke(),
+            animatorInitFunc = animInit.partially1(chartYValues).partially1(xSpreadFactor).invoke(),
+            monthMarkersDrawFunc = monthMarkersDrawFunc.partially1(verticalMonthLines).invoke(),
+            yearMarkersDrawFunc = yearMarkerDrawFunc.partially1(verticalYearLines).invoke(),
+            horizontalBarsDrawFunc = horizontalBarsDrawFunc.partially1(horizontalValueLines).invoke()
         )
     }
 
@@ -99,7 +92,7 @@ class ChartInteractor : ChartInteractorInterface {
                     data.first().date.month // TODO folding and flattening would be prettier
                 data.mapIndexed { index, chartValue ->
                     index to chartValue
-                }.filter { (index, chartValue) ->
+                }.filter { (_, chartValue) ->
                     val (date, _) = chartValue
                     val dateMonth = date.month
                     val isNewMonth = dateMonth > currentMonth
@@ -153,14 +146,14 @@ class ChartInteractor : ChartInteractorInterface {
                 var currentYear = data.first().date.year
                 data.mapIndexed { index, chartValue ->
                     index to chartValue
-                }.filter { (index, chartValue) ->
+                }.filter { (_, chartValue) ->
                     val (date, _) = chartValue
                     val dataYear = date.year
                     val isNewYear = dataYear > currentYear
                     currentYear = dataYear
                     isNewYear
                 }.map { (index, chartValue) ->
-                    val (date, value) = chartValue
+                    val (date, _) = chartValue
                     val xCoordinate = index * xSpreadFactor
                     val startPoint = xCoordinate to 0f
                     val endPoint = xCoordinate to viewHeight
