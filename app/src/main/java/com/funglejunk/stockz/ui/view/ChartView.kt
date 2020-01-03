@@ -152,9 +152,10 @@ class ChartView : View, ChartViewInterface {
     override val yearMarkerDrawFunc: YearMarkersDrawFunc = { markers ->
         { canvas ->
             val yearLinesPaint = Paint().apply {
-                color = ContextCompat.getColor(context, R.color.primaryLightColor) //R.color.cardBorderColor)
+                color = ContextCompat.getColor(context, R.color.primaryLightColor)
                 style = Paint.Style.FILL
-                strokeWidth = resources.displayMetrics.density * 0.25f
+                strokeWidth = resources.displayMetrics.density
+                pathEffect = DashPathEffect(floatArrayOf(3f, 12f), 50f)
             }
             markers.shiftXOffset().forEach { (label, coordinates) ->
                 val startPoint = coordinates.first
