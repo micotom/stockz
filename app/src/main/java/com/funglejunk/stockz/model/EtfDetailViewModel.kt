@@ -15,11 +15,10 @@ import com.funglejunk.stockz.repo.db.XetraFavourite
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.FViewModel
+import com.funglejunk.stockz.util.StockData
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import java.time.LocalDate
-
-typealias StockData = Pair<DrawableHistoricData, FBoersePerfData>
 
 class EtfDetailViewModel(
     private val fBoerseRepo: FBoerseRepo,
@@ -34,6 +33,7 @@ class EtfDetailViewModel(
             val drawableHistoricValues: DrawableHistoricData,
             val performanceData: FBoersePerfData
         ) : ViewState()
+
         data class NewEtfFavouriteState(val isFavourite: Boolean) : ViewState()
     }
 
@@ -65,23 +65,21 @@ class EtfDetailViewModel(
             }
         }
 
-    private val showLoadingIO: () -> IO<Unit> = {
-        IO.fx {
-            viewStateData.mutable().postValue(ViewState.Loading)
-        }
+    private val showLoadingIO: IO<Unit> = IO.fx {
+        continueOn(Dispatchers.Main)
+        viewStateData.mutable().value = ViewState.Loading
+        continueOn(Dispatchers.IO)
     }
 
     private val onHistoryFetchedIO: IO<(StockData) -> Unit> = IO.just { (drawableData, perfData) ->
         etfArg?.let {
-            viewStateData.mutable().postValue(ViewState.NewChartData(it, drawableData, perfData))
+            viewStateData.mutable().value = ViewState.NewChartData(it, drawableData, perfData)
         }
     }
 
     private val onHistoryFetchError: IO<(Throwable) -> Unit> = IO.just { throwable ->
         Timber.e(throwable)
-        viewStateData.mutable().postValue(
-            ViewState.Error(throwable)
-        )
+        viewStateData.mutable().value = ViewState.Error(throwable)
     }
 
     private fun fetchFboerseHistoy(
@@ -89,11 +87,9 @@ class EtfDetailViewModel(
         fromDate: LocalDate = LocalDate.of(2010, 1, 1),
         toDate: LocalDate = LocalDate.now()
     ) {
-        val action = IO.fx {
-            showLoadingIO().followedBy(
-                fetchHistoryAction(isin, fromDate, toDate)
-            ).bind()
-        }
+        val action = showLoadingIO.followedBy(
+            fetchHistoryAction(isin, fromDate, toDate)
+        )
         runIO(
             io = action,
             onSuccess = onHistoryFetchedIO,
@@ -151,9 +147,7 @@ class EtfDetailViewModel(
     }
 
     private val onIsFavouriteStateSuccess: IO<(Boolean) -> Unit> = IO.just { isFavourite ->
-        viewStateData.mutable().postValue(
-            ViewState.NewEtfFavouriteState(isFavourite)
-        )
+        viewStateData.mutable().value = ViewState.NewEtfFavouriteState(isFavourite)
     }
 
     fun addToFavourites(etf: Etf) {

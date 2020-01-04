@@ -16,10 +16,12 @@ abstract class FViewModel : ViewModel() {
         io: IO<A>,
         onFailure: IO<(Throwable) -> Unit> = IO { logError },
         onSuccess: IO<(A) -> Unit>,
-        dispatcher: CoroutineDispatcher = Dispatchers.IO
+        dispatcher: CoroutineDispatcher = Dispatchers.IO,
+        successDispatcher: CoroutineDispatcher = Dispatchers.Main
     ) = IO.fx {
         continueOn(dispatcher)
         val (result) = io
+        continueOn(successDispatcher)
         val (successCall) = onSuccess
         successCall.invoke(result)
     }.handleErrorWith {

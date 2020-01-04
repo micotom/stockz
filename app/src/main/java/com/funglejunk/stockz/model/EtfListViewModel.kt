@@ -9,6 +9,7 @@ import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.util.EtfList
 import com.funglejunk.stockz.util.FViewModel
+import kotlinx.coroutines.Dispatchers
 
 class EtfListViewModel(
     dbInflater: XetraMasterDataInflater,
@@ -25,13 +26,11 @@ class EtfListViewModel(
     private val queryInteractor = UiQueryDbInteractor()
 
     private val showLoading: IO<Unit> = IO.fx {
-        viewStateData.mutable().postValue(ViewState.Loading)
+        viewStateData.mutable().value = ViewState.Loading
     }
 
     private val onEtfDataRetrieved: IO<(EtfList) -> Unit> = IO.just { data ->
-        viewStateData.mutable().postValue(
-            ViewState.EtfData(data)
-        )
+        viewStateData.mutable().value = ViewState.EtfData(data)
     }
 
     private val loadEtfAction: (XetraMasterDataInflater) -> IO<EtfList> =
@@ -51,25 +50,23 @@ class EtfListViewModel(
     }
 
     init {
-        val action = IO.fx {
-            showLoading.bind()
-            loadEtfAction(dbInflater).bind()
-        }
         runIO(
-            io = action,
+            io = loadEtfAction(dbInflater).withLoadingIndicator(),
             onSuccess = onEtfDataRetrieved
         )
     }
 
     fun searchDbFor(query: UiEtfQuery) {
-        val action = IO.fx {
-            showLoading.bind()
-            searchDbIo(query).bind()
-        }
         runIO(
-            io = action,
+            io = searchDbIo(query).withLoadingIndicator(),
             onSuccess = onEtfDataRetrieved
         )
     }
+
+    private fun <T> IO<T>.withLoadingIndicator() = IO.fx {
+        continueOn(Dispatchers.Main)
+        showLoading.bind()
+        continueOn(Dispatchers.IO)
+    }.followedBy(this)
 
 }
