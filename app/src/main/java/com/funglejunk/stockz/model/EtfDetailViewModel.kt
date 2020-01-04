@@ -10,8 +10,7 @@ import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
 import com.funglejunk.stockz.mutable
-import com.funglejunk.stockz.repo.db.XetraDbInterface
-import com.funglejunk.stockz.repo.db.XetraFavourite
+import com.funglejunk.stockz.repo.db.*
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.FViewModel
@@ -22,7 +21,8 @@ import java.time.LocalDate
 
 class EtfDetailViewModel(
     private val fBoerseRepo: FBoerseRepo,
-    private val db: XetraDbInterface
+    private val db: XetraDbInterface,
+    private val historyCache: StockDataCacheInterface
 ) : FViewModel() {
 
     sealed class ViewState {
@@ -38,32 +38,9 @@ class EtfDetailViewModel(
     }
 
     val viewStateData: LiveData<ViewState> = MutableLiveData()
-    private var etfArg: Etf? = null
 
-    private val fetchHistoryAction: (String, LocalDate, LocalDate) -> IO<StockData> =
-        { isin, fromDate, toDate ->
-            IO.fx {
-                val chartDataIO = effect {
-                    val history = fBoerseRepo.getHistory(isin, fromDate, toDate)
-                    val chartData = history.content
-                        .map { dayHistory ->
-                            ChartValue(dayHistory.date.toLocalDate(), dayHistory.close.toFloat())
-                        }
-                        .sortedBy { it.date }
-                    DrawableHistoricData(chartData)
-                }
-                val historyDataIO = effect {
-                    fBoerseRepo.getHistoryPerfData(isin)
-                }
-                IO.parMapN(
-                    Dispatchers.IO,
-                    chartDataIO,
-                    historyDataIO
-                ) { chartData, historyData ->
-                    chartData to historyData
-                }.bind()
-            }
-        }
+    private val repoCacheInteractor = FBoerseRepoInteractor(fBoerseRepo, historyCache)
+    private var etfArg: Etf? = null
 
     private val showLoadingIO: IO<Unit> = IO.fx {
         continueOn(Dispatchers.Main)
@@ -88,7 +65,7 @@ class EtfDetailViewModel(
         toDate: LocalDate = LocalDate.now()
     ) {
         val action = showLoadingIO.followedBy(
-            fetchHistoryAction(isin, fromDate, toDate)
+            repoCacheInteractor.fetchHistoryAction.invoke(isin, fromDate, toDate)
         )
         runIO(
             io = action,
