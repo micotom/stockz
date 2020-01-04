@@ -15,6 +15,7 @@
 - LiveData
 - [Fuel](https://github.com/kittinunf/fuel)
 - Kotlinx Serialization
+- [Koin](https://insert-koin.io/) 
 
 ## Architecture
 MVVM with pushing side effects in view models to the very edge by using IO effects.
