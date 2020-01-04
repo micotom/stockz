@@ -3,6 +3,7 @@ package com.funglejunk.stockz.ui.view
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
@@ -61,10 +62,13 @@ class ChartView : View, ChartViewInterface {
 
     fun draw(data: DrawableHistoricData) {
         post {
+            val isInPortraitMode =
+                resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
             funcRegister = ChartInteractor().prepareDrawing(
                 data,
                 width.toFloat(),
                 height.toFloat(),
+                isInPortraitMode,
                 this
             )
             funcRegister.pathResetFunc.invoke(path)
@@ -199,7 +203,7 @@ class ChartView : View, ChartViewInterface {
             lines.forEachIndexed { index, (label, coordinates) ->
                 val startPoint = coordinates.first
                 val endPoint = coordinates.second
-                val isFirstOrLastLine = index == 0 || index == lines.size -1
+                val isFirstOrLastLine = index == 0 || index == lines.size - 1
                 if (!isFirstOrLastLine) {
                     canvas.drawText(
                         label,

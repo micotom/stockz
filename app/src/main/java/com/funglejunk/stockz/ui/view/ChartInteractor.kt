@@ -35,6 +35,7 @@ class ChartInteractor {
         data: DrawableHistoricData,
         viewWidth: Float,
         viewHeight: Float,
+        isInPortraitMode: Boolean,
         chartView: ChartViewInterface
     ): DrawFuncRegister {
 
@@ -46,8 +47,9 @@ class ChartInteractor {
         }
 
         val verticalMonthLines =
-            calculateVerticalMonthLines(data, viewHeight, xSpreadFactor)
-        val horizontalValueLines = calculateHorizontalValueLines(data, viewWidth, viewHeight)
+            calculateVerticalMonthLines(data, viewHeight, xSpreadFactor, isInPortraitMode)
+        val horizontalValueLines =
+            calculateHorizontalValueLines(data, viewWidth, viewHeight, isInPortraitMode)
         val verticalYearLines = calculateVerticalYearLines(data, viewHeight, xSpreadFactor)
 
         return DrawFuncRegister(
@@ -84,10 +86,15 @@ class ChartInteractor {
     private fun calculateVerticalMonthLines(
         data: DrawableHistoricData,
         viewHeight: Float,
-        xSpreadFactor: Float
+        xSpreadFactor: Float,
+        isInPortraitMode: Boolean
     ): List<LabelWithLineCoordinates> {
         return when (data.isNotEmpty()) {
             true -> {
+                val drawFrequency = when (isInPortraitMode) {
+                    true -> 3
+                    false -> 2
+                }
                 var currentMonth =
                     data.first().date.month // TODO folding and flattening would be prettier
                 data.mapIndexed { index, chartValue ->
@@ -104,8 +111,8 @@ class ChartInteractor {
                     val startPoint = xCoordinate to 0f
                     val endPoint = xCoordinate to viewHeight
                     date.toMonthDayString() to (startPoint to endPoint)
-                }.filterIndexed() { index, _ ->
-                    index % 3 == 0 // TODO only works in portrait, landscape needs more
+                }.filterIndexed { index, _ ->
+                    index % drawFrequency == 0
                 }
             }
             false -> emptyList()
@@ -115,14 +122,18 @@ class ChartInteractor {
     private fun calculateHorizontalValueLines(
         data: DrawableHistoricData,
         viewWidth: Float,
-        viewHeight: Float
+        viewHeight: Float,
+        isInPortraitMode: Boolean
     ): List<LabelWithLineCoordinates> {
         val minValue = data.data.minBy { it.value }?.value
         val maxValue = data.data.maxBy { it.value }?.value
         return when (maxValue == null || minValue == null) {
             true -> emptyList()
             false -> {
-                val numberOfLines = 10 // TODO fixing this creates clutter on orientation change
+                val numberOfLines = when (isInPortraitMode) {
+                    true -> 10
+                    false -> 3
+                }
                 val valueSteps = (maxValue - minValue) / numberOfLines
                 val verticalDistance = viewHeight / numberOfLines
                 (0..numberOfLines).map {
