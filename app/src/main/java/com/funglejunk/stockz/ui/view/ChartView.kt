@@ -165,6 +165,7 @@ class ChartView : View, ChartViewInterface {
                 val textXPosMin = (startPoint.first - (textBound.width() / 2f)).coerceAtLeast(0f)
                 val textXPos = textXPosMin.coerceAtMost(width.toFloat() - textBound.width())
                 val circleXPos = startPoint.first.coerceAtMost(width.toFloat() - CIRCLE_RADIUS)
+                val lineXPos = startPoint.first.coerceAtMost(width.toFloat() - 1f)
                 canvas.drawText(
                     label,
                     textXPos,
@@ -172,9 +173,9 @@ class ChartView : View, ChartViewInterface {
                     textLabelPaint
                 )
                 canvas.drawLine(
-                    startPoint.first,
+                    lineXPos,
                     startPoint.second + (textBound.height() * 3f),
-                    endPoint.first,
+                    lineXPos,
                     endPoint.second - (textBound.height() * 3f),
                     yearLinesPaint
                 )
@@ -207,7 +208,7 @@ class ChartView : View, ChartViewInterface {
                         textLabelPaint
                     )
                     canvas.drawLine(
-                        startPoint.first,
+                        startPoint.first + HORIZONTAL_LABEL_OFFSET,
                         startPoint.second,
                         endPoint.first,
                         endPoint.second,
