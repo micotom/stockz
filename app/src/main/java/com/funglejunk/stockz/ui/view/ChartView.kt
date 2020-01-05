@@ -88,7 +88,8 @@ class ChartView : View, ChartViewInterface {
             funcRegister.horizontalBarsDrawFunc.invoke(canvas)
             funcRegister.yearMarkersDrawFunc.invoke(canvas)
             funcRegister.monthMarkersDrawFunc.invoke(canvas)
-            funcRegister.algorithmDrawFunc.invoke(canvas)
+            funcRegister.simpleAvDrawFunc.invoke(canvas)
+            funcRegister.bollingerDrawFunc.invoke(canvas)
         }
         canvas.drawPath(path, chartPaint)
     }
@@ -123,7 +124,42 @@ class ChartView : View, ChartViewInterface {
             }
         }
 
-    override val simpleXyDrawFunc: SimpleXyDrawFunc =
+    override val bollingerDrawFunc: DoubleXyDrawFunc =
+        { (upperPoints, lowerPoints) ->
+            { canvas ->
+                when (upperPoints.isNotEmpty() && lowerPoints.isNotEmpty()) {
+                    true -> {
+                        val chartPaint = Paint().apply {
+                            color = ContextCompat.getColor(context, R.color.cardBorderColor)
+                            isAntiAlias = true
+                            style = Paint.Style.STROKE
+                            strokeWidth = resources.displayMetrics.density
+                        }
+                        val shiftedUpperPoints = upperPoints.map { it.shiftXOffset() }
+                        val shifterLowerPoints = lowerPoints.map { it.shiftXOffset() }
+                        val path = Path().apply {
+                            shiftedUpperPoints.forEachIndexed { index, (x, y) ->
+                                if (index == 0) {
+                                    moveTo(x, height - y)
+                                } else {
+                                    lineTo(x, height - y)
+                                }
+                            }
+                            shifterLowerPoints.reversed().forEachIndexed { index, (x, y) ->
+                                if (index == 0) {
+                                    moveTo(x, height - y)
+                                } else {
+                                    lineTo(x, height - y)
+                                }
+                            }
+                        }
+                        canvas.drawPath(path, chartPaint)
+                    }
+                }
+            }
+        }
+
+    override val movingAvDrawFunc: SimpleXyDrawFunc =
         { points ->
             { canvas ->
                 when (points.isNotEmpty()) {

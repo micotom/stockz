@@ -7,7 +7,8 @@ import arrow.syntax.function.partially1
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.model.Period
-import com.funglejunk.stockz.model.sma
+import com.funglejunk.stockz.model.bollingerBands
+import com.funglejunk.stockz.model.simpleMovingAverage
 import com.funglejunk.stockz.round
 import com.funglejunk.stockz.toMonthDayString
 import com.funglejunk.stockz.toYearString
@@ -22,6 +23,7 @@ typealias HorizontalBarsDrawFunc = (List<LabelWithLineCoordinates>) -> (Canvas) 
 typealias YearMarkersDrawFunc = (List<LabelWithLineCoordinates>) -> (Canvas) -> Unit
 typealias PathResetFunc = (Float) -> (Path) -> Unit
 typealias SimpleXyDrawFunc = (List<XyValue>) -> (Canvas) -> Unit
+typealias DoubleXyDrawFunc = (Pair<List<XyValue>, List<XyValue>>) -> (Canvas) -> Unit
 
 typealias DrawFunc = (Canvas) -> Unit
 
@@ -33,7 +35,8 @@ class ChartInteractor {
         val monthMarkersDrawFunc: DrawFunc,
         val horizontalBarsDrawFunc: DrawFunc,
         val yearMarkersDrawFunc: DrawFunc,
-        val algorithmDrawFunc: DrawFunc
+        val simpleAvDrawFunc: DrawFunc,
+        val bollingerDrawFunc: DrawFunc
     )
 
     fun prepareDrawing(
@@ -56,9 +59,21 @@ class ChartInteractor {
         val horizontalValueLines =
             calculateHorizontalValueLines(data, viewWidth, viewHeight, isInPortraitMode)
         val verticalYearLines = calculateVerticalYearLines(data, viewHeight, xSpreadFactor)
-        val algorithmPoints = calculateAlgorithmPoints(
-            sma(data.data, Period.DAYS_30, 1), data, xSpreadFactor, viewHeight
+        val smaPoints = calculateAlgorithmPoints(
+            simpleMovingAverage(data.data, Period.DAYS_30, 2), data, xSpreadFactor, viewHeight
         )
+        val bollingerPointsRaw = bollingerBands(
+            data.data,
+            Period.DAYS_7, 2
+        )
+        val bollingerPoints =
+            calculateAlgorithmPoints(bollingerPointsRaw.first, data, xSpreadFactor, viewHeight) to
+                    calculateAlgorithmPoints(
+                        bollingerPointsRaw.second,
+                        data,
+                        xSpreadFactor,
+                        viewHeight
+                    )
 
         return DrawFuncRegister(
             pathResetFunc = chartView.pathResetFunc.partially1(firstY).invoke(),
@@ -70,7 +85,8 @@ class ChartInteractor {
             horizontalBarsDrawFunc = chartView.horizontalBarsDrawFunc.partially1(
                 horizontalValueLines
             ).invoke(),
-            algorithmDrawFunc = chartView.simpleXyDrawFunc.partially1(algorithmPoints).invoke()
+            simpleAvDrawFunc = chartView.movingAvDrawFunc.partially1(smaPoints).invoke(),
+            bollingerDrawFunc = chartView.bollingerDrawFunc.partially1(bollingerPoints).invoke()
         )
     }
 

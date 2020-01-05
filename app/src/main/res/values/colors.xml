@@ -12,4 +12,5 @@
     <color name="secondaryColorDimmed">#3380cbc4</color>
 
     <color name="cardBorderColor">#22004d40</color>
+    <color name="cardBorderColorLight">#0F004d40</color>
 </resources>

@@ -18,14 +18,19 @@ class StockDataCache(context: Context) : StockDataCacheInterface {
         val json = Json(JsonConfiguration.Stable)
     }
 
-    private val dataLayer: SharedPreferences = context.getSharedPreferences(
-        PREFS_NAME, Context.MODE_PRIVATE
-    )
+    private val dataLayer: IO<SharedPreferences> by lazy {
+        IO.invoke(Dispatchers.IO) {
+            context.getSharedPreferences(
+                PREFS_NAME, Context.MODE_PRIVATE
+            )
+        }
+    }
 
     override fun persist(data: CacheableData): IO<Boolean> = IO.fx {
         continueOn(Dispatchers.IO)
-        with(dataLayer.edit()) {
-            when (val staleValue = dataLayer.getString(data.key, null)) {
+        val sharedPref = dataLayer.bind()
+        with(sharedPref.edit()) {
+            when (val staleValue = sharedPref.getString(data.key, null)) {
                 null -> putNewValue(data)
                 else -> updateOldValue(staleValue, data)
             }
@@ -54,7 +59,8 @@ class StockDataCache(context: Context) : StockDataCacheInterface {
 
     override fun get(key: String): IO<Option<FBoerseHistoryData>> = IO.fx {
         continueOn(Dispatchers.IO)
-        dataLayer.getString(key, null).toOption().map {
+        val sharedPref = dataLayer.bind()
+        sharedPref.getString(key, null).toOption().map {
             json.parse(FBoerseHistoryData.serializer(), it)
         }
     }

@@ -7,6 +7,7 @@ interface ChartViewInterface {
     val monthMarkersDrawFunc: MonthMarkersDrawFunc
     val yearMarkerDrawFunc: YearMarkersDrawFunc
     val horizontalBarsDrawFunc: HorizontalBarsDrawFunc
-    val simpleXyDrawFunc: SimpleXyDrawFunc
+    val movingAvDrawFunc: SimpleXyDrawFunc
+    val bollingerDrawFunc: DoubleXyDrawFunc
 
 }
