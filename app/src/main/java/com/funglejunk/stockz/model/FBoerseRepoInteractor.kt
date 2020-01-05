@@ -9,6 +9,7 @@ import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
+import com.funglejunk.stockz.mapToDrawableData
 import com.funglejunk.stockz.repo.db.CacheableData
 import com.funglejunk.stockz.repo.db.StockDataCacheInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
@@ -49,14 +50,6 @@ class FBoerseRepoInteractor(
         ) { chartData, historyData ->
             chartData to historyData
         }
-
-
-    private fun FBoerseHistoryData.mapToDrawableData(): List<ChartValue> =
-        content
-            .map { dayHistory ->
-                ChartValue(dayHistory.date.toLocalDate(), dayHistory.close.toFloat())
-            }
-            .sortedBy { it.date }
 
     private fun persistAndMergeWithCacheData(
         isin: String,

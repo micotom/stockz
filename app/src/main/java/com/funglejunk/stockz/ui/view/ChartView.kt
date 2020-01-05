@@ -88,6 +88,7 @@ class ChartView : View, ChartViewInterface {
             funcRegister.horizontalBarsDrawFunc.invoke(canvas)
             funcRegister.yearMarkersDrawFunc.invoke(canvas)
             funcRegister.monthMarkersDrawFunc.invoke(canvas)
+            funcRegister.algorithmDrawFunc.invoke(canvas)
         }
         canvas.drawPath(path, chartPaint)
     }
@@ -118,6 +119,33 @@ class ChartView : View, ChartViewInterface {
                             invalidate()
                         }
                     })
+                }
+            }
+        }
+
+    override val simpleXyDrawFunc: SimpleXyDrawFunc =
+        { points ->
+            { canvas ->
+                when (points.isNotEmpty()) {
+                    true -> {
+                        val chartPaint = Paint().apply {
+                            color = ContextCompat.getColor(context, R.color.cardBorderColor)
+                            isAntiAlias = true
+                            style = Paint.Style.STROKE
+                            strokeWidth = resources.displayMetrics.density * 2
+                        }
+                        val shiftedPoints = points.map { it.shiftXOffset() }
+                        val path = Path().apply {
+                            shiftedPoints.forEachIndexed { index, point ->
+                                if (index == 0) {
+                                    moveTo(point.first, height - point.second)
+                                } else {
+                                    lineTo(point.first, height - point.second)
+                                }
+                            }
+                        }
+                        canvas.drawPath(path, chartPaint)
+                    }
                 }
             }
         }
@@ -250,4 +278,5 @@ class ChartView : View, ChartViewInterface {
         label to (startShifted to endShifted)
     }
 
+    private fun XyValue.shiftXOffset() = (first + HORIZONTAL_LABEL_OFFSET) to second
 }

@@ -4,7 +4,10 @@ import android.animation.ValueAnimator
 import android.graphics.Canvas
 import android.graphics.Path
 import arrow.syntax.function.partially1
+import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
+import com.funglejunk.stockz.model.Period
+import com.funglejunk.stockz.model.sma
 import com.funglejunk.stockz.round
 import com.funglejunk.stockz.toMonthDayString
 import com.funglejunk.stockz.toYearString
@@ -18,6 +21,7 @@ typealias MonthMarkersDrawFunc = (List<LabelWithLineCoordinates>) -> (Canvas) ->
 typealias HorizontalBarsDrawFunc = (List<LabelWithLineCoordinates>) -> (Canvas) -> Unit
 typealias YearMarkersDrawFunc = (List<LabelWithLineCoordinates>) -> (Canvas) -> Unit
 typealias PathResetFunc = (Float) -> (Path) -> Unit
+typealias SimpleXyDrawFunc = (List<XyValue>) -> (Canvas) -> Unit
 
 typealias DrawFunc = (Canvas) -> Unit
 
@@ -28,7 +32,8 @@ class ChartInteractor {
         val animatorInitFunc: () -> ValueAnimator,
         val monthMarkersDrawFunc: DrawFunc,
         val horizontalBarsDrawFunc: DrawFunc,
-        val yearMarkersDrawFunc: DrawFunc
+        val yearMarkersDrawFunc: DrawFunc,
+        val algorithmDrawFunc: DrawFunc
     )
 
     fun prepareDrawing(
@@ -51,6 +56,9 @@ class ChartInteractor {
         val horizontalValueLines =
             calculateHorizontalValueLines(data, viewWidth, viewHeight, isInPortraitMode)
         val verticalYearLines = calculateVerticalYearLines(data, viewHeight, xSpreadFactor)
+        val algorithmPoints = calculateAlgorithmPoints(
+            sma(data.data, Period.DAYS_30, 1), data, xSpreadFactor, viewHeight
+        )
 
         return DrawFuncRegister(
             pathResetFunc = chartView.pathResetFunc.partially1(firstY).invoke(),
@@ -61,8 +69,33 @@ class ChartInteractor {
             yearMarkersDrawFunc = chartView.yearMarkerDrawFunc.partially1(verticalYearLines).invoke(),
             horizontalBarsDrawFunc = chartView.horizontalBarsDrawFunc.partially1(
                 horizontalValueLines
-            ).invoke()
+            ).invoke(),
+            algorithmDrawFunc = chartView.simpleXyDrawFunc.partially1(algorithmPoints).invoke()
         )
+    }
+
+    private fun calculateAlgorithmPoints(
+        data: List<ChartValue>,
+        originalData: DrawableHistoricData, // TODO move vertical span to precalculation
+        xSpreadFactor: Float,
+        viewHeight: Float
+    ): List<XyValue> = when (data.isNotEmpty()) {
+        true -> {
+            val maxValueY = originalData.maxBy { it.value }!!.value
+            val minValueY = originalData.minBy { it.value }!!.value
+            val verticalSpan = maxValueY - minValueY
+            val factorY = (viewHeight / verticalSpan)
+            val xValueRegister = originalData.mapIndexed { index, originalValue ->
+                val x = index * xSpreadFactor
+                originalValue.date to x
+            }
+            data.map { value ->
+                val x = xValueRegister.find { it.first == value.date }!!.second
+                val y = (value.value - minValueY) * factorY
+                x to y
+            }
+        }
+        false -> emptyList()
     }
 
     private fun calculateChartPoints(
