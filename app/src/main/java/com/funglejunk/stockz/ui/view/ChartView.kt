@@ -53,12 +53,39 @@ class ChartView : View, ChartViewInterface {
         textSize = resources.displayMetrics.density * 8
     }
 
-    private var path = Path()
+    private val path = Path()
     private var animator: ValueAnimator? = null
     private var drawLabels = false
     private val textBound = Rect()
 
     private lateinit var funcRegister: ChartInteractor.DrawFuncRegister
+
+    private var showBollinger = true
+    private var showSma = true
+
+    fun showBollinger() {
+        drawLabels = true
+        showBollinger = true
+        invalidate()
+    }
+
+    fun hideBollinger() {
+        drawLabels = true
+        showBollinger = false
+        invalidate()
+    }
+
+    fun showSma() {
+        drawLabels = true
+        showSma = true
+        invalidate()
+    }
+
+    fun hideSma() {
+        drawLabels = true
+        showSma = false
+        invalidate()
+    }
 
     fun draw(data: DrawableHistoricData) {
         post {
@@ -88,8 +115,12 @@ class ChartView : View, ChartViewInterface {
             funcRegister.horizontalBarsDrawFunc.invoke(canvas)
             funcRegister.yearMarkersDrawFunc.invoke(canvas)
             funcRegister.monthMarkersDrawFunc.invoke(canvas)
-            funcRegister.simpleAvDrawFunc.invoke(canvas)
-            funcRegister.bollingerDrawFunc.invoke(canvas)
+            if (showSma) {
+                funcRegister.simpleAvDrawFunc.invoke(canvas)
+            }
+            if (showBollinger) {
+                funcRegister.bollingerDrawFunc.invoke(canvas)
+            }
         }
         canvas.drawPath(path, chartPaint)
     }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.funglejunk.stockz.R
@@ -44,6 +45,21 @@ class EtfDetailFragment : Fragment() {
                 viewModel.addToFavourites(etf)
             }
         }
+
+        bollinger_checkbox.setOnCheckedChangeListener { _, isChecked ->
+            when (isChecked) {
+                true -> mychart.showBollinger()
+                false -> mychart.hideBollinger()
+            }
+        }
+
+        sma_checkbox.setOnCheckedChangeListener { _, isChecked ->
+            when (isChecked) {
+                true -> mychart.showSma()
+                false -> mychart.hideSma()
+            }
+        }
+
     }
 
     private fun renderNewViewState(event: EtfDetailViewModel.ViewState) {
