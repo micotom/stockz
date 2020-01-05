@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.Etf
+import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
 import com.funglejunk.stockz.model.EtfDetailViewModel
 import com.funglejunk.stockz.round
@@ -74,7 +75,7 @@ class EtfDetailFragment : Fragment() {
                 error_txt.visibility = View.INVISIBLE
                 progressbar.visibility = View.INVISIBLE
                 mychart.visibility = View.VISIBLE
-                renderChartData(event.drawableHistoricValues)
+                renderChartData(event.historyData)
                 showExtendedData(event.etf, event.performanceData)
             }
             is EtfDetailViewModel.ViewState.Error -> {
@@ -92,7 +93,7 @@ class EtfDetailFragment : Fragment() {
         }
     }
 
-    private fun renderChartData(data: DrawableHistoricData) {
+    private fun renderChartData(data: FBoerseHistoryData) {
         mychart.draw(data)
     }
 

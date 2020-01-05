@@ -29,8 +29,7 @@ class FBoerseRepoInteractor(
                 val chartDataIO = IO.fx {
                     val history = fetchRawRepoData(isin, fromDate, toDate)
                     val fullHistory = persistAndMergeWithCacheData(isin, history).bind()
-                    val chartData = fullHistory.mapToDrawableData()
-                    DrawableHistoricData(chartData)
+                    fullHistory
                 }
                 val historyDataIO = effect {
                     fBoerseRepo.getHistoryPerfData(isin)
@@ -40,9 +39,9 @@ class FBoerseRepoInteractor(
         }
 
     private fun createParallelIoActionFrom(
-        chartDataIO: IO<DrawableHistoricData>,
+        chartDataIO: IO<FBoerseHistoryData>,
         historyDataIO: Kind<ForIO, FBoersePerfData>
-    ): IO<Pair<DrawableHistoricData, FBoersePerfData>> =
+    ): IO<Pair<FBoerseHistoryData, FBoersePerfData>> =
         IO.parMapN(
             Dispatchers.IO,
             chartDataIO,
@@ -72,6 +71,9 @@ class FBoerseRepoInteractor(
         fromDate: LocalDate,
         toDate: LocalDate
     ): FBoerseHistoryData = effect {
-        fBoerseRepo.getHistory(isin, fromDate, toDate)
+        val data = fBoerseRepo.getHistory(isin, fromDate, toDate)
+        data.copy(
+            content = data.content.sortedBy { it.date }
+        )
     }.bind()
 }

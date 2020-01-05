@@ -8,6 +8,7 @@ import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.Etf
+import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.*
@@ -30,7 +31,7 @@ class EtfDetailViewModel(
         data class Error(val error: Throwable) : ViewState()
         data class NewChartData(
             val etf: Etf,
-            val drawableHistoricValues: DrawableHistoricData,
+            val historyData: FBoerseHistoryData,
             val performanceData: FBoersePerfData
         ) : ViewState()
 
@@ -48,9 +49,9 @@ class EtfDetailViewModel(
         continueOn(Dispatchers.IO)
     }
 
-    private val onHistoryFetchedIO: IO<(StockData) -> Unit> = IO.just { (drawableData, perfData) ->
+    private val onHistoryFetchedIO: IO<(StockData) -> Unit> = IO.just { (historyData, perfData) ->
         etfArg?.let {
-            viewStateData.mutable().value = ViewState.NewChartData(it, drawableData, perfData)
+            viewStateData.mutable().value = ViewState.NewChartData(it, historyData, perfData)
         }
     }
 

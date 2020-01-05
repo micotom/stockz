@@ -41,4 +41,3 @@ fun FBoerseHistoryData.mapToDrawableData(): List<ChartValue> =
         .map { dayHistory ->
             ChartValue(dayHistory.date.toLocalDate(), dayHistory.close.toFloat())
         }
-        .sortedBy { it.date }

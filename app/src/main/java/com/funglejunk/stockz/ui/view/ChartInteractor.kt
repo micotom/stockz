@@ -6,10 +6,12 @@ import android.graphics.Path
 import arrow.syntax.function.partially1
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
+import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.model.Period
 import com.funglejunk.stockz.model.bollingerBands
 import com.funglejunk.stockz.model.simpleMovingAverage
 import com.funglejunk.stockz.round
+import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.toMonthDayString
 import com.funglejunk.stockz.toYearString
 
@@ -40,37 +42,41 @@ class ChartInteractor {
     )
 
     fun prepareDrawing(
-        data: DrawableHistoricData,
+        data: FBoerseHistoryData,
         viewWidth: Float,
         viewHeight: Float,
         isInPortraitMode: Boolean,
         chartView: ChartViewInterface
     ): DrawFuncRegister {
 
-        val xSpreadFactor = viewWidth / data.size
-        val chartYValues = calculateChartPoints(data, viewHeight)
+        val xSpreadFactor = viewWidth / data.content.size
+        val chartYValues = calculateChartPoints(data.content, viewHeight)
         val firstY = when (chartYValues.isNotEmpty()) {
             true -> chartYValues[0]
             false -> 0f
         }
 
         val verticalMonthLines =
-            calculateVerticalMonthLines(data, viewHeight, xSpreadFactor, isInPortraitMode)
+            calculateVerticalMonthLines(data.content, viewHeight, xSpreadFactor, isInPortraitMode)
         val horizontalValueLines =
-            calculateHorizontalValueLines(data, viewWidth, viewHeight, isInPortraitMode)
-        val verticalYearLines = calculateVerticalYearLines(data, viewHeight, xSpreadFactor)
+            calculateHorizontalValueLines(data.content, viewWidth, viewHeight, isInPortraitMode)
+        val verticalYearLines = calculateVerticalYearLines(data.content, viewHeight, xSpreadFactor)
+
+        val dataAsChartValues = data.content.map {
+            ChartValue(it.date.toLocalDate(), it.close.toFloat())
+        }
         val smaPoints = calculateAlgorithmPoints(
-            simpleMovingAverage(data.data, Period.DAYS_30, 2), data, xSpreadFactor, viewHeight
+            simpleMovingAverage(dataAsChartValues, Period.DAYS_30, 2), data.content, xSpreadFactor, viewHeight
         )
         val bollingerPointsRaw = bollingerBands(
-            data.data,
+            dataAsChartValues,
             Period.DAYS_7, 2
         )
         val bollingerPoints =
-            calculateAlgorithmPoints(bollingerPointsRaw.first, data, xSpreadFactor, viewHeight) to
+            calculateAlgorithmPoints(bollingerPointsRaw.first, data.content, xSpreadFactor, viewHeight) to
                     calculateAlgorithmPoints(
                         bollingerPointsRaw.second,
-                        data,
+                        data.content,
                         xSpreadFactor,
                         viewHeight
                     )
@@ -92,13 +98,13 @@ class ChartInteractor {
 
     private fun calculateAlgorithmPoints(
         data: List<ChartValue>,
-        originalData: DrawableHistoricData, // TODO move vertical span to precalculation
+        originalData: List<FBoerseHistoryData.Data>, // TODO move vertical span to precalculation
         xSpreadFactor: Float,
         viewHeight: Float
     ): List<XyValue> = when (data.isNotEmpty()) {
         true -> {
-            val maxValueY = originalData.maxBy { it.value }!!.value
-            val minValueY = originalData.minBy { it.value }!!.value
+            val maxValueY = originalData.maxBy { it.close }!!.close.toFloat()
+            val minValueY = originalData.minBy { it.close }!!.close.toFloat()
             val verticalSpan = maxValueY - minValueY
             val factorY = (viewHeight / verticalSpan)
             val xValueRegister = originalData.mapIndexed { index, originalValue ->
@@ -106,7 +112,7 @@ class ChartInteractor {
                 originalValue.date to x
             }
             data.map { value ->
-                val x = xValueRegister.find { it.first == value.date }!!.second
+                val x = xValueRegister.find { it.first.toLocalDate() == value.date }!!.second
                 val y = (value.value - minValueY) * factorY
                 x to y
             }
@@ -115,17 +121,17 @@ class ChartInteractor {
     }
 
     private fun calculateChartPoints(
-        data: DrawableHistoricData,
+        data: List<FBoerseHistoryData.Data>,
         viewHeight: Float
     ): List<Float> {
         return when (data.isNotEmpty()) {
             true -> {
-                val maxValueY = data.maxBy { it.value }!!.value
-                val minValueY = data.minBy { it.value }!!.value
+                val maxValueY = data.maxBy { it.close }!!.close
+                val minValueY = data.minBy { it.close }!!.close
                 val verticalSpan = maxValueY - minValueY
                 val factorY = (viewHeight / verticalSpan)
-                data.map { (_, value) ->
-                    (value - minValueY) * factorY
+                data.map {
+                    ((it.close - minValueY) * factorY).toFloat()
                 }
             }
             false -> emptyList()
@@ -133,7 +139,7 @@ class ChartInteractor {
     }
 
     private fun calculateVerticalMonthLines(
-        data: DrawableHistoricData,
+        data: List<FBoerseHistoryData.Data>,
         viewHeight: Float,
         xSpreadFactor: Float,
         isInPortraitMode: Boolean
@@ -145,12 +151,12 @@ class ChartInteractor {
                     false -> 2
                 }
                 var currentMonth =
-                    data.first().date.month // TODO folding and flattening would be prettier
+                    data.first().date.toLocalDate().month // TODO folding and flattening would be prettier
                 data.mapIndexed { index, chartValue ->
                     index to chartValue
                 }.filter { (_, chartValue) ->
                     val (date, _) = chartValue
-                    val dateMonth = date.month
+                    val dateMonth = date.toLocalDate().month
                     val isNewMonth = dateMonth > currentMonth
                     currentMonth = dateMonth
                     isNewMonth
@@ -159,7 +165,7 @@ class ChartInteractor {
                     val xCoordinate = index * xSpreadFactor
                     val startPoint = xCoordinate to 0f
                     val endPoint = xCoordinate to viewHeight
-                    date.toMonthDayString() to (startPoint to endPoint)
+                    date.toLocalDate().toMonthDayString() to (startPoint to endPoint)
                 }.filterIndexed { index, _ ->
                     index % drawFrequency == 0
                 }
@@ -169,13 +175,13 @@ class ChartInteractor {
     }
 
     private fun calculateHorizontalValueLines(
-        data: DrawableHistoricData,
+        data: List<FBoerseHistoryData.Data>,
         viewWidth: Float,
         viewHeight: Float,
         isInPortraitMode: Boolean
     ): List<LabelWithLineCoordinates> {
-        val minValue = data.data.minBy { it.value }?.value
-        val maxValue = data.data.maxBy { it.value }?.value
+        val minValue = data.minBy { it.close }?.close
+        val maxValue = data.maxBy { it.close }?.close
         return when (maxValue == null || minValue == null) {
             true -> emptyList()
             false -> {
@@ -197,18 +203,18 @@ class ChartInteractor {
     }
 
     private fun calculateVerticalYearLines(
-        data: DrawableHistoricData,
+        data: List<FBoerseHistoryData.Data>,
         viewHeight: Float,
         xSpreadFactor: Float
     ): List<LabelWithLineCoordinates> {
         return when (data.isNotEmpty()) {
             true -> {
-                var currentYear = data.first().date.year
+                var currentYear = data.first().date.toLocalDate().year
                 data.mapIndexed { index, chartValue ->
                     index to chartValue
                 }.filter { (_, chartValue) ->
                     val (date, _) = chartValue
-                    val dataYear = date.year
+                    val dataYear = date.toLocalDate().year
                     val isNewYear = dataYear > currentYear
                     currentYear = dataYear
                     isNewYear
@@ -217,7 +223,7 @@ class ChartInteractor {
                     val xCoordinate = index * xSpreadFactor
                     val startPoint = xCoordinate to 0f
                     val endPoint = xCoordinate to viewHeight
-                    date.toYearString() to (startPoint to endPoint)
+                    date.toLocalDate().toYearString() to (startPoint to endPoint)
                 }
             }
             false -> emptyList()

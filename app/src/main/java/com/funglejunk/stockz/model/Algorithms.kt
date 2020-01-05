@@ -1,6 +1,7 @@
 package com.funglejunk.stockz.model
 
 import com.funglejunk.stockz.data.ChartValue
+import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import java.time.temporal.ChronoUnit
 import kotlin.math.pow
 import kotlin.math.sqrt

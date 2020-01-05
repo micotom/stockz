@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import arrow.core.extensions.list.applicative.map
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.DrawableHistoricData
+import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import timber.log.Timber
 
 class ChartView : View, ChartViewInterface {
@@ -87,7 +88,7 @@ class ChartView : View, ChartViewInterface {
         invalidate()
     }
 
-    fun draw(data: DrawableHistoricData) {
+    fun draw(data: FBoerseHistoryData) {
         post {
             val isInPortraitMode =
                 resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
