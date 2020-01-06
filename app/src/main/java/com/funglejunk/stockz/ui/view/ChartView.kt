@@ -10,7 +10,6 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import arrow.core.extensions.list.applicative.map
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import timber.log.Timber
 
@@ -59,7 +58,7 @@ class ChartView : View, ChartViewInterface {
     private var drawLabels = false
     private val textBound = Rect()
 
-    private lateinit var funcRegister: ChartInteractor.DrawFuncRegister
+    private var funcRegister: ChartInteractor.DrawFuncRegister? = null
 
     private var showSma = true
     private var showBollinger = false
@@ -106,11 +105,13 @@ class ChartView : View, ChartViewInterface {
                 isInPortraitMode,
                 this
             )
-            funcRegister.pathResetFunc.invoke(path)
-            animator = funcRegister.animatorInitFunc.invoke()
-            animator?.let {
-                it.also {
-                    it.start()
+            funcRegister?.let { safeFuncRegister ->
+                safeFuncRegister.pathResetFunc.invoke(path)
+                animator = safeFuncRegister.animatorInitFunc.invoke()
+                animator?.let {
+                    it.also {
+                        it.start()
+                    }
                 }
             }
         }
@@ -120,18 +121,19 @@ class ChartView : View, ChartViewInterface {
         super.onDraw(canvas)
         if (drawLabels) {
             drawLabels = false
-            // TODO might happen that funcRegister is not initialized
-            funcRegister.horizontalBarsDrawFunc.invoke(canvas)
-            funcRegister.yearMarkersDrawFunc.invoke(canvas)
-            funcRegister.monthMarkersDrawFunc.invoke(canvas)
-            if (showSma) {
-                funcRegister.simpleAvDrawFunc.invoke(canvas)
-            }
-            if (showBollinger) {
-                funcRegister.bollingerDrawFunc.invoke(canvas)
-            }
-            if (showAtr) {
-                funcRegister.atrDrawFunc.invoke(canvas)
+            funcRegister?.let { safeFuncRegister ->
+                safeFuncRegister.horizontalBarsDrawFunc.invoke(canvas)
+                safeFuncRegister.yearMarkersDrawFunc.invoke(canvas)
+                safeFuncRegister.monthMarkersDrawFunc.invoke(canvas)
+                if (showSma) {
+                    safeFuncRegister.simpleAvDrawFunc.invoke(canvas)
+                }
+                if (showBollinger) {
+                    safeFuncRegister.bollingerDrawFunc.invoke(canvas)
+                }
+                if (showAtr) {
+                    safeFuncRegister.atrDrawFunc.invoke(canvas)
+                }
             }
         }
         canvas.drawPath(path, chartPaint)
@@ -155,12 +157,10 @@ class ChartView : View, ChartViewInterface {
                             xValueSpreadBetweenPoints * animatedIndex + HORIZONTAL_LABEL_OFFSET,
                             height - chartPoints[animatedIndex]
                         )
-                        invalidate()
+                        invalidateAndDrawLabels()
                     }
                     addListener(object : AnimatorEndListener() {
-                        override fun onAnimationEnd(animation: Animator?) {
-                            invalidateAndDrawLabels()
-                        }
+                        override fun onAnimationEnd(animation: Animator?) = Unit
                     })
                 }
             }
