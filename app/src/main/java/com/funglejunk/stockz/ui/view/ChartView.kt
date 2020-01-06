@@ -66,39 +66,33 @@ class ChartView : View, ChartViewInterface {
     private var showAtr = false
 
     fun showBollinger() {
-        drawLabels = true
         showBollinger = true
-        invalidate()
+        invalidateAndDrawLabels()
     }
 
     fun hideBollinger() {
-        drawLabels = true
         showBollinger = false
-        invalidate()
+        invalidateAndDrawLabels()
     }
 
     fun showSma() {
         drawLabels = true
-        showSma = true
-        invalidate()
+        invalidateAndDrawLabels()
     }
 
     fun hideSma() {
-        drawLabels = true
         showSma = false
-        invalidate()
+        invalidateAndDrawLabels()
     }
 
     fun showAtr() {
-        drawLabels = true
         showAtr = true
-        invalidate()
+        invalidateAndDrawLabels()
     }
 
     fun hideAtr() {
-        drawLabels = true
         showAtr = false
-        invalidate()
+        invalidateAndDrawLabels()
     }
 
     fun draw(data: FBoerseHistoryData) {
@@ -126,6 +120,7 @@ class ChartView : View, ChartViewInterface {
         super.onDraw(canvas)
         if (drawLabels) {
             drawLabels = false
+            // TODO might happen that funcRegister is not initialized
             funcRegister.horizontalBarsDrawFunc.invoke(canvas)
             funcRegister.yearMarkersDrawFunc.invoke(canvas)
             funcRegister.monthMarkersDrawFunc.invoke(canvas)
@@ -164,13 +159,17 @@ class ChartView : View, ChartViewInterface {
                     }
                     addListener(object : AnimatorEndListener() {
                         override fun onAnimationEnd(animation: Animator?) {
-                            drawLabels = true
-                            invalidate()
+                            invalidateAndDrawLabels()
                         }
                     })
                 }
             }
         }
+
+    private fun invalidateAndDrawLabels() {
+        drawLabels = true
+        invalidate()
+    }
 
     override val bollingerDrawFunc: DoubleXyDrawFunc =
         { (upperPoints, lowerPoints) ->
