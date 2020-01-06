@@ -44,10 +44,12 @@ class StockDataCache(context: Context) : StockDataCacheInterface {
     ) {
         val staleData = json.parse(FBoerseHistoryData.serializer(), staleValue)
         val mergedData = staleData.merge(data.value)
-        putString(
-            data.key,
-            json.stringify(FBoerseHistoryData.serializer(), mergedData)
-        )
+        if (mergedData.content.size != staleData.content.size) {
+            putString(
+                data.key,
+                json.stringify(FBoerseHistoryData.serializer(), mergedData)
+            )
+        }
     }
 
     private fun SharedPreferences.Editor.putNewValue(data: CacheableData) {
@@ -77,15 +79,11 @@ class StockDataCache(context: Context) : StockDataCacheInterface {
 
     private fun List<FBoerseHistoryData.Data>.mergeWith(other: List<FBoerseHistoryData.Data>):
             List<FBoerseHistoryData.Data> =
-        other.fold(
-            mutableListOf<FBoerseHistoryData.Data>().apply {
-                addAll(this@mergeWith)
-            }
-        ) { acc, new ->
-            acc.apply {
-                if (any { it.date == new.date }) {
-                    add(new)
-                }
-            }
+        mutableListOf<FBoerseHistoryData.Data>().apply {
+            addAll(this@mergeWith)
+            addAll(
+                other.filter { !this.contains(it) }
+            )
         }
+
 }
