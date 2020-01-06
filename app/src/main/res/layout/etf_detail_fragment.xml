@@ -117,7 +117,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/primaryColor"
                 android:textSize="12sp"
-                android:checked="true"
+                android:checked="false"
                 android:text="SMA"/>
         <CheckBox
                 android:id="@+id/atr_checkbox"

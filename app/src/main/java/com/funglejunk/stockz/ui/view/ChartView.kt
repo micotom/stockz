@@ -60,7 +60,7 @@ class ChartView : View, ChartViewInterface {
 
     private var funcRegister: ChartInteractor.DrawFuncRegister? = null
 
-    private var showSma = true
+    private var showSma = false
     private var showBollinger = false
     private var showAtr = false
 
@@ -75,7 +75,7 @@ class ChartView : View, ChartViewInterface {
     }
 
     fun showSma() {
-        drawLabels = true
+        showSma = true
         invalidateAndDrawLabels()
     }
 
