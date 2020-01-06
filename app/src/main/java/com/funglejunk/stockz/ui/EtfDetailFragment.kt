@@ -61,6 +61,13 @@ class EtfDetailFragment : Fragment() {
             }
         }
 
+        atr_checkbox.setOnCheckedChangeListener { _, isChecked ->
+            when (isChecked) {
+                true -> mychart.showAtr()
+                false -> mychart.hideAtr()
+            }
+        }
+
     }
 
     private fun renderNewViewState(event: EtfDetailViewModel.ViewState) {

@@ -21,6 +21,14 @@ class AlgorithmsKtTest {
     }
 
     @Test
+    fun `calculate atr`() {
+        val result = averageTrueRange(data.content)
+        result.forEach {
+            println(it)
+        }
+    }
+
+    @Test
     fun `calculate sma`() {
         val templateEntry = FBoerseHistoryData.Data(
             "2018-01-01", -1.0, -1.0, -1.0, -1.0, -1, -1.0

@@ -120,12 +120,20 @@
                 android:checked="true"
                 android:text="SMA"/>
         <CheckBox
+                android:id="@+id/atr_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/primaryColor"
+                android:textSize="12sp"
+                android:checked="false"
+                android:text="ATR"/>
+        <CheckBox
                 android:id="@+id/bollinger_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/primaryColor"
                 android:textSize="12sp"
-                android:checked="true"
+                android:checked="false"
                 android:text="Bollinger"/>
     </LinearLayout>
 

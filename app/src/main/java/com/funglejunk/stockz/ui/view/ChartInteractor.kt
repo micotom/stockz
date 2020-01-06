@@ -8,6 +8,7 @@ import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.model.Period
+import com.funglejunk.stockz.model.averageTrueRange
 import com.funglejunk.stockz.model.bollingerBands
 import com.funglejunk.stockz.model.simpleMovingAverage
 import com.funglejunk.stockz.round
@@ -38,7 +39,8 @@ class ChartInteractor {
         val horizontalBarsDrawFunc: DrawFunc,
         val yearMarkersDrawFunc: DrawFunc,
         val simpleAvDrawFunc: DrawFunc,
-        val bollingerDrawFunc: DrawFunc
+        val bollingerDrawFunc: DrawFunc,
+        val atrDrawFunc: DrawFunc
     )
 
     fun prepareDrawing(
@@ -65,8 +67,12 @@ class ChartInteractor {
         val dataAsChartValues = data.content.map {
             ChartValue(it.date.toLocalDate(), it.close.toFloat())
         }
+
         val smaPoints = calculateAlgorithmPoints(
             simpleMovingAverage(dataAsChartValues, Period.DAYS_30, 2), data.content, xSpreadFactor, viewHeight
+        )
+        val atrPoints = calculateChartUnboundAlgorithmPoints(
+            averageTrueRange(data.content), data.content, xSpreadFactor, viewHeight, 2f
         )
         val bollingerPointsRaw = bollingerBands(
             dataAsChartValues,
@@ -92,8 +98,31 @@ class ChartInteractor {
                 horizontalValueLines
             ).invoke(),
             simpleAvDrawFunc = chartView.movingAvDrawFunc.partially1(smaPoints).invoke(),
-            bollingerDrawFunc = chartView.bollingerDrawFunc.partially1(bollingerPoints).invoke()
+            bollingerDrawFunc = chartView.bollingerDrawFunc.partially1(bollingerPoints).invoke(),
+            atrDrawFunc = chartView.atrDrawFunc.partially1(atrPoints).invoke()
         )
+    }
+
+    private fun calculateChartUnboundAlgorithmPoints(
+        data: List<ChartValue>,
+        originalData: List<FBoerseHistoryData.Data>, // TODO move vertical span to precalculation
+        xSpreadFactor: Float,
+        viewHeight: Float,
+        scaleFactor: Float
+    ): List<XyValue> = when (data.isNotEmpty()) {
+        true -> {
+            val xValueRegister = originalData.mapIndexed { index, originalValue ->
+                val x = index * xSpreadFactor
+                originalValue.date to x
+            }
+            val minValueY = data.minBy { it.value }!!.value
+            data.map { value ->
+                val x = xValueRegister.find { it.first.toLocalDate() == value.date }!!.second
+                val y = (value.value - minValueY) * viewHeight * scaleFactor
+                x to y
+            }
+        }
+        false -> emptyList()
     }
 
     private fun calculateAlgorithmPoints(

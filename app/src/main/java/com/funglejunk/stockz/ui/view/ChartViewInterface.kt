@@ -9,5 +9,6 @@ interface ChartViewInterface {
     val horizontalBarsDrawFunc: HorizontalBarsDrawFunc
     val movingAvDrawFunc: SimpleXyDrawFunc
     val bollingerDrawFunc: DoubleXyDrawFunc
+    val atrDrawFunc: SimpleXyDrawFunc
 
 }

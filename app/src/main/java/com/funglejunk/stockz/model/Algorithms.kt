@@ -2,7 +2,10 @@ package com.funglejunk.stockz.model
 
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.toLocalDate
 import java.time.temporal.ChronoUnit
+import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -40,10 +43,12 @@ fun bollingerBands(
     val partitions = data.partition(period, periodInterval)
         .filter { it.isNotEmpty() }
     val upperBands = partitions.map {
-        it.first().copy(value = simpleMovingAverageOnPartition(it) + 2 * standardDeviationOnPartition(it))
+        it.first()
+            .copy(value = simpleMovingAverageOnPartition(it) + 2 * standardDeviationOnPartition(it))
     }
     val lowerBands = partitions.map {
-        it.first().copy(value = simpleMovingAverageOnPartition(it) - 2 * standardDeviationOnPartition(it))
+        it.first()
+            .copy(value = simpleMovingAverageOnPartition(it) - 2 * standardDeviationOnPartition(it))
     }
     return upperBands to lowerBands
 }
@@ -54,6 +59,43 @@ private fun standardDeviationOnPartition(data: List<ChartValue>): Float {
     val snv = data.map { (it.value - mu).pow(2.0) }
     val variance = snv.sumByDouble { it } / snv.size
     return sqrt(variance).toFloat()
+}
+
+fun averageTrueRange(data: List<FBoerseHistoryData.Data>): List<ChartValue> {
+    return when (data.isNotEmpty()) {
+        true -> {
+            val trueRanges = (1 until data.size).map { index ->
+                val currentValue = data[index]
+                val previousValue = data[index - 1]
+                val s1 = abs(currentValue.high - currentValue.close)
+                val s2 = abs(previousValue.close - currentValue.high)
+                val s3 = abs(previousValue.close - currentValue.low)
+                val trueRange = max(max(s1, s2), s3).toFloat()
+                ChartValue(currentValue.date.toLocalDate(), trueRange)
+            }
+            val partitions = trueRanges.partition(Period.DAYS_7, 2)
+            partitions.foldIndexed(mutableListOf()) { index, acc, new ->
+                when (index) {
+                    0 -> {
+                        acc.apply {
+                            add(new.first().copy(
+                                value = (new.sumByDouble { it.value.toDouble() } / new.size).toFloat()
+                            ))
+                        }
+                    }
+                    else -> {
+                        val currentTr =
+                            (partitions[index].sumByDouble { it.value.toDouble() } / partitions[index - 1].size).toFloat()
+                        val nextAtr = (acc[index - 1].value * (index - 1) + currentTr) / index
+                        acc.apply {
+                            add(new.first().copy(value = nextAtr)) // TODO this might crash
+                        }
+                    }
+                }
+            }
+        }
+        false -> emptyList()
+    }
 }
 
 private fun List<ChartValue>.partition(

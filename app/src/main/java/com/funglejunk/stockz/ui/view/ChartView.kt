@@ -61,8 +61,9 @@ class ChartView : View, ChartViewInterface {
 
     private lateinit var funcRegister: ChartInteractor.DrawFuncRegister
 
-    private var showBollinger = true
     private var showSma = true
+    private var showBollinger = false
+    private var showAtr = false
 
     fun showBollinger() {
         drawLabels = true
@@ -85,6 +86,18 @@ class ChartView : View, ChartViewInterface {
     fun hideSma() {
         drawLabels = true
         showSma = false
+        invalidate()
+    }
+
+    fun showAtr() {
+        drawLabels = true
+        showAtr = true
+        invalidate()
+    }
+
+    fun hideAtr() {
+        drawLabels = true
+        showAtr = false
         invalidate()
     }
 
@@ -121,6 +134,9 @@ class ChartView : View, ChartViewInterface {
             }
             if (showBollinger) {
                 funcRegister.bollingerDrawFunc.invoke(canvas)
+            }
+            if (showAtr) {
+                funcRegister.atrDrawFunc.invoke(canvas)
             }
         }
         canvas.drawPath(path, chartPaint)
@@ -217,6 +233,8 @@ class ChartView : View, ChartViewInterface {
                 }
             }
         }
+
+    override val atrDrawFunc: SimpleXyDrawFunc = movingAvDrawFunc
 
     override val monthMarkersDrawFunc: MonthMarkersDrawFunc =
         { markers ->
