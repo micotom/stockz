@@ -64,14 +64,21 @@ private fun standardDeviationOnPartition(data: List<ChartValue>): Float {
 fun averageTrueRange(data: List<FBoerseHistoryData.Data>): List<ChartValue> {
     return when (data.isNotEmpty()) {
         true -> {
-            val trueRanges = (1 until data.size).map { index ->
-                val currentValue = data[index]
-                val previousValue = data[index - 1]
-                val s1 = abs(currentValue.high - currentValue.close)
-                val s2 = abs(previousValue.close - currentValue.high)
-                val s3 = abs(previousValue.close - currentValue.low)
-                val trueRange = max(max(s1, s2), s3).toFloat()
-                ChartValue(currentValue.date.toLocalDate(), trueRange)
+            val trueRanges = data.mapIndexed { index, currentValue ->
+                when (index) {
+                    0 -> ChartValue(
+                        date = currentValue.date.toLocalDate(),
+                        value = abs(currentValue.high - currentValue.close).toFloat()
+                    )
+                    else -> {
+                        val previousValue = data[index - 1]
+                        val s1 = abs(currentValue.high - currentValue.close)
+                        val s2 = abs(previousValue.close - currentValue.high)
+                        val s3 = abs(previousValue.close - currentValue.low)
+                        val trueRange = max(max(s1, s2), s3).toFloat()
+                        ChartValue(currentValue.date.toLocalDate(), trueRange)
+                    }
+                }
             }
             val partitions = trueRanges.partition(Period.DAYS_7, 2)
             partitions.foldIndexed(mutableListOf()) { index, acc, new ->
