@@ -6,12 +6,17 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.*
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.core.content.ContextCompat
 import arrow.core.extensions.list.applicative.map
+import arrow.syntax.function.partially1
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import timber.log.Timber
+import kotlin.math.abs
 
 class ChartView : View, ChartViewInterface {
 
@@ -54,15 +59,16 @@ class ChartView : View, ChartViewInterface {
     }
 
     private val path = Path()
-    private var animator: ValueAnimator? = null
-    private var drawLabels = false
     private val textBound = Rect()
 
+    private var animator: ValueAnimator? = null
     private var funcRegister: ChartInteractor.DrawFuncRegister? = null
 
+    private var drawLabels = false
     private var showSma = false
     private var showBollinger = false
     private var showAtr = false
+    private var xScale = 1.0f
 
     fun showBollinger() {
         showBollinger = true
@@ -119,24 +125,30 @@ class ChartView : View, ChartViewInterface {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        canvas.save()
+        Timber.d("ondraw() -> scale: $xScale, dx: $dx")
+        canvas.scale(xScale, 1f, (width / (dx ?: 0f)) + width, 0f)
         if (drawLabels) {
             drawLabels = false
             funcRegister?.let { safeFuncRegister ->
-                safeFuncRegister.horizontalBarsDrawFunc.invoke(canvas)
-                safeFuncRegister.yearMarkersDrawFunc.invoke(canvas)
-                safeFuncRegister.monthMarkersDrawFunc.invoke(canvas)
-                if (showSma) {
-                    safeFuncRegister.simpleAvDrawFunc.invoke(canvas)
-                }
-                if (showBollinger) {
-                    safeFuncRegister.bollingerDrawFunc.invoke(canvas)
-                }
-                if (showAtr) {
-                    safeFuncRegister.atrDrawFunc.invoke(canvas)
+                with(safeFuncRegister) {
+                    horizontalBarsDrawFunc.invoke(canvas)
+                    yearMarkersDrawFunc.invoke(canvas)
+                    monthMarkersDrawFunc.invoke(canvas)
+                    if (showSma) {
+                        simpleAvDrawFunc.invoke(canvas)
+                    }
+                    if (showBollinger) {
+                        bollingerDrawFunc.invoke(canvas)
+                    }
+                    if (showAtr) {
+                        atrDrawFunc.invoke(canvas)
+                    }
                 }
             }
         }
         canvas.drawPath(path, chartPaint)
+        canvas.restore()
     }
 
     override val pathResetFunc: PathResetFunc = { startY ->
@@ -336,6 +348,51 @@ class ChartView : View, ChartViewInterface {
         }
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return when (event) {
+            null -> false
+            else -> when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    val eventX = event.rawX
+                    Timber.d("action down x: $eventX")
+                    processXScale = calculateXScale.partially1(eventX).invoke()
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val eventX = event.rawX
+                    Timber.d("action move x: $eventX")
+                    processXScale?.invoke(eventX)
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    upX = event.rawX
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private var processXScale: ((Float) -> Unit)? = null
+
+    private var dx: Float? = null
+
+    private var upX: Float? = null
+
+    private val calculateXScale: (Float) -> (Float) -> Unit = { prevX ->
+        { newX ->
+            val safeDx = dx ?: 0f
+            dx = safeDx + (prevX - newX)
+            if (dx != 0f) {
+                Timber.d("view width: $width")
+                Timber.w("x diff: $dx")
+                xScale = (((dx ?: 0f) / (height.toFloat() * 4f)) + 1f).coerceAtLeast(1f)
+                Timber.d("scale x: $xScale")
+                invalidateAndDrawLabels()
+            }
+        }
+    }
+
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         drawLabels = hasWindowFocus
@@ -364,4 +421,5 @@ class ChartView : View, ChartViewInterface {
     }
 
     private fun XyValue.shiftXOffset() = (first + HORIZONTAL_LABEL_OFFSET) to second
+
 }
