@@ -8,21 +8,23 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.view.GestureDetectorCompat
 import arrow.core.extensions.list.applicative.map
-import arrow.syntax.function.partially1
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import timber.log.Timber
-import kotlin.math.abs
 
 class ChartView : View, ChartViewInterface {
 
-    private companion object {
-        const val HORIZONTAL_LABEL_OFFSET = 72f
-        const val CIRCLE_RADIUS = 4f
+    companion object {
+        const val MONTH_LINES_MODULO_PORTRAIT = 3
+        const val MONTH_LINES_MODULO_LANDSCAPE = 2
+        const val HORIZONTAL_LINE_COUNT_PORTRAIT = 10
+        const val HORIZONTAL_LINE_COUNT_LANDSCAPE = 3
+        private const val HORIZONTAL_LABEL_OFFSET = 72f
+        private const val CIRCLE_RADIUS = 4f
     }
 
     constructor(context: Context?) : super(context)
@@ -45,6 +47,35 @@ class ChartView : View, ChartViewInterface {
         defStyleRes
     )
 
+    private val tapListener = object : GestureDetector.SimpleOnGestureListener() {
+        override fun onDown(e: MotionEvent?): Boolean = true
+
+        override fun onDoubleTap(e: MotionEvent?): Boolean = when (e) {
+            null -> false
+            else -> {
+                funcRegister = interactor.showAllSectors(width.toFloat(), height.toFloat(),
+                    resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT,
+                    this@ChartView)
+                drawNewData()
+                true
+            }
+        }
+
+        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean = when (e) {
+            null -> false
+            else -> {
+                val x = e.x - HORIZONTAL_LABEL_OFFSET
+                funcRegister = interactor.showSector(x, width.toFloat(), height.toFloat(),
+                    resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT,
+                    this@ChartView)
+                drawNewData()
+                true
+            }
+        }
+    }
+
+    private val gestureDetector = GestureDetectorCompat(context, tapListener)
+
     private val chartPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.primaryColor)
         isAntiAlias = true
@@ -62,13 +93,13 @@ class ChartView : View, ChartViewInterface {
     private val textBound = Rect()
 
     private var animator: ValueAnimator? = null
+    private val interactor = ChartInteractor()
     private var funcRegister: ChartInteractor.DrawFuncRegister? = null
 
     private var drawLabels = false
     private var showSma = false
     private var showBollinger = false
     private var showAtr = false
-    private var xScale = 1.0f
 
     fun showBollinger() {
         showBollinger = true
@@ -104,20 +135,24 @@ class ChartView : View, ChartViewInterface {
         post {
             val isInPortraitMode =
                 resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-            funcRegister = ChartInteractor().prepareDrawing(
+            funcRegister = interactor.prepareDrawing(
                 data,
                 width.toFloat(),
                 height.toFloat(),
                 isInPortraitMode,
                 this
             )
-            funcRegister?.let { safeFuncRegister ->
-                safeFuncRegister.pathResetFunc.invoke(path)
-                animator = safeFuncRegister.animatorInitFunc.invoke()
-                animator?.let {
-                    it.also {
-                        it.start()
-                    }
+            drawNewData()
+        }
+    }
+
+    private fun drawNewData() {
+        funcRegister?.let { safeFuncRegister ->
+            safeFuncRegister.pathResetFunc.invoke(path)
+            animator = safeFuncRegister.animatorInitFunc.invoke()
+            animator?.let {
+                it.also {
+                    it.start()
                 }
             }
         }
@@ -125,9 +160,6 @@ class ChartView : View, ChartViewInterface {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.save()
-        Timber.d("ondraw() -> scale: $xScale, dx: $dx")
-        canvas.scale(xScale, 1f, (width / (dx ?: 0f)) + width, 0f)
         if (drawLabels) {
             drawLabels = false
             funcRegister?.let { safeFuncRegister ->
@@ -148,7 +180,6 @@ class ChartView : View, ChartViewInterface {
             }
         }
         canvas.drawPath(path, chartPaint)
-        canvas.restore()
     }
 
     override val pathResetFunc: PathResetFunc = { startY ->
@@ -348,51 +379,6 @@ class ChartView : View, ChartViewInterface {
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        return when (event) {
-            null -> false
-            else -> when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    val eventX = event.rawX
-                    Timber.d("action down x: $eventX")
-                    processXScale = calculateXScale.partially1(eventX).invoke()
-                    true
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    val eventX = event.rawX
-                    Timber.d("action move x: $eventX")
-                    processXScale?.invoke(eventX)
-                    true
-                }
-                MotionEvent.ACTION_UP -> {
-                    upX = event.rawX
-                    true
-                }
-                else -> false
-            }
-        }
-    }
-
-    private var processXScale: ((Float) -> Unit)? = null
-
-    private var dx: Float? = null
-
-    private var upX: Float? = null
-
-    private val calculateXScale: (Float) -> (Float) -> Unit = { prevX ->
-        { newX ->
-            val safeDx = dx ?: 0f
-            dx = safeDx + (prevX - newX)
-            if (dx != 0f) {
-                Timber.d("view width: $width")
-                Timber.w("x diff: $dx")
-                xScale = (((dx ?: 0f) / (height.toFloat() * 4f)) + 1f).coerceAtLeast(1f)
-                Timber.d("scale x: $xScale")
-                invalidateAndDrawLabels()
-            }
-        }
-    }
-
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
         super.onWindowFocusChanged(hasWindowFocus)
         drawLabels = hasWindowFocus
@@ -405,13 +391,6 @@ class ChartView : View, ChartViewInterface {
         super.onDetachedFromWindow()
     }
 
-    private abstract class AnimatorEndListener : Animator.AnimatorListener {
-        override fun onAnimationRepeat(animation: Animator?) = Unit
-        abstract override fun onAnimationEnd(animation: Animator?)
-        override fun onAnimationCancel(animation: Animator?) = Unit
-        override fun onAnimationStart(animation: Animator?) = Unit
-    }
-
     private fun List<LabelWithLineCoordinates>.shiftXOffset() = map { (label, coordinates) ->
         val start = coordinates.first
         val end = coordinates.second
@@ -421,5 +400,14 @@ class ChartView : View, ChartViewInterface {
     }
 
     private fun XyValue.shiftXOffset() = (first + HORIZONTAL_LABEL_OFFSET) to second
+
+    private abstract class AnimatorEndListener : Animator.AnimatorListener {
+        override fun onAnimationRepeat(animation: Animator?) = Unit
+        abstract override fun onAnimationEnd(animation: Animator?)
+        override fun onAnimationCancel(animation: Animator?) = Unit
+        override fun onAnimationStart(animation: Animator?) = Unit
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean = gestureDetector.onTouchEvent(event)
 
 }

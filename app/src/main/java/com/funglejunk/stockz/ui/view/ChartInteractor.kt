@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Path
 import arrow.syntax.function.partially1
 import com.funglejunk.stockz.data.ChartValue
-import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.model.Period
 import com.funglejunk.stockz.model.averageTrueRange
@@ -15,6 +14,7 @@ import com.funglejunk.stockz.round
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.toMonthDayString
 import com.funglejunk.stockz.toYearString
+import java.lang.IllegalStateException
 
 typealias XyValue = Pair<Float, Float>
 typealias LineCoordinates = Pair<XyValue, XyValue>
@@ -30,6 +30,9 @@ typealias DoubleXyDrawFunc = (Pair<List<XyValue>, List<XyValue>>) -> (Canvas) ->
 
 typealias DrawFunc = (Canvas) -> Unit
 
+typealias XBoundaries = Pair<Float, Float>
+typealias Sector = Pair<XBoundaries, List<FBoerseHistoryData.Data>>
+
 class ChartInteractor {
 
     data class DrawFuncRegister(
@@ -43,14 +46,152 @@ class ChartInteractor {
         val atrDrawFunc: DrawFunc
     )
 
+    private lateinit var dataCache: () -> FBoerseHistoryData
+    private lateinit var sectorsCache: () -> Pair<List<Sector>, List<Sector>>
+
+    fun showAllSectors(
+        viewWidth: Float, viewHeight: Float, isInPortraitMode: Boolean,
+        view: ChartView
+    ): DrawFuncRegister {
+        return with(dataCache.invoke()) {
+            prepareDrawingInternal(this, viewWidth, viewHeight, isInPortraitMode, view)
+        }
+    }
+
+    fun showSector(
+        tapX: Float, viewWidth: Float, viewHeight: Float, isInPortraitMode: Boolean,
+        view: ChartView
+    ): DrawFuncRegister =
+        with(sectorsCache.invoke()) {
+            val (portraitSectors, landscapeSectors) = this
+            with(dataCache.invoke()) {
+                showSectorsInternal(
+                    this,
+                    portraitSectors,
+                    landscapeSectors,
+                    tapX,
+                    viewWidth,
+                    viewHeight,
+                    isInPortraitMode,
+                    view
+                )
+            }
+        }
+
+    private val showSectorsInternal:
+                (FBoerseHistoryData, List<Sector>, List<Sector>, Float, Float, Float, Boolean, ChartView) -> DrawFuncRegister =
+        { data, portraitSectors, landscapeSectors, tapX, viewWidth, viewHeight, isInPortraitMode, view ->
+            val targetSectors = when (isInPortraitMode) {
+                true -> portraitSectors
+                false -> landscapeSectors
+            }
+            val tappedSector = targetSectors.find {
+                val (xBounds, _) = it
+                tapX >= xBounds.first && tapX <= xBounds.second
+            }!!
+            prepareDrawingInternal(
+                data.copy(content = tappedSector.second),
+                viewWidth,
+                viewHeight,
+                isInPortraitMode,
+                view
+            )
+        }
+
+    private val appliedSectors: (List<Sector>, List<Sector>) -> () -> Pair<List<Sector>, List<Sector>> =
+        { portraitSectors, landscapeSector ->
+            {
+                portraitSectors to landscapeSector
+            }
+        }
+
+    private val appliedData: (FBoerseHistoryData) -> () -> FBoerseHistoryData = { data ->
+        {
+            data
+        }
+    }
+
     fun prepareDrawing(
+        data: FBoerseHistoryData, // TODO hand over content object directly
+        viewWidth: Float,
+        viewHeight: Float,
+        isInPortraitMode: Boolean,
+        chartView: ChartViewInterface
+    ): DrawFuncRegister {
+        initDataAndSectorsCache(viewWidth, data, viewHeight)
+        return prepareDrawingInternal(data, viewWidth, viewHeight, isInPortraitMode, chartView)
+    }
+
+    private fun initDataAndSectorsCache(
+        viewWidth: Float,
+        data: FBoerseHistoryData,
+        viewHeight: Float
+    ) {
+        val xSpreadFactor = viewWidth / data.content.size
+        val portraitBounds = calculateVerticalMonthLines(
+            data.content, viewHeight, xSpreadFactor, true
+        )
+        val landscapeBounds = calculateVerticalMonthLines(
+            data.content, viewHeight, xSpreadFactor, false
+        )
+
+        val sectorsPortrait = portraitBounds.mapIndexed { index, (_, rightBoundXy) ->
+            val leftBound = when (index) {
+                0 -> 0f
+                else -> portraitBounds[index - 1].second.first.first
+            }
+            val rightBound = when (index) {
+                portraitBounds.size - 1 -> viewWidth
+                else -> rightBoundXy.first.first
+            }
+            Pair(leftBound, rightBound) to mutableListOf<FBoerseHistoryData.Data>()
+        }
+
+        val sectorsLandscape = landscapeBounds.mapIndexed { index, (_, rightBoundXy) ->
+            val leftBound = when (index) {
+                0 -> 0f
+                else -> landscapeBounds[index - 1].second.first.first
+            }
+            val rightBound = when (index) {
+                landscapeBounds.size - 1 -> viewWidth
+                else -> rightBoundXy.first.first
+            }
+            Pair(leftBound, rightBound) to mutableListOf<FBoerseHistoryData.Data>()
+        }
+
+        // TODO prettify by not using forEach
+        data.content.forEachIndexed { index, dataPoint ->
+            val dataPointX = index * xSpreadFactor
+            sectorsPortrait.forEachIndexed { sectorIndex, (minMaxX, list) ->
+                val (minX, maxX) = minMaxX
+                if (dataPointX >= minX && dataPointX < maxX) {
+                    list.add(dataPoint)
+                }
+            }
+        }
+
+        // TODO prettify by not using forEach
+        data.content.forEachIndexed { index, dataPoint ->
+            val dataPointX = index * xSpreadFactor
+            sectorsLandscape.forEachIndexed { sectorIndex, (minMaxX, list) ->
+                val (minX, maxX) = minMaxX
+                if (dataPointX >= minX && dataPointX < maxX) {
+                    list.add(dataPoint)
+                }
+            }
+        }
+
+        dataCache = appliedData.invoke(data)
+        sectorsCache = appliedSectors.invoke(sectorsPortrait, sectorsLandscape)
+    }
+
+    private fun prepareDrawingInternal(
         data: FBoerseHistoryData,
         viewWidth: Float,
         viewHeight: Float,
         isInPortraitMode: Boolean,
         chartView: ChartViewInterface
     ): DrawFuncRegister {
-
         val xSpreadFactor = viewWidth / data.content.size
         val chartYValues = calculateChartPoints(data.content, viewHeight)
         val firstY = when (chartYValues.isNotEmpty()) {
@@ -69,7 +210,10 @@ class ChartInteractor {
         }
 
         val smaPoints = calculateAlgorithmPoints(
-            simpleMovingAverage(dataAsChartValues, Period.DAYS_30, 2), data.content, xSpreadFactor, viewHeight
+            simpleMovingAverage(dataAsChartValues, Period.DAYS_30, 2),
+            data.content,
+            xSpreadFactor,
+            viewHeight
         )
         val atrPoints = calculateChartUnboundAlgorithmPoints(
             averageTrueRange(data.content), data.content, xSpreadFactor, viewHeight, 2f
@@ -79,7 +223,12 @@ class ChartInteractor {
             Period.DAYS_7, 2
         )
         val bollingerPoints =
-            calculateAlgorithmPoints(bollingerPointsRaw.first, data.content, xSpreadFactor, viewHeight) to
+            calculateAlgorithmPoints(
+                bollingerPointsRaw.first,
+                data.content,
+                xSpreadFactor,
+                viewHeight
+            ) to
                     calculateAlgorithmPoints(
                         bollingerPointsRaw.second,
                         data.content,
@@ -176,11 +325,12 @@ class ChartInteractor {
         return when (data.isNotEmpty()) {
             true -> {
                 val drawFrequency = when (isInPortraitMode) {
-                    true -> 3
-                    false -> 2
+                    true -> ChartView.MONTH_LINES_MODULO_PORTRAIT
+                    false -> ChartView.MONTH_LINES_MODULO_LANDSCAPE
                 }
                 var currentMonth =
-                    data.first().date.toLocalDate().month // TODO folding and flattening would be prettier
+                    data.first().date.toLocalDate()
+                        .month // TODO folding and flattening would be prettier
                 data.mapIndexed { index, chartValue ->
                     index to chartValue
                 }.filter { (_, chartValue) ->
@@ -215,8 +365,8 @@ class ChartInteractor {
             true -> emptyList()
             false -> {
                 val numberOfLines = when (isInPortraitMode) {
-                    true -> 10
-                    false -> 3
+                    true -> ChartView.HORIZONTAL_LINE_COUNT_PORTRAIT
+                    false -> ChartView.HORIZONTAL_LINE_COUNT_LANDSCAPE
                 }
                 val valueSteps = (maxValue - minValue) / numberOfLines
                 val verticalDistance = viewHeight / numberOfLines
@@ -258,5 +408,4 @@ class ChartInteractor {
             false -> emptyList()
         }
     }
-
 }

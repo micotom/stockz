@@ -105,7 +105,7 @@ fun averageTrueRange(data: List<FBoerseHistoryData.Data>): List<ChartValue> {
     }
 }
 
-private fun List<ChartValue>.partition(
+fun List<ChartValue>.partition(
     period: Period,
     periodInterval: Int
 ): List<List<ChartValue>> =
