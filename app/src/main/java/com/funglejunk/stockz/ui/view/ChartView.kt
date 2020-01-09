@@ -25,6 +25,7 @@ class ChartView : View, ChartViewInterface {
         const val HORIZONTAL_LINE_COUNT_LANDSCAPE = 3
         private const val HORIZONTAL_LABEL_OFFSET = 72f
         private const val CIRCLE_RADIUS = 4f
+        private const val CHART_ANIM_DUR_MS = 1500L
     }
 
     constructor(context: Context?) : super(context)
@@ -46,6 +47,8 @@ class ChartView : View, ChartViewInterface {
         defStyleAttr,
         defStyleRes
     )
+
+    private var processTaps = false
 
     private val tapListener = object : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent?): Boolean = true
@@ -193,7 +196,7 @@ class ChartView : View, ChartViewInterface {
         { chartPoints, xValueSpreadBetweenPoints ->
             {
                 ValueAnimator.ofInt(1, chartPoints.size - 1).apply {
-                    duration = 1500
+                    duration = CHART_ANIM_DUR_MS
                     addUpdateListener {
                         val animatedIndex = it.animatedValue as Int
                         path.lineTo(
@@ -202,8 +205,13 @@ class ChartView : View, ChartViewInterface {
                         )
                         invalidateAndDrawLabels()
                     }
-                    addListener(object : AnimatorEndListener() {
-                        override fun onAnimationEnd(animation: Animator?) = Unit
+                    addListener(object : AnimatorStartEndListener() {
+                        override fun onAnimationEnd(animation: Animator?) {
+                            processTaps = true
+                        }
+                        override fun onAnimationStart(animation: Animator?) {
+                            processTaps = false
+                        }
                     })
                 }
             }
@@ -401,13 +409,16 @@ class ChartView : View, ChartViewInterface {
 
     private fun XyValue.shiftXOffset() = (first + HORIZONTAL_LABEL_OFFSET) to second
 
-    private abstract class AnimatorEndListener : Animator.AnimatorListener {
+    private abstract class AnimatorStartEndListener : Animator.AnimatorListener {
         override fun onAnimationRepeat(animation: Animator?) = Unit
         abstract override fun onAnimationEnd(animation: Animator?)
         override fun onAnimationCancel(animation: Animator?) = Unit
-        override fun onAnimationStart(animation: Animator?) = Unit
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean = gestureDetector.onTouchEvent(event)
+    override fun onTouchEvent(event: MotionEvent?): Boolean = if (processTaps) {
+        gestureDetector.onTouchEvent(event)
+    } else {
+        false
+    }
 
 }
