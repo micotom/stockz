@@ -54,5 +54,6 @@ class PortfolioEntryAdapter(private val data: MutableList<PortfolioViewModel.Por
         )
     }
 
+    fun getItemAt(index: Int) = data.get(index)
 
 }

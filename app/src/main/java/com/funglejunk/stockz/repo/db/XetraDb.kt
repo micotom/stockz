@@ -224,5 +224,8 @@ interface PortfolioEntriesDao {
 
     @Query("SELECT COUNT(*) from portfolioentry WHERE isin LIKE (:isin)")
     suspend fun getEntryCountForIsin(isin: String): Long
+
+    @Delete
+    suspend fun removeItem(record: PortfolioEntry): Int
 }
 //endregion

@@ -80,19 +80,27 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
                         currentValue = currentPrice,
                         amount = dbEntry.amount,
                         buyPrice = dbEntry.price.round3(),
-                        performance = ((currentPrice - dbEntry.price) / dbEntry.price * 100).toFloat().round3()
+                        performance = calculateValuePerformance(currentPrice, dbEntry.price)
                     )
                 }
             }.parSequence().map { allEntries ->
-                val totalValue = allEntries.sumByDouble { it.amount * it.currentValue }
-                val totalMoneySpent = allEntries.sumByDouble { it.amount * it.buyPrice }
-                val performance = ((totalValue - totalMoneySpent) / totalMoneySpent * 100).toFloat()
-                allEntries to PortfolioPerformance(
-                    totalValue.round3(), performance.round3(), 0.0
-                )
+                allEntries to calculatePortfolioPerformance(allEntries)
             }.bind()
         }
     }
+
+    private fun calculatePortfolioPerformance(allEntries: List<PortfolioViewEntry>) =
+        with(allEntries) {
+            val totalValue = sumByDouble { it.amount * it.currentValue }
+            val totalMoneySpent = sumByDouble { it.amount * it.buyPrice }
+            val performance = calculateValuePerformance(totalValue, totalMoneySpent)
+            PortfolioPerformance(
+                totalValue.round3(), performance.round3(), 0.0
+            )
+        }
+
+    private fun calculateValuePerformance(currentValue: Double, buyValue: Double): Float =
+        ((currentValue - buyValue) / buyValue * 100).toFloat().round3()
 
     private val addDbEntryIo: () -> IO<PortfolioViewEntry?> = {
         IO.fx {
@@ -143,7 +151,7 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
                     currentValue = currentPrice,
                     amount = updatedEntry.amount,
                     buyPrice = updatedEntry.price.round3(),
-                    performance = ((currentPrice - updatedEntry.price) / updatedEntry.price * 100).toFloat().round3()
+                    performance = calculateValuePerformance(currentPrice, updatedEntry.price)
                 )
             }
         }
@@ -208,13 +216,32 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
         )
     }
 
+    val removeFromDbIo: (PortfolioViewEntry) -> IO<Unit> = { entry ->
+        IO.fx {
+            val asRecord = PortfolioEntry(
+                entry.isin, entry.etfName, entry.amount, entry.buyPrice
+            )
+            effect {
+                db.portfolioDao().removeItem(asRecord)
+            }.bind()
+            Unit
+        }
+    }
+
+    fun removeFromPortfolio(etf: PortfolioViewEntry) {
+        runIO(
+            io = removeFromDbIo(etf).followedBy(allPortfolioEntriesIo()),
+            onSuccess = onPortfolioRetrievalSuccess
+        )
+    }
+
     private fun String.clean() =
         replace(",", ".").replace("[^\\d.]+", "")
 
     fun addButtonPressed() {
         runIO(
-            io = addDbEntryIo(),
-            onSuccess = onDbEntryAddSuccess
+            io = addDbEntryIo().followedBy(allPortfolioEntriesIo()),
+            onSuccess = onDbEntryAddSuccess.followedBy(onPortfolioRetrievalSuccess)
         )
     }
 

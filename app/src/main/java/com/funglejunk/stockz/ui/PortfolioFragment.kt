@@ -10,12 +10,15 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Option
 import arrow.core.extensions.fx
 import arrow.core.toOption
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.model.PortfolioViewModel
 import com.funglejunk.stockz.ui.adapter.PortfolioEntryAdapter
+import kotlinx.android.synthetic.main.favourites_fragment.*
 import kotlinx.android.synthetic.main.portfolio_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -95,23 +98,45 @@ class PortfolioFragment : Fragment() {
     private fun handleNewViewState(viewState: PortfolioViewModel.ViewState) {
         when (viewState) {
             is PortfolioViewModel.ViewState.PortfolioRead -> {
-                progressbar.visibility = View.INVISIBLE
-                portfolio_list.adapter = PortfolioEntryAdapter(viewState.entries.toMutableList())
-                val performance = viewState.performance
-                total_value_text.text = "TOTAL VALUE: ${performance.totalValue}"
-                total_perf_text.text = "TOTAL PERF: ${performance.totalPerformance}%"
+                hideProgressBar()
+                initPortfolioList(viewState)
+                initPerformanceInfo(viewState)
             }
             is PortfolioViewModel.ViewState.NewAddButtonEnabledState ->
                 save_to_portfolio_button.isEnabled = viewState.enabled
             is PortfolioViewModel.ViewState.PortfolioEntrySaved -> {
-                if (portfolio_list.adapter != null) { // we did not come from orientation change
-                    (portfolio_list.adapter as PortfolioEntryAdapter).addNewEntry(viewState.entry)
-                    (portfolio_list.adapter)?.notifyDataSetChanged()
-                    progressbar.visibility = View.INVISIBLE
+                portfolio_list.adapter?.let {
+                    it as PortfolioEntryAdapter
+                    it.addNewEntry(viewState.entry)
+                    it.notifyDataSetChanged()
+                    hideProgressBar()
                     hideEntryAddViews()
                 }
             }
         }
+    }
+
+    private fun initPerformanceInfo(viewState: PortfolioViewModel.ViewState.PortfolioRead) {
+        val performance = viewState.performance
+        total_value_text.text = "TOTAL VALUE: ${performance.totalValue}"
+        total_perf_text.text = "TOTAL PERF: ${performance.totalPerformance}%"
+    }
+
+    private fun initPortfolioList(viewState: PortfolioViewModel.ViewState.PortfolioRead) {
+        val adapter = PortfolioEntryAdapter(viewState.entries.toMutableList())
+        portfolio_list.adapter = adapter
+        val swipeHelper = object : LeftSwipeHelper() {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val itemPosition = viewHolder.adapterPosition
+                val swipedEtf = adapter.getItemAt(itemPosition)
+                viewModel.removeFromPortfolio(swipedEtf)
+            }
+        }
+        ItemTouchHelper(swipeHelper).attachToRecyclerView(portfolio_list)
+    }
+
+    private fun hideProgressBar() {
+        progressbar.visibility = View.INVISIBLE
     }
 
     private fun hideEntryAddViews() {
@@ -123,6 +148,16 @@ class PortfolioFragment : Fragment() {
     private abstract class SimpleTextListener : TextWatcher {
         override fun afterTextChanged(s: Editable?) = Unit
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+    }
+
+    // TODO also used in favourites fragment
+    private abstract class LeftSwipeHelper :
+        ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean = false
     }
 
     private fun Activity.hideKeyboard(v: View) {
