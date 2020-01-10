@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.Etf
@@ -44,6 +45,9 @@ class EtfDetailFragment : Fragment() {
             showBasicData(etf)
             fav_button.setOnClickListener {
                 viewModel.addToFavourites(etf)
+            }
+            add_to_portfolio_button.setOnClickListener {
+                findNavController().navigate(EtfDetailFragmentDirections.detailToPortfolioAction(etf))
             }
         }
 

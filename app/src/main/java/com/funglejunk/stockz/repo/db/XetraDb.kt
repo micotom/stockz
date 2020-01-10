@@ -2,6 +2,7 @@ package com.funglejunk.stockz.repo.db
 
 import android.content.Context
 import androidx.room.*
+import androidx.room.OnConflictStrategy.REPLACE
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.funglejunk.stockz.data.Etf
 import java.util.concurrent.locks.ReentrantLock
@@ -10,7 +11,8 @@ import kotlin.concurrent.withLock
 //region Db
 @Database(
     entities = [
-        XetraDbEtf::class, XetraEtfPublisher::class, XetraEtfBenchmark::class, XetraFavourite::class
+        XetraDbEtf::class, XetraEtfPublisher::class, XetraEtfBenchmark::class, XetraFavourite::class,
+        PortfolioEntry::class
     ],
     version = 5
 )
@@ -42,6 +44,8 @@ abstract class XetraDb : RoomDatabase(), XetraDbInterface {
     abstract override fun etfFlattenedDao(): XetraEtfFlattenedDao
 
     abstract override fun favouritesDao(): XetraFavouriteDao
+
+    abstract override fun portfolioDao(): PortfolioEntriesDao
 }
 //endregion
 
@@ -195,5 +199,30 @@ interface XetraEtfBenchmarkDao {
 
     @Query("SELECT * from xetraetfbenchmark")
     suspend fun getAll(): List<XetraEtfBenchmark>
+}
+//endregion
+
+//region portfolio
+@Entity
+data class PortfolioEntry(
+    @PrimaryKey(autoGenerate = false) @ColumnInfo(name = "isin") val isin: String,
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "amnt") val amount: Double,
+    @ColumnInfo(name = "price") val price: Double
+)
+
+@Dao
+interface PortfolioEntriesDao {
+    @Insert(onConflict = REPLACE)
+    suspend fun insert(entry: PortfolioEntry): Long
+
+    @Query("SELECT * from portfolioentry")
+    suspend fun getAll(): List<PortfolioEntry>
+
+    @Query("SELECT * from portfolioentry WHERE isin LIKE (:isin)")
+    suspend fun getEntryWithIsin(isin: String): List<PortfolioEntry>
+
+    @Query("SELECT COUNT(*) from portfolioentry WHERE isin LIKE (:isin)")
+    suspend fun getEntryCountForIsin(isin: String): Long
 }
 //endregion

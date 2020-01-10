@@ -106,35 +106,38 @@
             android:id="@+id/checkbox_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="@id/mychart"
             app:layout_constraintTop_toTopOf="@id/left_column">
+
         <CheckBox
                 android:id="@+id/sma_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp"
                 android:checked="false"
-                android:text="SMA"/>
+                android:text="SMA"
+                android:textColor="@color/primaryColor"
+                android:textSize="12sp" />
+
         <CheckBox
                 android:id="@+id/atr_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp"
                 android:checked="false"
-                android:text="ATR"/>
+                android:text="ATR"
+                android:textColor="@color/primaryColor"
+                android:textSize="12sp" />
+
         <CheckBox
                 android:id="@+id/bollinger_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp"
                 android:checked="false"
-                android:text="Bollinger"/>
+                android:text="Bollinger"
+                android:textColor="@color/primaryColor"
+                android:textSize="12sp" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -188,6 +191,16 @@
             android:layout_marginEnd="32dp"
             android:layout_marginBottom="32dp"
             android:src="@drawable/favourite_button_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add_to_portfolio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="112dp"
+            android:layout_marginBottom="32dp"
+            android:src="@drawable/note_add_24px"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 

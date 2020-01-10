@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+    <ProgressBar
+            android:id="@+id/progressbar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:elevation="2dp"
+            android:indeterminate="true"
+            android:visibility="visible" />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Performance"
+                android:textColor="@color/primaryDarkColor"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+        <TextView
+                android:id="@+id/total_value_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/secondaryColor" />
+
+        <TextView
+                android:id="@+id/total_perf_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/secondaryColor" />
+
+    </LinearLayout>
+
+    <View
+            android:id="@+id/entry_add_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="24dp"
+            android:background="@color/secondaryColorDimmed" />
+
+    <TextView
+            android:id="@+id/new_etf_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Vanguard FTSE Developed Index" />
+
+    <LinearLayout
+            android:id="@+id/save_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <EditText
+                android:id="@+id/new_etf_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.166"
+                android:hint="Price"
+                android:inputType="numberDecimal"
+                tools:text="60.67" />
+
+        <EditText
+                android:id="@+id/new_etf_amount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.166"
+                android:hint="Amount"
+                android:inputType="numberDecimal"
+                tools:text="34.789" />
+
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/save_to_portfolio_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.166"
+                android:enabled="false"
+                android:text="Add"
+                android:textColor="@color/primaryTextColor" />
+
+    </LinearLayout>
+
+    <View
+            android:id="@+id/entry_add_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="24dp"
+            android:background="@color/secondaryColorDimmed" />
+
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/portfolio_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+</LinearLayout>

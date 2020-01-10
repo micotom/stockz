@@ -11,4 +11,6 @@ interface XetraDbInterface {
     fun etfFlattenedDao(): XetraEtfFlattenedDao
 
     fun favouritesDao(): XetraFavouriteDao
+
+    fun portfolioDao(): PortfolioEntriesDao
 }

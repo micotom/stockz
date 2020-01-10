@@ -44,6 +44,8 @@ class FilterDialog : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // TODO name input is ignored / has no listener!
+
         // TODO use string placeholder for slider text
         slider_text.text = "${ter_slider.value.round()}%"
         ter_slider.setOnChangeListener { _, value ->

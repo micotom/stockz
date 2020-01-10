@@ -30,7 +30,11 @@ fun <T> Fragment.withSafeContext(f: (Context) -> T) = context?.let { f(it) }
 
 fun Float.round() = kotlin.math.round(this * 100) / 100
 
+fun Float.round3() = kotlin.math.round(this * 1000) / 1000
+
 fun Double.round() = kotlin.math.round(this * 100) / 100
+
+fun Double.round3() = kotlin.math.round(this * 1000) / 1000
 
 fun not(b: Boolean) = !b
 
