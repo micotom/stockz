@@ -4,7 +4,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:selectableItemBackground"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginBottom="6dp"
+        >
 
     <TextView
             android:id="@+id/etf_name"
