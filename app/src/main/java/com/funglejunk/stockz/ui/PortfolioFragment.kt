@@ -55,6 +55,10 @@ class PortfolioFragment : Fragment() {
             handleNewViewState(state)
         })
 
+        refresh_layout.setOnRefreshListener {
+            viewModel.init()
+        }
+
         save_to_portfolio_button.setOnClickListener {
             progressbar.visibility = View.VISIBLE
             viewModel.addButtonPressed()
@@ -98,6 +102,7 @@ class PortfolioFragment : Fragment() {
     private fun handleNewViewState(viewState: PortfolioViewModel.ViewState) {
         when (viewState) {
             is PortfolioViewModel.ViewState.PortfolioRead -> {
+                refresh_layout.isRefreshing = false
                 hideProgressBar()
                 initPortfolioList(viewState)
                 initPerformanceInfo(viewState)
@@ -136,7 +141,7 @@ class PortfolioFragment : Fragment() {
     }
 
     private fun hideProgressBar() {
-        progressbar.visibility = View.INVISIBLE
+        progressbar.visibility = View.GONE
     }
 
     private fun hideEntryAddViews() {
