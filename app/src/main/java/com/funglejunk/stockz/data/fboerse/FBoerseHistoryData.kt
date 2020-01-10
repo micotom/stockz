@@ -19,7 +19,7 @@ data class FBoerseHistoryData(
         val close: Double,
         val high: Double,
         val low: Double,
-        val turnoverPieces: Double, // TODO this seems not to be an int
+        val turnoverPieces: Double,
         val turnoverEuro: Double
     )
 }

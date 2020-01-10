@@ -25,12 +25,12 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
     FViewModel() {
 
     data class PortfolioPerformance(
-        val totalValue: Double, val totalPerformance: Float, val performanceSinceDayBefore: Double
+        val totalValue: Double, val totalPerformance: Float, val performanceSinceTwoWeeksBefore: Float
     )
 
     data class PortfolioViewEntry(
-        val isin: String, val etfName: String, val currentValue: Double, val amount: Double,
-        val buyPrice: Double, val performance: Float
+        val isin: String, val etfName: String, val currentValue: Double, val twoWeeksAgoValue: Double,
+        val amount: Double, val buyPrice: Double, val performance: Float
     )
 
     sealed class ViewState {
@@ -65,13 +65,14 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
             }.bind().map { dbEntry ->
                 effect {
                     fBoerseRepo.getHistory(
-                        dbEntry.isin, LocalDate.now(), LocalDate.now()
+                        dbEntry.isin, LocalDate.now().minusDays(14), LocalDate.now()
                     )
                 }.map {
                     dbEntry to it
                 }
             }.map {
                 val (dbEntry, repoEntry) = it.bind()
+                val twoWeeksAgoPrice = repoEntry.content.first().close
                 val currentPrice = repoEntry.content.last().openValue
                 effect {
                     PortfolioViewEntry(
@@ -80,6 +81,7 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
                         currentValue = currentPrice,
                         amount = dbEntry.amount,
                         buyPrice = dbEntry.price.round3(),
+                        twoWeeksAgoValue = twoWeeksAgoPrice,
                         performance = calculateValuePerformance(currentPrice, dbEntry.price)
                     )
                 }
@@ -93,9 +95,12 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
         with(allEntries) {
             val totalValue = sumByDouble { it.amount * it.currentValue }
             val totalMoneySpent = sumByDouble { it.amount * it.buyPrice }
+            val totalValueTwoWeeksAgo = sumByDouble { it.amount * it.twoWeeksAgoValue }
             val performance = calculateValuePerformance(totalValue, totalMoneySpent)
+            val performanceSinceTwoWeeksBefore = calculateValuePerformance(totalValue,
+                totalValueTwoWeeksAgo)
             PortfolioPerformance(
-                totalValue.round3(), performance.round3(), 0.0
+                totalValue.round3(), performance.round3(), performanceSinceTwoWeeksBefore
             )
         }
 
@@ -141,9 +146,10 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
                 }.bind()
                 val repoEntry = IO.effect {
                     fBoerseRepo.getHistory(
-                        etf.isin, LocalDate.now(), LocalDate.now()
+                        etf.isin, LocalDate.now().minusDays(14), LocalDate.now()
                     )
                 }.bind()
+                val twoWeeksAgoPrice = repoEntry.content.first().close
                 val currentPrice = repoEntry.content.last().openValue
                 PortfolioViewEntry(
                     isin = etf.isin,
@@ -151,6 +157,7 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
                     currentValue = currentPrice,
                     amount = updatedEntry.amount,
                     buyPrice = updatedEntry.price.round3(),
+                    twoWeeksAgoValue = twoWeeksAgoPrice,
                     performance = calculateValuePerformance(currentPrice, updatedEntry.price)
                 )
             }

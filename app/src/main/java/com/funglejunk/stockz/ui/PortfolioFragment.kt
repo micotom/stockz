@@ -18,7 +18,6 @@ import arrow.core.toOption
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.model.PortfolioViewModel
 import com.funglejunk.stockz.ui.adapter.PortfolioEntryAdapter
-import kotlinx.android.synthetic.main.favourites_fragment.*
 import kotlinx.android.synthetic.main.portfolio_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -125,19 +124,21 @@ class PortfolioFragment : Fragment() {
         val performance = viewState.performance
         total_value_text.text = "TOTAL VALUE: ${performance.totalValue}"
         total_perf_text.text = "TOTAL PERF: ${performance.totalPerformance}%"
+        two_weeks_perf_text.text = "2 WEEKS PERF: ${performance.performanceSinceTwoWeeksBefore}%"
     }
 
     private fun initPortfolioList(viewState: PortfolioViewModel.ViewState.PortfolioRead) {
-        val adapter = PortfolioEntryAdapter(viewState.entries.toMutableList())
-        portfolio_list.adapter = adapter
-        val swipeHelper = object : LeftSwipeHelper() {
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val itemPosition = viewHolder.adapterPosition
-                val swipedEtf = adapter.getItemAt(itemPosition)
-                viewModel.removeFromPortfolio(swipedEtf)
+        with (PortfolioEntryAdapter(viewState.entries.toMutableList())) {
+            portfolio_list.adapter = this
+            val swipeHelper = object : LeftSwipeHelper() {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val swipedEtf = getItemAt(viewHolder.adapterPosition)
+                    viewModel.removeFromPortfolio(swipedEtf)
+                }
             }
+
+            ItemTouchHelper(swipeHelper).attachToRecyclerView(portfolio_list)
         }
-        ItemTouchHelper(swipeHelper).attachToRecyclerView(portfolio_list)
     }
 
     private fun hideProgressBar() {
