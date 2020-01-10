@@ -23,6 +23,9 @@
         <action
                 android:id="@+id/list_to_favourites_action"
                 app:destination="@id/favourites_fragment" />
+        <action
+                android:id="@+id/list_to_portfolio_action"
+                app:destination="@id/portfolio_fragment" />
     </fragment>
 
     <fragment
