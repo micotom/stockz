@@ -9,7 +9,10 @@ import com.funglejunk.stockz.repo.db.XetraDbEtf
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.db.XetraEtfBenchmark
 import com.funglejunk.stockz.repo.db.XetraEtfPublisher
+import timber.log.Timber
 
+typealias FilePath = String
+typealias CsvParseFunc = (List<String>) -> ReadFromDiskResult
 typealias ReadFromDiskResult = Triple<List<Etf>, Set<XetraEtfPublisher>, Set<XetraEtfBenchmark>>
 typealias DbInsertionResult = Array<Long>
 
@@ -33,8 +36,17 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         IO.fx {
             val needToInflate = not(isInflated()).bind()
             if (needToInflate) {
-                val diskResult = readFromDisk().bind()
-                inflateDiskReadings(diskResult).bind()
+                val etfDiskResult = readFromDisk.invoke(
+                    "xetra_etf_jan20.csv", parseEtfLines
+                ).bind()
+                val etcDiskResult = readFromDisk.invoke(
+                    "xetra_etc_jan20.csv", parseEtcLines
+                ).bind()
+                inflateDiskReadings(etfDiskResult)
+                    .followedBy(
+                        inflateDiskReadings(etcDiskResult)
+                    )
+                    .bind()
             }
         }
     }
@@ -61,24 +73,52 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    private val readFromDisk: () -> IO<ReadFromDiskResult> = {
-        IO {
-            context.assets.open("xetra_etf_datasheet.csv").bufferedReader()
-        }.bracket(
-            release = { IO.invoke { it.close() } },
-            use = { reader ->
-                val fileContent = reader.readText()
-                val lines = fileContent.split("\n")
-                IO.fx {
-                    effect {
-                        parseLines(lines)
-                    }.bind()
+    private val readFromDisk: (FilePath, CsvParseFunc) -> IO<ReadFromDiskResult> =
+        { filePath, parseFunc ->
+            IO {
+                context.assets.open(filePath).bufferedReader()
+            }.bracket(
+                release = { IO.invoke { it.close() } },
+                use = { reader ->
+                    val fileContent = reader.readText()
+                    val lines = fileContent.split("\n")
+                    IO.fx {
+                        effect {
+                            parseFunc.invoke(lines)
+                        }.bind()
+                    }
                 }
-            }
-        )
+            )
+        }
+
+    private val parseEtcLines: (List<String>) -> ReadFromDiskResult = { lines ->
+        val cleanLines = lines.filter { it.isNotEmpty() }
+        val rowsAndColumns = cleanLines.map { it.split(";") }
+        val entries = rowsAndColumns.map { columns ->
+            val publisher = XetraEtfPublisher(name = columns[3])
+            val benchmark = XetraEtfBenchmark(name = columns[14])
+            val etc = Etf(
+                name = columns[1],
+                isin = columns[2],
+                symbol = columns[4],
+                listingDate = columns[7],
+                ter = columns[9].formatPercentage().toDouble(),
+                profitUse = "-",
+                replicationMethod = "-",
+                fundCurrency = columns[10],
+                tradingCurrency = columns[11],
+                publisherName = publisher.name,
+                benchmarkName = benchmark.name
+            )
+            Triple(etc, publisher, benchmark)
+        }
+        val etcs = entries.map { it.first }
+        val publishers = entries.map { it.second }.toSet()
+        val benchmarks = entries.map { it.third }.toSet()
+        Triple(etcs, publishers, benchmarks)
     }
 
-    private fun parseLines(lines: List<String>): ReadFromDiskResult {
+    private val parseEtfLines: (List<String>) -> ReadFromDiskResult = { lines ->
         val cleanLines = lines.filter { it.isNotEmpty() }
         val rowsAndColumns = cleanLines.map { it.split(";") }
         val entries = rowsAndColumns.map { columns ->
@@ -102,7 +142,7 @@ class XetraMasterDataInflater(private val context: Context, private val db: Xetr
         val etfs = entries.map { it.first }
         val publishers = entries.map { it.second }.toSet()
         val benchmarks = entries.map { it.third }.toSet()
-        return Triple(etfs, publishers, benchmarks)
+        Triple(etfs, publishers, benchmarks)
     }
 
     private val inflatePublishers: (Collection<XetraEtfPublisher>) -> IO<DbInsertionResult> =

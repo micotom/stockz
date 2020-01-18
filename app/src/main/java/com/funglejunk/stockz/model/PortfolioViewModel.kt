@@ -9,6 +9,7 @@ import arrow.fx.*
 import arrow.fx.extensions.fx
 import arrow.fx.extensions.io.async.async
 import com.funglejunk.stockz.data.Etf
+import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.PortfolioEntry
 import com.funglejunk.stockz.repo.db.XetraDbInterface
@@ -25,18 +26,28 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
     FViewModel() {
 
     data class PortfolioPerformance(
-        val totalValue: Double, val totalPerformance: Float, val performanceSinceTwoWeeksBefore: Float
+        val totalValue: Double,
+        val totalPerformance: Float,
+        val performanceSinceTwoWeeksBefore: Float
+    )
+
+    data class PortfolioPerformance2(
+        val totalValue: Double, val totalPerformance: Float, val history: FBoerseHistoryData
     )
 
     data class PortfolioViewEntry(
-        val isin: String, val etfName: String, val currentValue: Double, val twoWeeksAgoValue: Double,
-        val amount: Double, val buyPrice: Double, val performance: Float
+        val isin: String,
+        val etfName: String,
+        val currentValue: Double,
+        val amount: Double,
+        val buyPrice: Double,
+        val performance: Float
     )
 
     sealed class ViewState {
         data class PortfolioRead(
             val entries: PortfolioEntries,
-            val performance: PortfolioPerformance
+            val performance: PortfolioPerformance2
         ) : ViewState()
 
         data class NewAddButtonEnabledState(val enabled: Boolean) : ViewState()
@@ -53,56 +64,74 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
     private var priceCache = priceCacheFactory.empty<Double>()
     private var amountCache = amountCacheFactory.empty<Double>()
 
-    private val onPortfolioRetrievalSuccess: IO<(Pair<PortfolioEntries, PortfolioPerformance>) -> Unit> =
+    private val onPortfolioRetrievalSuccess: IO<(Pair<PortfolioEntries, PortfolioPerformance2>) -> Unit> =
         IO.just { data ->
             viewState.mutable().value = ViewState.PortfolioRead(data.first, data.second)
         }
 
-    private val allPortfolioEntriesIo: () -> IO<Pair<PortfolioEntries, PortfolioPerformance>> = {
+    private val allPortfolioEntriesIo: () -> IO<Pair<PortfolioEntries, PortfolioPerformance2>> = {
         IO.fx {
             effect {
                 db.portfolioDao().getAll()
             }.bind().map { dbEntry ->
                 effect {
                     fBoerseRepo.getHistory(
-                        dbEntry.isin, LocalDate.now().minusDays(14), LocalDate.now()
+                        dbEntry.isin, LocalDate.of(2010, 1, 1), LocalDate.now()
                     )
                 }.map {
                     dbEntry to it
                 }
             }.map {
                 val (dbEntry, repoEntry) = it.bind()
-                val twoWeeksAgoPrice = repoEntry.content.first().close
-                val currentPrice = repoEntry.content.last().openValue
+                val currentPrice = repoEntry.content.maxBy { it.date }?.close
                 effect {
                     PortfolioViewEntry(
                         isin = dbEntry.isin,
                         etfName = dbEntry.name,
-                        currentValue = currentPrice,
+                        currentValue = currentPrice ?: -1.0,
                         amount = dbEntry.amount,
                         buyPrice = dbEntry.price.round3(),
-                        twoWeeksAgoValue = twoWeeksAgoPrice,
-                        performance = calculateValuePerformance(currentPrice, dbEntry.price)
-                    )
+                        performance = calculateValuePerformance(currentPrice ?: -1.0, dbEntry.price)
+                    ) to repoEntry.content
                 }
             }.parSequence().map { allEntries ->
-                allEntries to calculatePortfolioPerformance(allEntries)
+                allEntries.map { it.first } to calculatePortfolioPerformance2(allEntries)
             }.bind()
         }
     }
 
-    private fun calculatePortfolioPerformance(allEntries: List<PortfolioViewEntry>) =
-        with(allEntries) {
-            val totalValue = sumByDouble { it.amount * it.currentValue }
-            val totalMoneySpent = sumByDouble { it.amount * it.buyPrice }
-            val totalValueTwoWeeksAgo = sumByDouble { it.amount * it.twoWeeksAgoValue }
-            val performance = calculateValuePerformance(totalValue, totalMoneySpent)
-            val performanceSinceTwoWeeksBefore = calculateValuePerformance(totalValue,
-                totalValueTwoWeeksAgo)
-            PortfolioPerformance(
-                totalValue.round3(), performance.round3(), performanceSinceTwoWeeksBefore
-            )
+    private fun calculatePortfolioPerformance2(
+        allEntries: List<Pair<PortfolioViewEntry, List<FBoerseHistoryData.Data>>>
+    ): PortfolioPerformance2 {
+        val flat = allEntries.map { (viewEntry, data) ->
+            data.map {
+                it.copy(close = it.close * viewEntry.amount)
+            }
+        }.flatten().groupBy { it.date }.filter {
+            it.value.size == allEntries.size
         }
+        val congregated = flat.map { (date, data) ->
+            date to data.sumByDouble { it.close }
+        }
+        val history = FBoerseHistoryData(
+            isin = "n/a",
+            totalCount = allEntries.size,
+            tradedInPercent = false,
+            content = congregated.map { (dateStr, value) ->
+                FBoerseHistoryData.Data(
+                    date = dateStr, openValue = -1.0, close = value, high = -1.0, low = -1.0,
+                    turnoverPieces = -1.0, turnoverEuro = -1.0
+                )
+            }.sortedBy { it.date }
+        )
+        val onlyEntries = allEntries.map { it.first }
+        val totalValue = onlyEntries.sumByDouble { it.amount * it.currentValue }
+        val totalMoneySpent = onlyEntries.sumByDouble { it.amount * it.buyPrice }
+        val performance = calculateValuePerformance(totalValue, totalMoneySpent)
+        return PortfolioPerformance2(
+            totalValue.round3(), performance.round3(), history
+        )
+    }
 
     private fun calculateValuePerformance(currentValue: Double, buyValue: Double): Float =
         ((currentValue - buyValue) / buyValue * 100).toFloat().round3()
@@ -149,16 +178,14 @@ class PortfolioViewModel(private val db: XetraDbInterface, private val fBoerseRe
                         etf.isin, LocalDate.now().minusDays(14), LocalDate.now()
                     )
                 }.bind()
-                val twoWeeksAgoPrice = repoEntry.content.first().close
-                val currentPrice = repoEntry.content.last().openValue
+                val currentPrice = repoEntry.content.maxBy { it.date }?.close
                 PortfolioViewEntry(
                     isin = etf.isin,
                     etfName = newEntry.name,
-                    currentValue = currentPrice,
+                    currentValue = currentPrice ?: -1.0,
                     amount = updatedEntry.amount,
                     buyPrice = updatedEntry.price.round3(),
-                    twoWeeksAgoValue = twoWeeksAgoPrice,
-                    performance = calculateValuePerformance(currentPrice, updatedEntry.price)
+                    performance = calculateValuePerformance(currentPrice ?: -1.0, updatedEntry.price)
                 )
             }
         }

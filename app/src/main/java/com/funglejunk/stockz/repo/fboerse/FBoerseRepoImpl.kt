@@ -63,3 +63,4 @@ https://api.boerse-frankfurt.de/data/instrument_information?slug=ishares-msci-em
  */
 
 }
+// https://query1.finance.yahoo.com/v7/finance/quote?symbols=VFEM.de

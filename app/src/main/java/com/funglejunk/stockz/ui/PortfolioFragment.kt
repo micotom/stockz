@@ -40,13 +40,10 @@ class PortfolioFragment : Fragment() {
             etf?.let {
                 viewModel.setEtfArgs(etf)
                 new_etf_name.text = etf.name
+                showEntryAddViews()
                 bundle.clear()
-            } ?: {
-                hideEntryAddViews()
-            }()
-        } ?: {
-            hideEntryAddViews()
-        }()
+            }
+        }
 
         viewModel.init()
 
@@ -124,7 +121,9 @@ class PortfolioFragment : Fragment() {
         val performance = viewState.performance
         total_value_text.text = "TOTAL VALUE: ${performance.totalValue}"
         total_perf_text.text = "TOTAL PERF: ${performance.totalPerformance}%"
-        two_weeks_perf_text.text = "2 WEEKS PERF: ${performance.performanceSinceTwoWeeksBefore}%"
+        if (viewState.performance.history.content.isNotEmpty()) {
+            portfolio_chart.draw(viewState.performance.history)
+        }
     }
 
     private fun initPortfolioList(viewState: PortfolioViewModel.ViewState.PortfolioRead) {
@@ -143,6 +142,12 @@ class PortfolioFragment : Fragment() {
 
     private fun hideProgressBar() {
         progressbar.visibility = View.GONE
+    }
+
+    private fun showEntryAddViews() {
+        save_layout.visibility = View.VISIBLE
+        new_etf_name.visibility = View.VISIBLE
+        entry_add_divider.visibility = View.VISIBLE
     }
 
     private fun hideEntryAddViews() {
