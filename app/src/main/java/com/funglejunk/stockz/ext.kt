@@ -18,6 +18,8 @@ private val monthDayDateFormatter = DateTimeFormatter.ofPattern("MM-dd")
 
 private val yearDateFormatter = DateTimeFormatter.ofPattern("yyyy")
 
+fun LocalDate.toYearMonthDayString() = format(localDateFormatter)
+
 fun LocalDate.toMonthDayString() = format(monthDayDateFormatter)
 
 fun LocalDate.toYearString() = format(yearDateFormatter)

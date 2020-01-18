@@ -31,7 +31,7 @@ class AlgorithmsKtTest {
     @Test
     fun `calculate sma`() {
         val templateEntry = FBoerseHistoryData.Data(
-            "2018-01-01", -1.0, -1.0, -1.0, -1.0, -1, -1.0
+            "2018-01-01", -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
         )
         val content = listOf(
             templateEntry.copy(date = "2018-01-01", close = 50.0),

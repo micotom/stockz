@@ -5,6 +5,11 @@ import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.funglejunk.stockz.data.Etf
+import com.funglejunk.stockz.toLocalDate
+import com.funglejunk.stockz.toYearMonthDayString
+import kotlinx.serialization.Serializable
+import java.math.BigDecimal
+import java.time.LocalDate
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -12,7 +17,7 @@ import kotlin.concurrent.withLock
 @Database(
     entities = [
         XetraDbEtf::class, XetraEtfPublisher::class, XetraEtfBenchmark::class, XetraFavourite::class,
-        PortfolioEntry::class
+        PortfolioEntry::class, Portfolio::class, TargetAllocation::class, Buys::class
     ],
     version = 5
 )
@@ -46,6 +51,12 @@ abstract class XetraDb : RoomDatabase(), XetraDbInterface {
     abstract override fun favouritesDao(): XetraFavouriteDao
 
     abstract override fun portfolioDao(): PortfolioEntriesDao
+
+    abstract override fun portfolioDao2(): PortfolioDao
+
+    abstract override fun buysDao(): BuysDao
+
+    abstract override fun targetAllocationsDao(): TargetAllocationsDao
 }
 //endregion
 
@@ -190,7 +201,6 @@ data class XetraEtfBenchmark(
 
 @Dao
 interface XetraEtfBenchmarkDao {
-
     @Insert
     suspend fun insert(vararg benchmark: XetraEtfBenchmark): Array<Long>
 
@@ -201,6 +211,91 @@ interface XetraEtfBenchmarkDao {
     suspend fun getAll(): List<XetraEtfBenchmark>
 }
 //endregion
+
+@Entity
+data class Portfolio(
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rowid") val rowid: Int = 0,
+    @ColumnInfo(name = "name") val name: String
+)
+
+@Dao
+interface PortfolioDao {
+    @Insert
+    suspend fun insert(portfolio: Portfolio): Long
+
+    @Query("SELECT * from portfolio")
+    suspend fun getAll(): List<Portfolio>
+}
+
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Portfolio::class,
+            childColumns = ["pid"],
+            parentColumns = ["rowid"]
+        )
+    ]
+)
+data class TargetAllocation(
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rowid") val rowid: Int = 0,
+    @ColumnInfo(name = "isin") val isin: String,
+    @ColumnInfo(name = "target_alloc") val target: Double,
+    @ColumnInfo(name = "pid") val portfolioId: Int
+)
+
+@Dao
+interface TargetAllocationsDao {
+    @Insert
+    suspend fun insert(targetAllocation: TargetAllocation): Long
+    @Query("SELECT * FROM targetallocation WHERE pid = :id")
+    suspend fun getForPortfolioId(id: Int): List<TargetAllocation>
+}
+
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Portfolio::class,
+            childColumns = ["pid"],
+            parentColumns = ["rowid"]
+        )
+    ]
+)
+@TypeConverters(BuysConverters::class)
+data class Buys(
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rowid") val rowid: Int = 0,
+    @ColumnInfo(name = "isin") val isin: String,
+    @ColumnInfo(name = "pid") val portfolioId: Int,
+    @ColumnInfo(name = "date") val date: LocalDate,
+    @ColumnInfo(name = "shares") val shares: Double,
+    @ColumnInfo(name = "price_per_share") val pricePerShare: BigDecimal,
+    @ColumnInfo(name = "expenses") val expenses: BigDecimal
+)
+
+@Dao
+interface BuysDao {
+    @Insert
+    suspend fun insert(buy: Buys): Long
+
+    @Query("SELECT * from buys")
+    suspend fun getAll(): List<Buys>
+
+    @Query("SELECT * FROM buys WHERE pid = :id")
+    suspend fun getBuysForPortfolio(id: Int): List<Buys>
+}
+
+class BuysConverters {
+    @TypeConverter
+    fun fromLocalDate(value: LocalDate): String = value.toYearMonthDayString()
+
+    @TypeConverter
+    fun toLocalDate(value: String): LocalDate = value.toLocalDate()
+
+    @TypeConverter
+    fun toBigDecimal(value: String): BigDecimal = BigDecimal(value)
+
+    @TypeConverter
+    fun fromBigDecimal(bigDecimal: BigDecimal): String = bigDecimal.toString()
+}
 
 //region portfolio
 @Entity

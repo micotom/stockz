@@ -13,4 +13,10 @@ interface XetraDbInterface {
     fun favouritesDao(): XetraFavouriteDao
 
     fun portfolioDao(): PortfolioEntriesDao
+
+    fun portfolioDao2(): PortfolioDao
+
+    fun buysDao(): BuysDao
+
+    fun targetAllocationsDao(): TargetAllocationsDao
 }

@@ -12,5 +12,5 @@ class StockzActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    override fun onSupportNavigateUp() = findNavController(R.id.list_fragment).navigateUp()
+    override fun onSupportNavigateUp() = findNavController(R.id.portfolio2_fragment).navigateUp()
 }
