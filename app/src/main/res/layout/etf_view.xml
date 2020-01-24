@@ -11,7 +11,7 @@
         android:background="?android:selectableItemBackground">
 
     <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/center_vertical_guideline"
+            android:id="@+id/center_horizontal_guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -37,7 +37,7 @@
             android:orientation="vertical"
             android:layout_marginEnd="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/center_vertical_guideline"
+            app:layout_constraintEnd_toStartOf="@id/center_horizontal_guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/etf_name">
 
@@ -67,7 +67,7 @@
             android:layout_marginStart="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@id/center_vertical_guideline"
+            app:layout_constraintStart_toStartOf="@id/center_horizontal_guideline"
             app:layout_constraintTop_toBottomOf="@id/etf_name">
 
         <include
