@@ -16,6 +16,8 @@ data class AssetSummary(
         acc + new.shares
     }
 
+    val nrOfOrders: Int = buys.size
+
     val currentTotalValueNE = shares.toBigDecimal() * currentSharePrice
 
     val totalExpenses: BigDecimal = buys.fold(BigDecimal.ZERO) { acc, new ->
@@ -34,11 +36,17 @@ data class AssetSummary(
         acc + new.shares.toBigDecimal() * new.pricePerShare + new.expenses
     }
 
-    val profitPercentNE = currentTotalValueNE / (totalBuyPriceNE / BigDecimal.valueOf(100.0))
+    val profitPercentNE =
+        currentTotalValueNE / (totalBuyPriceNE / BigDecimal.valueOf(100.0)) - BigDecimal.valueOf(
+            100.0
+        )
 
-    val profitEuroWE = currentTotalValueWE - totalBuyPriceWE
+    val profitEuroWE = currentTotalValueNE - totalBuyPriceWE
 
-    val profitPercentWE = currentTotalValueWE / (totalBuyPriceWE / BigDecimal.valueOf(100.0))
+    val profitPercentWE =
+        currentTotalValueNE / (totalBuyPriceWE / BigDecimal.valueOf(100.0)) - BigDecimal.valueOf(
+            100.0
+        )
 
     data class AssetBuy(
         val date: LocalDate,

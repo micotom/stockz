@@ -7,75 +7,89 @@ import java.time.LocalDate
 
 class PortfolioSummaryTest {
 
+    private fun Int.bd() = BigDecimal.valueOf(toDouble())
+
     @Test
-    fun test() {
+    fun testSingleBuy() {
 
         val buy = AssetSummary.AssetBuy(
             date = LocalDate.of(2019, 10, 4),
-            shares = 12.0,
-            pricePerShare = 56.840.toBigDecimal(),
-            expenses = 6.4.toBigDecimal()
+            shares = 10.0,
+            pricePerShare = 10.toBigDecimal(),
+            expenses = 2.5.toBigDecimal()
         )
 
         val assetSummary = AssetSummary(
             isin = "IE00BKX55T58",
-            currentSharePrice = 63.64.toBigDecimal(),
+            currentSharePrice = 15.toBigDecimal(),
             buys = setOf(buy),
-            targetAllocationPercent = 60.0
+            targetAllocationPercent = 100.0
         )
 
         val portfolioSummary = PortfolioSummary(
             setOf(assetSummary)
         )
 
-        val expBuyValueNE = buy.shares.toBigDecimal() * buy.pricePerShare
-        val expBuyValueWE = buy.shares.toBigDecimal() * buy.pricePerShare + buy.expenses
-        val expCurrentValueEuroNE = buy.shares.toBigDecimal() * assetSummary.currentSharePrice
-        val expCurrentValueEuroWE =
-            buy.shares.toBigDecimal() * assetSummary.currentSharePrice - assetSummary.totalExpenses
-        val expProfitEuroNE = expCurrentValueEuroNE - expBuyValueNE
-        val expProfitEuroWE = expCurrentValueEuroWE - expBuyValueWE
-        val expProfitPercNE = expProfitEuroNE / (expBuyValueNE / BigDecimal.valueOf(100.0))
-        val expProfitPercWE = expProfitEuroWE / (expBuyValueWE / BigDecimal.valueOf(100.0))
+        assertEquals(100.bd(), portfolioSummary.buyPriceEuroNE)
+        assertEquals((100 + 2.5).toBigDecimal(), portfolioSummary.buyPriceEuroWE)
+        assertEquals(150.bd(), portfolioSummary.currentValueEuroNE)
+        assertEquals((150 - 2.5).toBigDecimal(), portfolioSummary.currentValueEuroWE)
+        assertEquals(50.bd(), portfolioSummary.profitEuroNE)
+        assertEquals((50 - 2.5).toBigDecimal(), portfolioSummary.profitEuroWE)
+        assertEquals((150.0 - 100.0) / 10.0 / 10.0 * 100.0, portfolioSummary.profitPercentNE, 0.00)
+        assertEquals(
+            ((150.0 - 100.0 - 2.5) / 10.0) / 10.0 * 100.0,
+            portfolioSummary.profitPercentWE,
+            0.00
+        )
 
-        assertEquals(expBuyValueNE, portfolioSummary.buyValueEuroNE)
-        assertEquals(expBuyValueWE, portfolioSummary.buyValueEuroWE)
-        assertEquals(expCurrentValueEuroNE, portfolioSummary.currentValueEuroNE)
-        assertEquals(expCurrentValueEuroWE, portfolioSummary.currentValueEuroWE)
-        assertEquals(expProfitEuroNE, portfolioSummary.profitEuroNE)
-        assertEquals(expProfitEuroWE, portfolioSummary.profitEuroWE)
-        assertEquals(expProfitPercNE, portfolioSummary.profitPercentNE)
-        assertEquals(expProfitPercWE, portfolioSummary.profitPercentWE)
+        val (_, allocationInfo) = portfolioSummary.allocationInfo.entries.first()
+        assertEquals(BigDecimal("0.00"), allocationInfo.differenceEuroNE)
+        assertEquals(0.0, allocationInfo.differencePercentNE, 0.00)
+        assertEquals(BigDecimal("0.00"), allocationInfo.differenceEuroWE)
+        assertEquals(0.0, allocationInfo.differencePercentWE, 0.00)
+    }
 
-        assertEquals(1, portfolioSummary.allocationInfo.size)
-        val (assetSummary2, allocationInfo) = portfolioSummary.allocationInfo.entries.first()
+    @Test
+    fun `test multiple buy`() {
+        val buy1 = AssetSummary.AssetBuy(
+            date = LocalDate.of(2019, 10, 4),
+            shares = 10.0,
+            pricePerShare = 10.toBigDecimal(),
+            expenses = 2.5.toBigDecimal()
+        )
 
-        val actualShareEuroNE = buy.shares.toBigDecimal() * assetSummary2.currentSharePrice
-        val actualSharePercNE =
-            assetSummary2.currentTotalValueNE / portfolioSummary.currentValueEuroNE * BigDecimal.valueOf(
-                100.0
-            )
-        val targetShareEuroNE = portfolioSummary.currentValueEuroNE *
-                (assetSummary2.targetAllocationPercent / 100.0).toBigDecimal()
+        val assetSummary1 = AssetSummary(
+            isin = "IE00BKX55T58",
+            currentSharePrice = 15.toBigDecimal(),
+            buys = setOf(buy1),
+            targetAllocationPercent = 50.0
+        )
 
-        val actualShareEuroWE =
-            buy.shares.toBigDecimal() * assetSummary2.currentSharePrice - assetSummary2.totalExpenses
-        val actualSharePercWE =
-            assetSummary2.currentTotalValueWE / portfolioSummary.currentValueEuroWE * BigDecimal.valueOf(
-                100.0
-            )
-        val targetShareEuroWE = portfolioSummary.currentValueEuroWE *
-                (assetSummary2.targetAllocationPercent / 100.0).toBigDecimal()
+        val buy2 = AssetSummary.AssetBuy(
+            date = LocalDate.of(2019, 10, 4),
+            shares = 10.0,
+            pricePerShare = 10.toBigDecimal(),
+            expenses = 2.5.toBigDecimal()
+        )
 
-        val expEuroDiffNE = actualShareEuroNE - targetShareEuroNE
-        val expPercDiffNE = actualSharePercNE.toDouble() - assetSummary2.targetAllocationPercent
-        val expEuroDiffWE = actualShareEuroWE - targetShareEuroWE
-        val expPercDiffWE = actualSharePercWE.toDouble() - assetSummary2.targetAllocationPercent
+        val assetSummary2 = AssetSummary(
+            isin = "IE00BKX55T59",
+            currentSharePrice = 15.toBigDecimal(),
+            buys = setOf(buy2),
+            targetAllocationPercent = 50.0
+        )
 
-        assertEquals(expEuroDiffNE, allocationInfo.differenceEuroNE)
-        assertEquals(expPercDiffNE, allocationInfo.differencePercentNE, 0.01)
-        assertEquals(expEuroDiffWE, allocationInfo.differenceEuroWE)
-        assertEquals(expPercDiffWE, allocationInfo.differencePercentWE, 0.01)
+        val portfolioSummary = PortfolioSummary(
+            setOf(assetSummary1, assetSummary2)
+        )
+
+        portfolioSummary.allocationInfo.entries.forEach { (_, allocationInfo) ->
+            assertEquals(BigDecimal("0.00"), allocationInfo.differenceEuroNE)
+            assertEquals(0.0, allocationInfo.differencePercentNE, 0.01)
+            assertEquals(BigDecimal("0.00"), allocationInfo.differenceEuroWE)
+            assertEquals(0.0, allocationInfo.differencePercentWE, 0.01)
+        }
     }
 
 }

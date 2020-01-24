@@ -13,23 +13,23 @@ data class PortfolioSummary(
         acc + new.currentTotalValueWE
     }
 
-    val buyValueEuroNE: BigDecimal = assets.fold(BigDecimal.ZERO) { acc, new ->
+    val buyPriceEuroNE: BigDecimal = assets.fold(BigDecimal.ZERO) { acc, new ->
         acc + new.totalBuyPriceNE
     }
 
-    val buyValueEuroWE: BigDecimal = assets.fold(BigDecimal.ZERO) { acc, new ->
+    val buyPriceEuroWE: BigDecimal = assets.fold(BigDecimal.ZERO) { acc, new ->
         acc + new.totalBuyPriceWE
     }
 
-    val profitEuroNE: BigDecimal = currentValueEuroNE - buyValueEuroNE
+    val profitEuroNE: BigDecimal = currentValueEuroNE - buyPriceEuroNE
 
-    val profitPercentNE: BigDecimal =
-        profitEuroNE / (buyValueEuroNE / BigDecimal.valueOf(100.0))
+    val profitPercentNE: Double =
+        (profitEuroNE / (buyPriceEuroNE / 100.0.toBigDecimal())).toDouble()
 
-    val profitEuroWE: BigDecimal = currentValueEuroWE - buyValueEuroWE
+    val profitEuroWE: BigDecimal = currentValueEuroNE - buyPriceEuroWE
 
-    val profitPercentWE: BigDecimal =
-        profitEuroWE / (buyValueEuroWE / BigDecimal.valueOf(100.0))
+    val profitPercentWE: Double =
+        (profitEuroWE / (buyPriceEuroWE / 100.0.toBigDecimal())).toDouble()
 
     val allocationInfo: Map<AssetSummary, AllocationInfo> =
         assets.map { asset ->
@@ -58,6 +58,6 @@ data class PortfolioSummary(
     )
 
     override fun toString(): String {
-        return "PortfolioSummary(assets=$assets, currentValueEuroNE=$currentValueEuroNE, currentValueEuroWE=$currentValueEuroWE, buyValueEuroNE=$buyValueEuroNE, buyValueEuroWE=$buyValueEuroWE, profitEuroNE=$profitEuroNE, profitPercentNE=$profitPercentNE, allocationInfo=$allocationInfo)"
+        return "PortfolioSummary(assets=$assets, currentValueEuroNE=$currentValueEuroNE, currentValueEuroWE=$currentValueEuroWE, buyValueEuroNE=$buyPriceEuroNE, buyValueEuroWE=$buyPriceEuroWE, profitEuroNE=$profitEuroNE, profitPercentNE=$profitPercentNE, allocationInfo=$allocationInfo)"
     }
 }
