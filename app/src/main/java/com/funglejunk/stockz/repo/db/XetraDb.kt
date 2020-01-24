@@ -154,10 +154,13 @@ interface XetraEtfFlattenedDao {
 
     @Query(
         MAPPING_SELECT +
-                "LEFT JOIN xetraetfpublisher ON xetradbetf.publ_id = xetraetfpublisher.rowid " +
-                "LEFT JOIN xetraetfbenchmark ON xetradbetf.bench_id = xetraetfbenchmark.rowid"
+                "LEFT JOIN xetraetfpublisher ON ${XetraDbEtf.TABLE_NAME}.publ_id = xetraetfpublisher.rowid " +
+                "LEFT JOIN xetraetfbenchmark ON ${XetraDbEtf.TABLE_NAME}.bench_id = xetraetfbenchmark.rowid"
     )
     suspend fun getAll(): List<Etf>
+
+    @Query("$MAPPING_SELECT LEFT JOIN xetraetfpublisher ON ${XetraDbEtf.TABLE_NAME}.publ_id = xetraetfpublisher.rowid LEFT JOIN xetraetfbenchmark ON ${XetraDbEtf.TABLE_NAME}.bench_id = xetraetfbenchmark.rowid WHERE isin LIKE '%' || :isin || '%'")
+    suspend fun getEtfWithIsin(isin: String): Etf
 
 }
 

@@ -1,10 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
+    <TextView
+            android:id="@+id/etf_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/secondaryTextColor"
+            android:textSize="16sp" />
 
+    <include
+            android:id="@+id/isin_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/current_price_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/nr_of_shares_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/total_value_ne_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/total_value_we_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/profit_ne_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/profit_we_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/total_expenses_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/target_allocation_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/ne_allocation_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/we_allocation_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    <include
+            android:id="@+id/nr_orders_layout"
+            layout="@layout/portfolio_entry2_infoline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
 </LinearLayout>

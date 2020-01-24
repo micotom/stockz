@@ -26,6 +26,6 @@ val vmModule = module {
     viewModel { FilterDialogViewModel(get()) }
     viewModel { FavouritesViewModel(get()) }
     viewModel { PortfolioViewModel(get(), get()) }
-    viewModel { PortfolioViewModel2(get(), get()) }
+    viewModel { PortfolioViewModel2(get(), get(), get()) }
 
 }

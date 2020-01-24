@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import arrow.core.toOption
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.model.PortfolioViewModel
+import com.funglejunk.stockz.model.portfolio.PortfolioSummary
 
 class PortfolioEntryAdapter(private val data: MutableList<PortfolioViewModel.PortfolioViewEntry>) :
     RecyclerView.Adapter<PortfolioEntryAdapter.Holder>() {

@@ -3,9 +3,13 @@ package com.funglejunk.stockz.repo.fboerse
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
 import com.github.kittinunf.fuel.coroutines.awaitObject
+import com.github.kittinunf.fuel.coroutines.awaitObjectResult
+import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.json.Json
+import timber.log.Timber
 import java.time.LocalDate
 
 @UnstableDefault
@@ -27,16 +31,33 @@ class FBoerseRepoImpl : FBoerseRepo {
         isin: String,
         minDate: LocalDate,
         maxDate: LocalDate
-    ): FBoerseHistoryData = (BASE_URL + PRICE_HISTORY_EP).httpGet(
-        listOf(
-            OFFSET_PARAM,
-            LIMIT_PARAM,
-            MIC_PARAM,
-            ISIN_PARAM_ID to isin,
-            MIN_DATE_ID to minDate,
-            MAX_DATE_ID to maxDate
-        )
-    ).awaitObject(kotlinxDeserializerOf(FBoerseHistoryData.serializer()))
+    ): FBoerseHistoryData {
+        // Request, Response, Result<T, FuelError>
+        val (req, resp, res) = (BASE_URL + PRICE_HISTORY_EP).httpGet(
+            listOf(
+                OFFSET_PARAM,
+                LIMIT_PARAM,
+                MIC_PARAM,
+                ISIN_PARAM_ID to isin,
+                MIN_DATE_ID to minDate,
+                MAX_DATE_ID to maxDate
+            )
+        ).awaitStringResponseResult()
+        Timber.d("response: ${resp.responseMessage}")
+        Timber.d("response: ${res.get()}")
+        return Json.parse(FBoerseHistoryData.serializer(), res.get())
+    }
+    /*
+        .awaitObjectResult(kotlinxDeserializerOf(FBoerseHistoryData.serializer())).fold(
+        { it },
+        { e ->
+            Timber.w("Error fetching $isin")
+            Timber.w(e.response.responseMessage)
+            Timber.e(e)
+            throw  e
+        }
+    )
+     */
 
     override suspend fun getHistoryPerfData(isin: String): FBoersePerfData =
         (BASE_URL + PERFORMANCE_EP).httpGet(
