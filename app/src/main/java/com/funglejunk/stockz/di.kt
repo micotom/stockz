@@ -25,7 +25,6 @@ val vmModule = module {
     viewModel { EtfListViewModel(XetraMasterDataInflater(get(), get()), get()) }
     viewModel { FilterDialogViewModel(get()) }
     viewModel { FavouritesViewModel(get()) }
-    viewModel { PortfolioViewModel(get(), get()) }
     viewModel { PortfolioViewModel2(get(), get(), get()) }
 
 }

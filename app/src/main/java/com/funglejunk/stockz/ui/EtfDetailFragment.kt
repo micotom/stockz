@@ -47,7 +47,7 @@ class EtfDetailFragment : Fragment() {
                 viewModel.addToFavourites(etf)
             }
             add_to_portfolio_button.setOnClickListener {
-                findNavController().navigate(EtfDetailFragmentDirections.detailToPortfolioAction(etf))
+                findNavController().navigate(EtfDetailFragmentDirections.detailToPortfolioAction())
             }
         }
 

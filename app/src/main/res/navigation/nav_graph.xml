@@ -25,7 +25,7 @@
                 app:destination="@id/favourites_fragment" />
         <action
                 android:id="@+id/list_to_portfolio_action"
-                app:destination="@id/portfolio_fragment" />
+                app:destination="@id/portfolio2_fragment" />
     </fragment>
 
     <fragment
@@ -37,10 +37,7 @@
                 app:argType="com.funglejunk.stockz.data.Etf" />
         <action
                 android:id="@+id/detail_to_portfolio_action"
-                app:destination="@id/portfolio_fragment">
-            <argument
-                    android:name="etf"
-                    app:argType="com.funglejunk.stockz.data.Etf" />
+                app:destination="@id/portfolio2_fragment">
         </action>
     </fragment>
 
@@ -62,17 +59,6 @@
             android:name="com.funglejunk.stockz.ui.FilterDialog"
             android:label="filter_dialog"
             tools:layout="@layout/filter_dialog" />
-
-    <fragment
-            android:id="@+id/portfolio_fragment"
-            android:name="com.funglejunk.stockz.ui.PortfolioFragment"
-            android:label="portfolio_fragment">
-        <argument
-                android:name="etf"
-                app:argType="com.funglejunk.stockz.data.Etf"
-                app:nullable="true"
-                android:defaultValue="@null" />
-    </fragment>
 
     <fragment
             android:id="@+id/portfolio2_fragment"

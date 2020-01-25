@@ -13,7 +13,6 @@ import com.funglejunk.stockz.R
 import com.funglejunk.stockz.model.PortfolioViewModel2
 import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
-import com.funglejunk.stockz.ui.adapter.PortfolioEntry2Adapter
 import com.funglejunk.stockz.ui.adapter.PortfolioEntryShortAdapter
 import kotlinx.android.synthetic.main.portfolio_fragment2.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -27,10 +26,6 @@ class PortfolioFragment2 : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = inflater.inflate(R.layout.portfolio_fragment2, container, false)
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -69,7 +64,7 @@ class PortfolioFragment2 : Fragment() {
 
                 assets_list.addItemDecoration(
                     MarginItemDecoration(
-                        12,
+                        18,
                         etfList.size - 1
                     )
                 )

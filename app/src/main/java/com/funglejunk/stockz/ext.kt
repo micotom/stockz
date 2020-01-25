@@ -4,12 +4,9 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import arrow.core.Either
 import arrow.fx.IO
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
-import com.funglejunk.stockz.ui.adapter.PortfolioEntry2Adapter
-import com.github.kittinunf.fuel.core.ResponseResultOf
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -35,11 +32,7 @@ fun <T> Fragment.withSafeContext(f: (Context) -> T) = context?.let { f(it) }
 
 fun Float.round() = kotlin.math.round(this * 100) / 100
 
-fun Float.round3() = kotlin.math.round(this * 1000) / 1000
-
 fun Double.round() = kotlin.math.round(this * 100) / 100
-
-fun Double.round3() = kotlin.math.round(this * 1000) / 1000
 
 fun not(b: Boolean) = !b
 
