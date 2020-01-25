@@ -8,7 +8,10 @@ import arrow.core.Either
 import arrow.fx.IO
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.ui.adapter.PortfolioEntry2Adapter
 import com.github.kittinunf.fuel.core.ResponseResultOf
+import java.math.BigDecimal
+import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -47,3 +50,13 @@ fun FBoerseHistoryData.mapToDrawableData(): List<ChartValue> =
         .map { dayHistory ->
             ChartValue(dayHistory.date.toLocalDate(), dayHistory.close.toFloat())
         }
+
+private val percentFormat = NumberFormat.getPercentInstance().apply {
+    minimumFractionDigits = 2
+}
+private val currencyFormat = NumberFormat.getCurrencyInstance().apply {
+    minimumFractionDigits = 3
+}
+fun Double.textStringPercent() = percentFormat.format(this / 100.0)
+fun BigDecimal.textStringPercent() = percentFormat.format(this / BigDecimal.valueOf(100.0))
+fun BigDecimal.textStringCurrency() = currencyFormat.format(this)

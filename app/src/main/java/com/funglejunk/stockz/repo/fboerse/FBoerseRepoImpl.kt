@@ -31,9 +31,7 @@ class FBoerseRepoImpl : FBoerseRepo {
         isin: String,
         minDate: LocalDate,
         maxDate: LocalDate
-    ): FBoerseHistoryData {
-        // Request, Response, Result<T, FuelError>
-        val (req, resp, res) = (BASE_URL + PRICE_HISTORY_EP).httpGet(
+    ): FBoerseHistoryData = (BASE_URL + PRICE_HISTORY_EP).httpGet(
             listOf(
                 OFFSET_PARAM,
                 LIMIT_PARAM,
@@ -42,22 +40,7 @@ class FBoerseRepoImpl : FBoerseRepo {
                 MIN_DATE_ID to minDate,
                 MAX_DATE_ID to maxDate
             )
-        ).awaitStringResponseResult()
-        Timber.d("response: ${resp.responseMessage}")
-        Timber.d("response: ${res.get()}")
-        return Json.parse(FBoerseHistoryData.serializer(), res.get())
-    }
-    /*
-        .awaitObjectResult(kotlinxDeserializerOf(FBoerseHistoryData.serializer())).fold(
-        { it },
-        { e ->
-            Timber.w("Error fetching $isin")
-            Timber.w(e.response.responseMessage)
-            Timber.e(e)
-            throw  e
-        }
-    )
-     */
+        ).awaitObject(kotlinxDeserializerOf(FBoerseHistoryData.serializer()))
 
     override suspend fun getHistoryPerfData(isin: String): FBoersePerfData =
         (BASE_URL + PERFORMANCE_EP).httpGet(

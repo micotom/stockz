@@ -1,263 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/parent_top_guideline"
-            android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".025" />
+            android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/parent_bottom_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".975" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/parent_top_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".025" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/center_horizontal_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".5" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/parent_bottom_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".975" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/left_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent=".025" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/center_horizontal_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".5" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/right_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent=".975" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/left_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".025" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/center_vertical_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent=".5" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/right_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".975" />
 
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/center_vertical_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".5" />
 
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/center_vertical_third_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".338" />
 
-    <TextView
-            android:id="@+id/portfolio_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textColor="@color/secondaryTextColor"
-            android:textSize="16sp"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/parent_top_guideline"
-            tools:text="PORTFOLIO NAME COMES HERE" />
-
-    <LinearLayout
-            android:id="@+id/total_ne_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/portfolio_name">
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/center_vertical_two_third_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".671" />
 
         <TextView
+                android:id="@+id/portfolio_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textAllCaps="true"
+                android:textColor="@color/secondaryTextColor"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/parent_top_guideline"
+                tools:text="PORTFOLIO NAME COMES HERE" />
+
+        <include
+                android:id="@+id/current_value_info"
+                layout="@layout/big_portfolio_info"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:text="Total Value (NE)"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp" />
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/portfolio_name" />
 
-        <TextView
-                android:id="@+id/total_value_ne_text"
+        <include
+                android:id="@+id/profit_euro_value_info"
+                layout="@layout/big_portfolio_info"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:textColor="@color/secondaryColor"
-                android:textSize="12sp"
-                tools:text="Some info might be very long" />
-    </LinearLayout>
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
+                app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
+                app:layout_constraintTop_toBottomOf="@id/portfolio_name" />
 
-    <LinearLayout
-            android:id="@+id/total_we_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/total_ne_layout">
-
-        <TextView
+        <include
+                android:id="@+id/profit_perc_value_info"
+                layout="@layout/big_portfolio_info"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:text="Total Value (WE)"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp" />
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
+                app:layout_constraintTop_toBottomOf="@id/portfolio_name" />
 
-        <TextView
-                android:id="@+id/total_value_we_text"
+        <com.funglejunk.stockz.ui.view.ChartView
+                android:id="@+id/chart"
                 android:layout_width="0dp"
+                android:layout_height="280dp"
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/current_value_info" />
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/assets_list"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:textColor="@color/secondaryColor"
-                android:textSize="12sp"
-                tools:text="Some info might be very long" />
-    </LinearLayout>
+                android:layout_marginTop="18dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/chart"/>
 
-    <LinearLayout
-            android:id="@+id/profit_ne_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/total_we_layout">
-
-        <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:text="Total Profit (NE)"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp" />
-
-        <TextView
-                android:id="@+id/total_profit_ne_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:textColor="@color/secondaryColor"
-                android:textSize="12sp"
-                tools:text="Some info might be very long" />
-    </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/profit_we_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/profit_ne_layout">
-
-        <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:text="Total Profit (WE)"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp" />
-
-        <TextView
-                android:id="@+id/total_profit_we_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:textColor="@color/secondaryColor"
-                android:textSize="12sp"
-                tools:text="Some info might be very long" />
-    </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/profit_perc_ne_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/profit_we_layout">
-
-        <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:text="Total Profit % (NE)"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp" />
-
-        <TextView
-                android:id="@+id/total_profit_ne_perc_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:textColor="@color/secondaryColor"
-                android:textSize="12sp"
-                tools:text="Some info might be very long" />
-    </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/profit_perc_we_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/profit_perc_ne_layout">
-
-        <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:text="Total Profit % (WE)"
-                android:textColor="@color/primaryColor"
-                android:textSize="12sp" />
-
-        <TextView
-                android:id="@+id/total_profit_we_perc_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:maxLines="1"
-                android:textColor="@color/secondaryColor"
-                android:textSize="12sp"
-                tools:text="Some info might be very long" />
-    </LinearLayout>
-
-    <TextView
-            android:id="@+id/allocations_header"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textColor="@color/secondaryTextColor"
-            android:textSize="16sp"
-            android:layout_marginTop="12dp"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintTop_toBottomOf="@id/profit_perc_we_layout"
-            tools:text="PORTFOLIO NAME COMES HERE" />
-
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/assets_list"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/allocations_header"
-            app:layout_constraintBottom_toTopOf="@id/parent_bottom_guideline"/>
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

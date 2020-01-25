@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/left_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".025" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/right_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".975" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/center_vertical_third_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".338" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/center_vertical_two_third_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".671" />
+
+    <TextView
+            android:id="@+id/etf_name_short_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textAllCaps="true"
+            android:textColor="@color/secondaryTextColor"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="PORTFOLIO NAME COMES HERE" />
+
+    <include
+            android:id="@+id/current_value_short_info"
+            layout="@layout/big_portfolio_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintTop_toBottomOf="@id/etf_name_short_info" />
+
+    <include
+            android:id="@+id/profit_euro_value_short_info"
+            layout="@layout/big_portfolio_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
+            app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
+            app:layout_constraintTop_toBottomOf="@id/etf_name_short_info" />
+
+    <include
+            android:id="@+id/profit_perc_value_short_info"
+            layout="@layout/big_portfolio_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
+            app:layout_constraintTop_toBottomOf="@id/etf_name_short_info" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

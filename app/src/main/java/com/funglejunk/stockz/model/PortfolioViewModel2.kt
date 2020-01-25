@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import arrow.fx.IO
 import arrow.fx.extensions.fx
+import arrow.fx.extensions.io.concurrent.parSequence
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.model.portfolio.AssetSummary
@@ -15,18 +16,23 @@ import com.funglejunk.stockz.repo.db.TargetAllocation
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.util.FViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import java.math.BigDecimal
 import java.time.LocalDate
 
 typealias PortfolioSummaryViewModel = Pair<PortfolioSummary, List<Etf>>
 
-class PortfolioViewModel2(private val db: XetraDbInterface,
-                          private val dbInflater: XetraMasterDataInflater,
-                          private val fBoerseRepo: FBoerseRepo) :
+class PortfolioViewModel2(
+    private val db: XetraDbInterface,
+    private val dbInflater: XetraMasterDataInflater,
+    private val fBoerseRepo: FBoerseRepo
+) :
     FViewModel() {
 
     sealed class ViewState {
         data class NewPortfolioData(val portfolioSummary: PortfolioSummaryViewModel) : ViewState()
+        data class NewChartData(val history: FBoerseHistoryData) : ViewState()
     }
 
     val liveData: LiveData<ViewState> = MutableLiveData()
@@ -126,6 +132,79 @@ class PortfolioViewModel2(private val db: XetraDbInterface,
         runIO(
             io = loadEtfAction(dbInflater).followedBy(action),
             onSuccess = onSuccess
+        )
+    }
+
+    fun loadChart(portfolio: PortfolioSummary) {
+        val historyIo = IO.fx {
+            val historyData = portfolio.assets.map {
+                effect {
+                    delay(500)
+                    it to fBoerseRepo.getHistory(it.isin, LocalDate.of(2010, 1, 1), LocalDate.now())
+                }
+            }.parSequence().bind()
+            val scaledList = historyData.map { (assetSummary, data) ->
+                assetSummary to data.content.map {
+                    it.copy(close = it.close * assetSummary.shares)
+                }
+            }
+            val assets = scaledList.map { it.first }
+            val histories = scaledList.map { it.second }
+
+            val totalData = histories
+                .flatten()
+                .groupBy { it.date }.filter {
+                    it.value.size == assets.size
+                }
+            val congregatedTotalData = totalData.map { (date, data) ->
+                date to data.sumByDouble { it.close }
+            }
+            FBoerseHistoryData(
+                isin = "n/a",
+                totalCount = portfolio.assets.size,
+                tradedInPercent = false,
+                content = congregatedTotalData.map { (dateStr, value) ->
+                    FBoerseHistoryData.Data(
+                        date = dateStr, openValue = -1.0, close = value, high = -1.0, low = -1.0,
+                        turnoverPieces = -1.0, turnoverEuro = -1.0
+                    )
+                }.sortedBy { it.date }
+            )
+        }
+        /*
+        val scaledList = list.map { (assetSummary, data) ->
+            assetSummary to data.content.map {
+                it.copy(close = it.close * assetSummary.shares)
+            }
+        }
+        val assets = scaledList.map { it.first }
+        val histories = scaledList.map { it.second }
+
+        val totalData = scaledList.map { it.second }
+            .flatten()
+            .groupBy { it.date }.filter {
+                it.value.size == assets.size
+            }
+        val congregatedTotalData = totalData.map { (date, data) ->
+            date to data.sumByDouble { it.close }
+        }
+        FBoerseHistoryData(
+            isin = "n/a",
+            totalCount = portfolio.assets.size,
+            tradedInPercent = false,
+            content = congregatedTotalData.map { (dateStr, value) ->
+                FBoerseHistoryData.Data(
+                    date = dateStr, openValue = -1.0, close = value, high = -1.0, low = -1.0,
+                    turnoverPieces = -1.0, turnoverEuro = -1.0
+                )
+            }.sortedBy { it.date }
+        )
+         */
+        runIO(
+            io = historyIo,
+            onSuccess = IO.just { chartData ->
+                liveData.mutable().value = ViewState.NewChartData(chartData)
+            }
         )
     }
 
