@@ -42,7 +42,7 @@
             app:layout_constraintGuide_percent=".975" />
 
     <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/center_horizontal_guideline"
+            android:id="@+id/center_vertical_guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -74,7 +74,7 @@
             android:id="@+id/isin"
             android:layout_width="wrap_content"
             android:layout_height="24dp"
-            app:layout_constraintStart_toEndOf="@id/center_horizontal_guideline"
+            app:layout_constraintStart_toEndOf="@id/center_vertical_guideline"
             app:layout_constraintTop_toBottomOf="@id/stock_name"
             tools:text="IE567TZ65" />
 
@@ -88,7 +88,6 @@
             app:layout_constraintEnd_toStartOf="@+id/right_guideline"
             app:layout_constraintStart_toEndOf="@id/left_guideline"
             app:layout_constraintTop_toTopOf="@id/mychart" />
-
 
     <com.funglejunk.stockz.ui.view.ChartView
             android:id="@+id/mychart"
@@ -147,7 +146,7 @@
             android:layout_margin="6dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toTopOf="@id/parent_bottom_guideline"
-            app:layout_constraintEnd_toStartOf="@+id/center_horizontal_guideline"
+            app:layout_constraintEnd_toStartOf="@+id/center_vertical_guideline"
             app:layout_constraintStart_toEndOf="@id/left_guideline"
             app:layout_constraintTop_toBottomOf="@id/checkbox_layout" />
 
@@ -159,7 +158,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toTopOf="@id/parent_bottom_guideline"
             app:layout_constraintEnd_toStartOf="@+id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/center_horizontal_guideline"
+            app:layout_constraintStart_toEndOf="@id/center_vertical_guideline"
             app:layout_constraintTop_toBottomOf="@id/checkbox_layout" />
 
     <ProgressBar
