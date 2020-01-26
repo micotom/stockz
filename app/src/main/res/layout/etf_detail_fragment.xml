@@ -187,9 +187,10 @@
             android:id="@+id/fav_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginBottom="32dp"
-            android:src="@drawable/favourite_button_24"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="76dp"
+            android:src="@drawable/star_border_24px"
+            app:backgroundTint="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
@@ -197,10 +198,11 @@
             android:id="@+id/add_to_portfolio_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="112dp"
-            android:layout_marginBottom="32dp"
-            android:src="@drawable/note_add_24px"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/add_24px"
+            app:backgroundTint="@android:color/white"
+            app:layout_constraintBottom_toTopOf="@id/fav_button"
             app:layout_constraintRight_toRightOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

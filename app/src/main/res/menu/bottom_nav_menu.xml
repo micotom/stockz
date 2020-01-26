@@ -4,19 +4,19 @@
 
     <item
             android:id="@+id/portfolio2_fragment"
-            android:icon="@drawable/note_add_24px"
+            android:icon="@drawable/insert_chart_24px"
             android:title="Portfolio"
             app:showAsAction="ifRoom" />
 
     <item
             android:id="@+id/list_fragment"
-            android:icon="@drawable/round_filter_list_24"
+            android:icon="@drawable/search_24px"
             android:title="ETFs"
             app:showAsAction="ifRoom" />
 
     <item
             android:id="@+id/favourites_fragment"
-            android:icon="@drawable/favourite_button_24"
+            android:icon="@drawable/star_border_24px"
             android:title="Favourites"
             app:showAsAction="ifRoom" />
 

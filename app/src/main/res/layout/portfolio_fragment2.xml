@@ -39,11 +39,25 @@
                 app:layout_constraintGuide_percent=".025" />
 
         <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/left_guideline_plus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".05" />
+
+        <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/right_guideline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent=".975" />
+
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/right_guideline_minus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".95" />
 
         <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/center_vertical_guideline"
@@ -57,14 +71,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent=".338" />
+                app:layout_constraintGuide_percent=".3497" />
 
         <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/center_vertical_two_third_guideline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent=".671" />
+                app:layout_constraintGuide_percent="0.64994" />
 
         <TextView
                 android:id="@+id/portfolio_name"
@@ -86,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
-                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline_plus"
                 app:layout_constraintTop_toBottomOf="@id/portfolio_name" />
 
         <include
@@ -105,28 +119,42 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline_minus"
                 app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
                 app:layout_constraintTop_toBottomOf="@id/portfolio_name" />
 
         <com.funglejunk.stockz.ui.view.ChartView
                 android:id="@+id/chart"
                 android:layout_width="0dp"
-                android:layout_height="280dp"
+                android:layout_height="240dp"
                 android:layout_marginTop="12dp"
                 app:layout_constraintEnd_toStartOf="@id/right_guideline"
                 app:layout_constraintStart_toEndOf="@id/left_guideline"
                 app:layout_constraintTop_toBottomOf="@id/current_value_info" />
 
+        <TextView
+                android:id="@+id/assets_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:maxLines="1"
+                android:textAllCaps="true"
+                android:textColor="@color/secondaryTextColor"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:text="Assets"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/chart" />
+
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/assets_list"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="12dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toStartOf="@id/right_guideline"
                 app:layout_constraintStart_toEndOf="@id/left_guideline"
-                app:layout_constraintTop_toBottomOf="@id/chart"/>
+                app:layout_constraintTop_toBottomOf="@id/assets_header"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

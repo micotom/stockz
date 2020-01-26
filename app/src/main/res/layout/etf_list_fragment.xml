@@ -15,27 +15,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="32dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="76dp"
+            app:backgroundTint="@android:color/white"
             android:src="@drawable/round_filter_list_24" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_favourites"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="112dp"
-            android:layout_marginBottom="32dp"
-            android:src="@drawable/favourite_button_24" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_portfolio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="192dp"
-            android:layout_marginBottom="32dp"
-            android:src="@drawable/note_add_24px" />
 
     <ProgressBar
             android:id="@+id/progressbar"
