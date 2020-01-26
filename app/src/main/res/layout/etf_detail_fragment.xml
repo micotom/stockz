@@ -188,7 +188,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="24dp"
-            android:layout_marginBottom="76dp"
+            android:layout_marginBottom="24dp"
             android:src="@drawable/star_border_24px"
             app:backgroundTint="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"

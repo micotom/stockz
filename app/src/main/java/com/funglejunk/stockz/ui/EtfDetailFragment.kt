@@ -97,7 +97,7 @@ class EtfDetailFragment : Fragment() {
             }
             is EtfDetailViewModel.ViewState.NewEtfFavouriteState -> {
                 fav_button.visibility = when (event.isFavourite) {
-                    true -> View.INVISIBLE
+                    true -> View.GONE
                     false -> View.VISIBLE
                 }
             }

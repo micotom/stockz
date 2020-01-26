@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="24dp"
-            android:layout_marginBottom="76dp"
+            android:layout_marginBottom="24dp"
             app:backgroundTint="@android:color/white"
             android:src="@drawable/round_filter_list_24" />
 
