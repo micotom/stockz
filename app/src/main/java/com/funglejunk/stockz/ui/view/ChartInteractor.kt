@@ -3,6 +3,7 @@ package com.funglejunk.stockz.ui.view
 import android.animation.ValueAnimator
 import android.graphics.Canvas
 import android.graphics.Path
+import androidx.annotation.VisibleForTesting
 import arrow.syntax.function.partially1
 import com.funglejunk.stockz.data.ChartValue
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
@@ -14,7 +15,6 @@ import com.funglejunk.stockz.round
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.toMonthDayString
 import com.funglejunk.stockz.toYearString
-import java.lang.IllegalStateException
 
 typealias XyValue = Pair<Float, Float>
 typealias LineCoordinates = Pair<XyValue, XyValue>
@@ -50,12 +50,9 @@ class ChartInteractor {
     private lateinit var sectorsCache: () -> Pair<List<Sector>, List<Sector>>
 
     fun showAllSectors(
-        viewWidth: Float, viewHeight: Float, isInPortraitMode: Boolean,
-        view: ChartView
-    ): DrawFuncRegister {
-        return with(dataCache.invoke()) {
-            prepareDrawingInternal(this, viewWidth, viewHeight, isInPortraitMode, view)
-        }
+        viewWidth: Float, viewHeight: Float, isInPortraitMode: Boolean, view: ChartView
+    ): DrawFuncRegister = with(dataCache.invoke()) {
+        prepareDrawingInternal(this, viewWidth, viewHeight, isInPortraitMode, view)
     }
 
     fun showSector(
@@ -135,34 +132,14 @@ class ChartInteractor {
             data.content, viewHeight, xSpreadFactor, false
         )
 
-        val sectorsPortrait = portraitBounds.mapIndexed { index, (_, rightBoundXy) ->
-            val leftBound = when (index) {
-                0 -> 0f
-                else -> portraitBounds[index - 1].second.first.first
-            }
-            val rightBound = when (index) {
-                portraitBounds.size - 1 -> viewWidth
-                else -> rightBoundXy.first.first
-            }
-            Pair(leftBound, rightBound) to mutableListOf<FBoerseHistoryData.Data>()
-        }
+        val sectorsPortrait = calculateSectors(portraitBounds, viewWidth)
 
-        val sectorsLandscape = landscapeBounds.mapIndexed { index, (_, rightBoundXy) ->
-            val leftBound = when (index) {
-                0 -> 0f
-                else -> landscapeBounds[index - 1].second.first.first
-            }
-            val rightBound = when (index) {
-                landscapeBounds.size - 1 -> viewWidth
-                else -> rightBoundXy.first.first
-            }
-            Pair(leftBound, rightBound) to mutableListOf<FBoerseHistoryData.Data>()
-        }
+        val sectorsLandscape = calculateSectors(landscapeBounds, viewWidth)
 
         // TODO prettify by not using forEach
         data.content.forEachIndexed { index, dataPoint ->
             val dataPointX = index * xSpreadFactor
-            sectorsPortrait.forEachIndexed { sectorIndex, (minMaxX, list) ->
+            sectorsPortrait.forEachIndexed { _, (minMaxX, list) ->
                 val (minX, maxX) = minMaxX
                 if (dataPointX >= minX && dataPointX < maxX) {
                     list.add(dataPoint)
@@ -184,6 +161,23 @@ class ChartInteractor {
         dataCache = appliedData.invoke(data)
         sectorsCache = appliedSectors.invoke(sectorsPortrait, sectorsLandscape)
     }
+
+    @VisibleForTesting
+    fun calculateSectors(
+        bounds: List<LabelWithLineCoordinates>,
+        viewWidth: Float
+    ): List<Pair<Pair<Float, Float>, MutableList<FBoerseHistoryData.Data>>> =
+        bounds.mapIndexed { index, (_, rightBoundXy) ->
+            val leftBound = when (index) {
+                0 -> 0f
+                else -> bounds[index - 1].second.first.first
+            }
+            val rightBound = when (index) {
+                bounds.size - 1 -> viewWidth
+                else -> rightBoundXy.first.first
+            }
+            Pair(leftBound, rightBound) to mutableListOf<FBoerseHistoryData.Data>()
+        }
 
     private fun prepareDrawingInternal(
         data: FBoerseHistoryData,
@@ -298,25 +292,28 @@ class ChartInteractor {
         false -> emptyList()
     }
 
-    private fun calculateChartPoints(
+    @VisibleForTesting
+    fun calculateChartPoints(
         data: List<FBoerseHistoryData.Data>,
         viewHeight: Float
-    ): List<Float> {
-        return when (data.isNotEmpty()) {
-            true -> {
-                val maxValueY = data.maxBy { it.close }!!.close
-                val minValueY = data.minBy { it.close }!!.close
-                val verticalSpan = maxValueY - minValueY
-                val factorY = (viewHeight / verticalSpan)
-                data.map {
-                    ((it.close - minValueY) * factorY).toFloat()
-                }
+    ): List<Float> = when (data.isNotEmpty()) {
+        true -> {
+            val maxValueY = data.maxBy { it.close }!!.close
+            val minValueY = data.minBy { it.close }!!.close
+            val verticalSpan = when (val diff = maxValueY - minValueY) {
+                0.0 -> 1.0
+                else -> diff
             }
-            false -> emptyList()
+            val factorY = (viewHeight / verticalSpan)
+            data.map {
+                ((it.close - minValueY) * factorY).toFloat()
+            }
         }
+        false -> emptyList()
     }
 
-    private fun calculateVerticalMonthLines(
+    @VisibleForTesting
+    fun calculateVerticalMonthLines(
         data: List<FBoerseHistoryData.Data>,
         viewHeight: Float,
         xSpreadFactor: Float,
@@ -353,35 +350,35 @@ class ChartInteractor {
         }
     }
 
-    private fun calculateHorizontalValueLines(
+    @VisibleForTesting
+    fun calculateHorizontalValueLines(
         data: List<FBoerseHistoryData.Data>,
         viewWidth: Float,
         viewHeight: Float,
         isInPortraitMode: Boolean
-    ): List<LabelWithLineCoordinates> {
-        val minValue = data.minBy { it.close }?.close
-        val maxValue = data.maxBy { it.close }?.close
-        return when (maxValue == null || minValue == null) {
-            true -> emptyList()
-            false -> {
-                val numberOfLines = when (isInPortraitMode) {
-                    true -> ChartView.HORIZONTAL_LINE_COUNT_PORTRAIT
-                    false -> ChartView.HORIZONTAL_LINE_COUNT_LANDSCAPE
-                }
-                val valueSteps = (maxValue - minValue) / numberOfLines
-                val verticalDistance = viewHeight / numberOfLines
-                (0..numberOfLines).map {
-                    val y = (numberOfLines - it) * verticalDistance
-                    val label = (it * valueSteps + minValue).round().toString()
-                    val startPoint = 0f to y
-                    val endPoint = viewWidth to y
-                    label to (startPoint to endPoint)
-                }
+    ): List<LabelWithLineCoordinates> = when (data.isNotEmpty()) {
+        true -> {
+            val minValue = data.minBy { it.close }!!.close
+            val maxValue = data.maxBy { it.close }!!.close
+            val numberOfLines = when (isInPortraitMode) {
+                true -> ChartView.HORIZONTAL_LINE_COUNT_PORTRAIT
+                false -> ChartView.HORIZONTAL_LINE_COUNT_LANDSCAPE
+            }
+            val valueSteps = (maxValue - minValue) / numberOfLines
+            val verticalDistance = viewHeight / numberOfLines
+            (1 .. numberOfLines).map {
+                val y = (numberOfLines - it) * verticalDistance
+                val label = (it * valueSteps + minValue).round().toString()
+                val startPoint = 0f to y
+                val endPoint = viewWidth to y
+                label to (startPoint to endPoint)
             }
         }
+        false -> emptyList()
     }
 
-    private fun calculateVerticalYearLines(
+    @VisibleForTesting
+    fun calculateVerticalYearLines(
         data: List<FBoerseHistoryData.Data>,
         viewHeight: Float,
         xSpreadFactor: Float

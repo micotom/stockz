@@ -367,8 +367,8 @@ class ChartView : View, ChartViewInterface {
             lines.forEachIndexed { index, (label, coordinates) ->
                 val startPoint = coordinates.first
                 val endPoint = coordinates.second
-                val isFirstOrLastLine = index == 0 || index == lines.size - 1
-                if (!isFirstOrLastLine) {
+                val isLastLine = index == lines.size - 1
+                if (!isLastLine) {
                     canvas.drawText(
                         label,
                         startPoint.first,
