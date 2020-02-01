@@ -1,6 +1,7 @@
 package com.funglejunk.stockz.ui.view
 
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.round
 import com.funglejunk.stockz.toYearMonthDayString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -87,13 +88,94 @@ class ChartInteractorTest {
         val lines =
             interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, true)
         assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_PORTRAIT)
+        val yStep = viewHeight / lines.size
+        val valueStep = 0f
         lines.forEachIndexed { index, (label, points) ->
             assertEquals(points.first.first, 0f)
             assertEquals(points.second.first, viewWidth)
             assertEquals(points.first.second, points.second.second)
-            val y = viewHeight - (index * (viewHeight / lines.size)) - close
-            assertEquals(y.toFloat(), points.first.second)
-            assertEquals((close).toString(), label)
+            val y = viewHeight - (index + 1) * yStep
+            val expectedLabel = ((index + 1) * valueStep + close).round().toString()
+            assertEquals(y, points.first.second, 0.001f)
+            assertEquals(expectedLabel, label)
+        }
+    }
+
+    @Test
+    fun `horizontal lines of double data portrait`() {
+        val interactor = ChartInteractor()
+        val viewHeight = 100.0f
+        val viewWidth = 100.0f
+        val closeA = 10.0
+        val closeB = 25.0
+        val dataPointA = createDataPoint(LocalDate.of(2020, 1, 1), closeA)
+        val dataPointB = createDataPoint(LocalDate.of(2020, 1, 2), closeB)
+        val dataPoints = listOf(dataPointA, dataPointB)
+        val data = createData(dataPoints)
+        val lines =
+            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, true)
+        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_PORTRAIT)
+        val yStep = viewHeight / lines.size
+        val valueStep = (max(closeA, closeB) - min(closeA, closeB)) / lines.size
+        lines.forEachIndexed { index, (label, points) ->
+            assertEquals(points.first.first, 0f)
+            assertEquals(points.second.first, viewWidth)
+            assertEquals(points.first.second, points.second.second)
+            val y = viewHeight - (index + 1) * yStep
+            val expectedLabel = ((index + 1) * valueStep + min(closeA, closeB)).round().toString()
+            assertEquals(y, points.first.second, 0.001f)
+            assertEquals(expectedLabel, label)
+        }
+    }
+
+    @Test
+    fun `horizontal lines of single data landscape`() {
+        val interactor = ChartInteractor()
+        val viewHeight = 100.0f
+        val viewWidth = 100.0f
+        val close = 10.0
+        val dataPoint = createDataPoint(LocalDate.of(2020, 1, 1), close)
+        val data = createData(listOf(dataPoint))
+        val lines =
+            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, false)
+        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_LANDSCAPE)
+        val yStep = viewHeight / lines.size
+        val valueStep = 0.0
+        lines.forEachIndexed { index, (label, points) ->
+            assertEquals(points.first.first, 0f)
+            assertEquals(points.second.first, viewWidth)
+            assertEquals(points.first.second, points.second.second)
+            val y = viewHeight - (index + 1) * yStep
+            val expectedLabel = ((index + 1) * valueStep + close).round().toString()
+            assertEquals(y, points.first.second, 0.001f)
+            assertEquals(expectedLabel, label)
+        }
+    }
+
+    @Test
+    fun `horizontal lines of double data landscape`() {
+        val interactor = ChartInteractor()
+        val viewHeight = 100.0f
+        val viewWidth = 100.0f
+        val closeA = 10.0
+        val closeB = 25.0
+        val dataPointA = createDataPoint(LocalDate.of(2020, 1, 1), closeA)
+        val dataPointB = createDataPoint(LocalDate.of(2020, 1, 2), closeB)
+        val dataPoints = listOf(dataPointA, dataPointB)
+        val data = createData(dataPoints)
+        val lines =
+            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, false)
+        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_LANDSCAPE)
+        val yStep = viewHeight / lines.size
+        val valueStep = (max(closeA, closeB) - min(closeA, closeB)) / lines.size
+        lines.forEachIndexed { index, (label, points) ->
+            assertEquals(points.first.first, 0f)
+            assertEquals(points.second.first, viewWidth)
+            assertEquals(points.first.second, points.second.second)
+            val y = viewHeight - (index + 1) * yStep
+            val expectedLabel = (index + 1) * valueStep + min(closeA, closeB)
+            assertEquals(y, points.first.second, 0.001f)
+            assertEquals((expectedLabel).toString(), label)
         }
     }
 
