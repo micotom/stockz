@@ -1,17 +1,17 @@
 package com.funglejunk.stockz.ui.adapter
 
-import android.graphics.Rect
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.model.PortfolioSummaryViewModel
+import com.funglejunk.stockz.data.Etf
+import com.funglejunk.stockz.model.portfolio.PortfolioSummary
 import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
 
-class PortfolioEntryShortAdapter(private val data: PortfolioSummaryViewModel) :
+class PortfolioEntryShortAdapter(private val summary: PortfolioSummary, val etfs: List<Etf>) :
     RecyclerView.Adapter<PortfolioEntryShortAdapter.Holder>() {
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
@@ -31,10 +31,10 @@ class PortfolioEntryShortAdapter(private val data: PortfolioSummaryViewModel) :
             Holder(inflate(R.layout.portfolio_info_short, parent, false) as ViewGroup)
         }
 
-    override fun getItemCount(): Int = data.second.size
+    override fun getItemCount(): Int = etfs.size
 
-    override fun onBindViewHolder(holder: Holder, position: Int) = data.second[position].let { etf ->
-        data.first.assets.find { it.isin == etf.isin }?.let { asset ->
+    override fun onBindViewHolder(holder: Holder, position: Int) = etfs[position].let { etf ->
+        summary.assets.find { it.isin == etf.isin }?.let { asset ->
             holder.apply {
                 etfName.text = etf.name
                 currentValueLayout.setText("Value", asset.currentTotalValueNE.textStringCurrency())

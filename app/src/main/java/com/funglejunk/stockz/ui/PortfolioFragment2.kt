@@ -30,17 +30,19 @@ class PortfolioFragment2 : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel.addFooData()
-
         viewModel.liveData.observe(viewLifecycleOwner, Observer { state ->
             handleNewViewState(state)
         })
+
+        if (savedInstanceState == null) {
+            viewModel.addFooData()
+        }
     }
 
     private fun handleNewViewState(viewState: PortfolioViewModel2.ViewState) {
         when (viewState) {
             is PortfolioViewModel2.ViewState.NewPortfolioData -> {
-                val (summary, etfList) = viewState.portfolioSummary
+                val (summary, etfList, history) = viewState.summary
 
                 portfolio_name.text = "Foo Portfolio"
 
@@ -68,12 +70,9 @@ class PortfolioFragment2 : Fragment() {
                         etfList.size - 1
                     )
                 )
-                assets_list.adapter = PortfolioEntryShortAdapter(viewState.portfolioSummary)
+                assets_list.adapter = PortfolioEntryShortAdapter(summary, etfList)
 
-                viewModel.loadChart(summary)
-            }
-            is PortfolioViewModel2.ViewState.NewChartData -> {
-                chart.draw(viewState.history)
+                chart.draw(history)
             }
         }
     }
