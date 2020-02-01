@@ -132,6 +132,36 @@
                 app:layout_constraintStart_toEndOf="@id/left_guideline"
                 app:layout_constraintTop_toBottomOf="@id/current_value_info" />
 
+        <RadioGroup
+                android:id="@+id/chart_time_selector_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkedButton="@+id/chart_max"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/chart" >
+            <RadioButton
+                    android:id="@+id/chart_max"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Max"/>
+            <RadioButton
+                    android:id="@+id/chart_1_year"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1 Year"/>
+            <RadioButton
+                    android:id="@+id/chart_3_months"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3 Months"/>
+            <RadioButton
+                    android:id="@+id/chart_1_week"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1 Week"/>
+        </RadioGroup>
+
         <TextView
                 android:id="@+id/assets_header"
                 android:layout_width="wrap_content"
@@ -144,7 +174,7 @@
                 android:textStyle="bold"
                 android:text="Assets"
                 app:layout_constraintStart_toEndOf="@id/left_guideline"
-                app:layout_constraintTop_toBottomOf="@id/chart" />
+                app:layout_constraintTop_toBottomOf="@id/chart_time_selector_group" />
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/assets_list"
