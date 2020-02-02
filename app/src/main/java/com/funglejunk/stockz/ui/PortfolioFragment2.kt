@@ -10,22 +10,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.model.PortfolioViewModel2
 import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
 import com.funglejunk.stockz.ui.adapter.PortfolioEntryShortAdapter
+import com.funglejunk.stockz.util.TimeSpanFilter
 import kotlinx.android.synthetic.main.portfolio_fragment2.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PortfolioFragment2 : Fragment() {
-
-    sealed class TimeSpan {
-        object Max : TimeSpan()
-        object Year : TimeSpan()
-        object Months3 : TimeSpan()
-        object Week : TimeSpan()
-    }
 
     private val viewModel: PortfolioViewModel2 by viewModel()
 
@@ -46,24 +39,28 @@ class PortfolioFragment2 : Fragment() {
             viewModel.addFooData()
         }
 
-        fun drawTimeSpan(timeSpan: TimeSpan) = viewModel.getHistory(timeSpan)?.let {
+        fun drawTimeSpan(timeSpanFilter: TimeSpanFilter) = viewModel.getHistory(timeSpanFilter)?.let {
             chart.draw(it)
         }
 
         chart_max.setOnClickListener {
-            drawTimeSpan(TimeSpan.Max)
+            drawTimeSpan(TimeSpanFilter.Max)
         }
 
         chart_1_year.setOnClickListener {
-            drawTimeSpan(TimeSpan.Year)
+            drawTimeSpan(TimeSpanFilter.Year)
         }
 
         chart_3_months.setOnClickListener {
-            drawTimeSpan(TimeSpan.Months3)
+            drawTimeSpan(TimeSpanFilter.Months3)
+        }
+
+        chart_month.setOnClickListener {
+            drawTimeSpan(TimeSpanFilter.Month)
         }
 
         chart_1_week.setOnClickListener {
-            drawTimeSpan(TimeSpan.Week)
+            drawTimeSpan(TimeSpanFilter.Week)
         }
 
     }
@@ -107,6 +104,8 @@ class PortfolioFragment2 : Fragment() {
                 assets_list.adapter = PortfolioEntryShortAdapter(summary, etfList)
 
                 chart.draw(history)
+
+                assets_header.text = "Assets"
             }
         }
     }

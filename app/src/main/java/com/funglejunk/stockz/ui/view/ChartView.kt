@@ -1,16 +1,12 @@
 package com.funglejunk.stockz.ui.view
 
-import android.animation.Animator
-import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.*
+import android.os.Handler
 import android.util.AttributeSet
-import android.view.GestureDetector
-import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
-import androidx.core.view.GestureDetectorCompat
 import arrow.core.extensions.list.applicative.map
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
@@ -23,9 +19,9 @@ class ChartView : View, ChartViewInterface {
         const val MONTH_LINES_MODULO_LANDSCAPE = 2
         const val HORIZONTAL_LINE_COUNT_PORTRAIT = 10
         const val HORIZONTAL_LINE_COUNT_LANDSCAPE = 3
-        private const val HORIZONTAL_LABEL_OFFSET = 72f
+        private const val X_PADDING_START = 96f
+        private const val X_PADDING_END = 24f
         private const val CIRCLE_RADIUS = 4f
-        private const val CHART_ANIM_DUR_MS = 1500L
     }
 
     constructor(context: Context?) : super(context)
@@ -36,6 +32,7 @@ class ChartView : View, ChartViewInterface {
         defStyleAttr
     )
 
+    @Suppress("unused")
     constructor(
         context: Context?,
         attrs: AttributeSet?,
@@ -48,42 +45,11 @@ class ChartView : View, ChartViewInterface {
         defStyleRes
     )
 
-    private var processTaps = false
-
-    private val tapListener = object : GestureDetector.SimpleOnGestureListener() {
-        override fun onDown(e: MotionEvent?): Boolean = true
-
-        override fun onDoubleTap(e: MotionEvent?): Boolean = when (e) {
-            null -> false
-            else -> {
-                funcRegister = interactor.showAllSectors(width.toFloat(), height.toFloat(),
-                    resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT,
-                    this@ChartView)
-                drawNewData()
-                true
-            }
-        }
-
-        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean = when (e) {
-            null -> false
-            else -> {
-                val x = e.x - HORIZONTAL_LABEL_OFFSET
-                funcRegister = interactor.showSector(x, width.toFloat(), height.toFloat(),
-                    resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT,
-                    this@ChartView)
-                drawNewData()
-                true
-            }
-        }
-    }
-
-    private val gestureDetector = GestureDetectorCompat(context, tapListener)
-
     private val chartPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.primaryColor)
         isAntiAlias = true
         style = Paint.Style.STROKE
-        strokeWidth = resources.displayMetrics.density * 2
+        strokeWidth = resources.displayMetrics.density * 1.5f
     }
 
     private val textLabelPaint = Paint().apply {
@@ -95,7 +61,6 @@ class ChartView : View, ChartViewInterface {
     private val path = Path()
     private val textBound = Rect()
 
-    private var animator: ValueAnimator? = null
     private val interactor = ChartInteractor()
     private var funcRegister: ChartInteractor.DrawFuncRegister? = null
 
@@ -104,35 +69,7 @@ class ChartView : View, ChartViewInterface {
     private var showBollinger = false
     private var showAtr = false
 
-    fun showBollinger() {
-        showBollinger = true
-        invalidateAndDrawLabels()
-    }
-
-    fun hideBollinger() {
-        showBollinger = false
-        invalidateAndDrawLabels()
-    }
-
-    fun showSma() {
-        showSma = true
-        invalidateAndDrawLabels()
-    }
-
-    fun hideSma() {
-        showSma = false
-        invalidateAndDrawLabels()
-    }
-
-    fun showAtr() {
-        showAtr = true
-        invalidateAndDrawLabels()
-    }
-
-    fun hideAtr() {
-        showAtr = false
-        invalidateAndDrawLabels()
-    }
+    private val chartAnimHandler = Handler()
 
     fun draw(data: FBoerseHistoryData) {
         post {
@@ -140,9 +77,10 @@ class ChartView : View, ChartViewInterface {
                 resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
             funcRegister = interactor.prepareDrawing(
                 data,
-                width.toFloat(),
+                width.toFloat() - (X_PADDING_START + X_PADDING_END),
                 height.toFloat(),
                 isInPortraitMode,
+                48f,
                 this
             )
             drawNewData()
@@ -152,12 +90,9 @@ class ChartView : View, ChartViewInterface {
     private fun drawNewData() {
         funcRegister?.let { safeFuncRegister ->
             safeFuncRegister.pathResetFunc.invoke(path)
-            animator = safeFuncRegister.animatorInitFunc.invoke()
-            animator?.let {
-                it.also {
-                    it.start()
-                }
-            }
+            val animationRunnable = safeFuncRegister.animatorInitFunc.invoke()
+            chartAnimHandler.removeCallbacksAndMessages(null)
+            chartAnimHandler.post(animationRunnable)
         }
     }
 
@@ -188,31 +123,27 @@ class ChartView : View, ChartViewInterface {
     override val pathResetFunc: PathResetFunc = { startY ->
         { path ->
             path.reset()
-            path.moveTo(HORIZONTAL_LABEL_OFFSET, height - startY)
+            path.moveTo(X_PADDING_START, height - startY)
         }
     }
 
     override val animatorInitFunc: AnimatorInitFunc =
         { chartPoints, xValueSpreadBetweenPoints ->
             {
-                ValueAnimator.ofInt(1, chartPoints.size - 1).apply {
-                    duration = CHART_ANIM_DUR_MS
-                    addUpdateListener {
-                        val animatedIndex = it.animatedValue as Int
+                object : Runnable {
+                    var ticks = 0
+                    private val delay = 1L
+                    override fun run() {
                         path.lineTo(
-                            xValueSpreadBetweenPoints * animatedIndex + HORIZONTAL_LABEL_OFFSET,
-                            height - chartPoints[animatedIndex]
+                            xValueSpreadBetweenPoints * ticks + X_PADDING_START,
+                            height - chartPoints[ticks]
                         )
+                        ++ticks
                         invalidateAndDrawLabels()
+                        if (ticks != chartPoints.size) {
+                            chartAnimHandler.postDelayed(this, delay)
+                        }
                     }
-                    addListener(object : AnimatorStartEndListener() {
-                        override fun onAnimationEnd(animation: Animator?) {
-                            processTaps = true
-                        }
-                        override fun onAnimationStart(animation: Animator?) {
-                            processTaps = false
-                        }
-                    })
                 }
             }
         }
@@ -367,22 +298,19 @@ class ChartView : View, ChartViewInterface {
             lines.forEachIndexed { index, (label, coordinates) ->
                 val startPoint = coordinates.first
                 val endPoint = coordinates.second
-                val isLastLine = index == lines.size - 1
-                if (!isLastLine) {
-                    canvas.drawText(
-                        label,
-                        startPoint.first,
-                        startPoint.second,
-                        textLabelPaint
-                    )
-                    canvas.drawLine(
-                        startPoint.first + HORIZONTAL_LABEL_OFFSET,
-                        startPoint.second,
-                        endPoint.first,
-                        endPoint.second,
-                        horizontalLabelLinePaint
-                    )
-                }
+                canvas.drawText(
+                    label,
+                    startPoint.first,
+                    startPoint.second,
+                    textLabelPaint
+                )
+                canvas.drawLine(
+                    startPoint.first + X_PADDING_START,
+                    startPoint.second,
+                    endPoint.first + X_PADDING_START,
+                    endPoint.second,
+                    horizontalLabelLinePaint
+                )
             }
         }
     }
@@ -395,30 +323,48 @@ class ChartView : View, ChartViewInterface {
 
     override fun onDetachedFromWindow() {
         Timber.d("onDetachedFromWindow()")
-        animator?.cancel()
+        chartAnimHandler.removeCallbacksAndMessages(null)
         super.onDetachedFromWindow()
+    }
+
+    fun showBollinger() {
+        showBollinger = true
+        invalidateAndDrawLabels()
+    }
+
+    fun hideBollinger() {
+        showBollinger = false
+        invalidateAndDrawLabels()
+    }
+
+    fun showSma() {
+        showSma = true
+        invalidateAndDrawLabels()
+    }
+
+    fun hideSma() {
+        showSma = false
+        invalidateAndDrawLabels()
+    }
+
+    fun showAtr() {
+        showAtr = true
+        invalidateAndDrawLabels()
+    }
+
+    fun hideAtr() {
+        showAtr = false
+        invalidateAndDrawLabels()
     }
 
     private fun List<LabelWithLineCoordinates>.shiftXOffset() = map { (label, coordinates) ->
         val start = coordinates.first
         val end = coordinates.second
-        val startShifted = start.copy(start.first + HORIZONTAL_LABEL_OFFSET)
-        val endShifted = end.copy(end.first + HORIZONTAL_LABEL_OFFSET)
+        val startShifted = start.shiftXOffset()
+        val endShifted = end.shiftXOffset()
         label to (startShifted to endShifted)
     }
 
-    private fun XyValue.shiftXOffset() = (first + HORIZONTAL_LABEL_OFFSET) to second
-
-    private abstract class AnimatorStartEndListener : Animator.AnimatorListener {
-        override fun onAnimationRepeat(animation: Animator?) = Unit
-        abstract override fun onAnimationEnd(animation: Animator?)
-        override fun onAnimationCancel(animation: Animator?) = Unit
-    }
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean = if (processTaps) {
-        gestureDetector.onTouchEvent(event)
-    } else {
-        false
-    }
+    private fun XyValue.shiftXOffset() = (first + X_PADDING_START) to second
 
 }

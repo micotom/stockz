@@ -14,12 +14,10 @@ import com.funglejunk.stockz.repo.db.Portfolio
 import com.funglejunk.stockz.repo.db.TargetAllocation
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
-import com.funglejunk.stockz.toLocalDate
-import com.funglejunk.stockz.ui.PortfolioFragment2
 import com.funglejunk.stockz.util.FViewModel
+import com.funglejunk.stockz.util.TimeSpanFilter
 import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 
 class PortfolioViewModel2(
     private val db: XetraDbInterface,
@@ -48,41 +46,19 @@ class PortfolioViewModel2(
             }
         }
 
-    fun getHistory(timespan: PortfolioFragment2.TimeSpan): FBoerseHistoryData? = liveData.value?.let {
-        when (it) {
-            ViewState.Loading -> null
-            is ViewState.NewPortfolioData -> {
-                val history = it.summary.third
-                when (timespan) {
-                    PortfolioFragment2.TimeSpan.Max -> history
-                    PortfolioFragment2.TimeSpan.Year -> {
-                        val now = LocalDate.now()
-                        val filtered = history.content.filter {
-                            val date = it.date.toLocalDate()
-                            ChronoUnit.YEARS.between(date, now) == 0L
-                        }
-                        history.copy(content = filtered)
-                    }
-                    PortfolioFragment2.TimeSpan.Months3 -> {
-                        val now = LocalDate.now()
-                        val filtered = history.content.filter {
-                            val date = it.date.toLocalDate()
-                            ChronoUnit.MONTHS.between(date, now) <= 2L
-                        }
-                        history.copy(content = filtered)
-                    }
-                    PortfolioFragment2.TimeSpan.Week -> {
-                        val now = LocalDate.now()
-                        val filtered = history.content.filter {
-                            val date = it.date.toLocalDate()
-                            ChronoUnit.WEEKS.between(date, now) == 0L
-                        }
-                        history.copy(content = filtered)
-                    }
+    fun getHistory(timespan: TimeSpanFilter): FBoerseHistoryData? =
+        liveData.value?.let {
+            when (it) {
+                ViewState.Loading -> null
+                is ViewState.NewPortfolioData -> {
+                    val history = it.summary.third
+                    history.copy(
+                        content = history.content.filter {
+                            timespan(it)
+                        })
                 }
             }
         }
-    }
 
     fun addFooData() {
         val action = IO.fx {
@@ -134,7 +110,7 @@ class PortfolioViewModel2(
 
                 val scaledList = assetSummaries.map { (assetSummary, data) ->
                     assetSummary to data.content.map {
-                        it.copy(close = it.close * assetSummary.shares)
+                        it.copy(close = ((it.close * assetSummary.shares).toBigDecimal() - assetSummary.totalExpenses).toDouble())
                     }
                 }
                 val assets = scaledList.map { it.first }
