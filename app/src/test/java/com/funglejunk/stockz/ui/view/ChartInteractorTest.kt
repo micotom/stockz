@@ -36,7 +36,7 @@ class ChartInteractorTest {
     fun `y points on empty data`() {
         val interactor = ChartInteractor()
         val data = createData(emptyList())
-        val yPoints = interactor.calculateChartPoints(data.content, 100f)
+        val yPoints = interactor.calculateChartPoints(data.content, 100f, 0f)
         assertTrue(yPoints.isEmpty())
     }
 
@@ -47,7 +47,7 @@ class ChartInteractorTest {
         val interactor = ChartInteractor()
         val dataPoint = createDataPoint(LocalDate.of(2020, 1, 1), close)
         val data = createData(listOf(dataPoint))
-        val yPoints = interactor.calculateChartPoints(data.content, viewHeight)
+        val yPoints = interactor.calculateChartPoints(data.content, viewHeight, 0f)
         assertTrue(yPoints.size == 1)
         assertEquals(0f, yPoints[0])
     }
@@ -63,7 +63,7 @@ class ChartInteractorTest {
         val dataPointA = createDataPoint(LocalDate.of(2020, 1, 1), closeA)
         val dataPointB = createDataPoint(LocalDate.of(2020, 1, 2), closeB)
         val data = createData(listOf(dataPointA, dataPointB))
-        val yPoints = interactor.calculateChartPoints(data.content, viewHeight)
+        val yPoints = interactor.calculateChartPoints(data.content, viewHeight, 0f)
         assertTrue(yPoints.size == 2)
         assertEquals(((closeA - min) * (viewHeight / (max - min))).toFloat(), yPoints[0])
         assertEquals(((closeB - min) * (viewHeight / (max - min))).toFloat(), yPoints[1])
@@ -73,7 +73,7 @@ class ChartInteractorTest {
     fun `horizontal lines on empty data`() {
         val interactor = ChartInteractor()
         val data = createData(emptyList())
-        val lines = interactor.calculateHorizontalValueLines(data.content, 100f, 100f, true)
+        val lines = interactor.calculateHorizontalValueLines(data.content, 100f, 100f, 0f, true)
         assertTrue(lines.isEmpty())
     }
 
@@ -86,16 +86,16 @@ class ChartInteractorTest {
         val dataPoint = createDataPoint(LocalDate.of(2020, 1, 1), close)
         val data = createData(listOf(dataPoint))
         val lines =
-            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, true)
-        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_PORTRAIT)
-        val yStep = viewHeight / lines.size
+            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, 0f, true)
+        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_PORTRAIT + 1)
+        val yStep = viewHeight / (lines.size - 1)
         val valueStep = 0f
         lines.forEachIndexed { index, (label, points) ->
             assertEquals(points.first.first, 0f)
             assertEquals(points.second.first, viewWidth)
             assertEquals(points.first.second, points.second.second)
-            val y = viewHeight - (index + 1) * yStep
-            val expectedLabel = ((index + 1) * valueStep + close).round().toString()
+            val y = viewHeight - index * yStep
+            val expectedLabel = (index * valueStep + close).round().toString()
             assertEquals(y, points.first.second, 0.001f)
             assertEquals(expectedLabel, label)
         }
@@ -113,16 +113,16 @@ class ChartInteractorTest {
         val dataPoints = listOf(dataPointA, dataPointB)
         val data = createData(dataPoints)
         val lines =
-            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, true)
-        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_PORTRAIT)
-        val yStep = viewHeight / lines.size
-        val valueStep = (max(closeA, closeB) - min(closeA, closeB)) / lines.size
+            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, 0f, true)
+        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_PORTRAIT + 1)
+        val yStep = viewHeight / (lines.size - 1)
+        val valueStep = (max(closeA, closeB) - min(closeA, closeB)) / (lines.size - 1)
         lines.forEachIndexed { index, (label, points) ->
             assertEquals(points.first.first, 0f)
             assertEquals(points.second.first, viewWidth)
             assertEquals(points.first.second, points.second.second)
-            val y = viewHeight - (index + 1) * yStep
-            val expectedLabel = ((index + 1) * valueStep + min(closeA, closeB)).round().toString()
+            val y = viewHeight - index * yStep
+            val expectedLabel = (index * valueStep + min(closeA, closeB)).round().toString()
             assertEquals(y, points.first.second, 0.001f)
             assertEquals(expectedLabel, label)
         }
@@ -137,16 +137,16 @@ class ChartInteractorTest {
         val dataPoint = createDataPoint(LocalDate.of(2020, 1, 1), close)
         val data = createData(listOf(dataPoint))
         val lines =
-            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, false)
-        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_LANDSCAPE)
-        val yStep = viewHeight / lines.size
+            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, 0f, false)
+        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_LANDSCAPE + 1)
+        val yStep = viewHeight / (lines.size - 1)
         val valueStep = 0.0
         lines.forEachIndexed { index, (label, points) ->
             assertEquals(points.first.first, 0f)
             assertEquals(points.second.first, viewWidth)
             assertEquals(points.first.second, points.second.second)
-            val y = viewHeight - (index + 1) * yStep
-            val expectedLabel = ((index + 1) * valueStep + close).round().toString()
+            val y = viewHeight - index * yStep
+            val expectedLabel = (index * valueStep + close).round().toString()
             assertEquals(y, points.first.second, 0.001f)
             assertEquals(expectedLabel, label)
         }
@@ -164,16 +164,16 @@ class ChartInteractorTest {
         val dataPoints = listOf(dataPointA, dataPointB)
         val data = createData(dataPoints)
         val lines =
-            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, false)
-        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_LANDSCAPE)
-        val yStep = viewHeight / lines.size
-        val valueStep = (max(closeA, closeB) - min(closeA, closeB)) / lines.size
+            interactor.calculateHorizontalValueLines(data.content, viewWidth, viewHeight, 0f, false)
+        assertTrue(lines.size == ChartView.HORIZONTAL_LINE_COUNT_LANDSCAPE + 1)
+        val yStep = viewHeight / (lines.size - 1)
+        val valueStep = (max(closeA, closeB) - min(closeA, closeB)) / (lines.size - 1)
         lines.forEachIndexed { index, (label, points) ->
             assertEquals(points.first.first, 0f)
             assertEquals(points.second.first, viewWidth)
             assertEquals(points.first.second, points.second.second)
-            val y = viewHeight - (index + 1) * yStep
-            val expectedLabel = (index + 1) * valueStep + min(closeA, closeB)
+            val y = viewHeight - index * yStep
+            val expectedLabel = index * valueStep + min(closeA, closeB)
             assertEquals(y, points.first.second, 0.001f)
             assertEquals((expectedLabel).toString(), label)
         }
