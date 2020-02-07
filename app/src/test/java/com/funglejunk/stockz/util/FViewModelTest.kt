@@ -61,6 +61,7 @@ class FViewModelTest {
         }
         vm.runIO(
             io = longRunningOp,
+            successDispatcher = Dispatchers.Default,
             onFailure = IO.just { _ ->
                 failureCalled = true
             },
