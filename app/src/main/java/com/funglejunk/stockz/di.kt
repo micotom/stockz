@@ -4,7 +4,6 @@ import com.funglejunk.stockz.model.*
 import com.funglejunk.stockz.repo.db.StockDataCache
 import com.funglejunk.stockz.repo.db.StockDataCacheInterface
 import com.funglejunk.stockz.repo.db.XetraDb
-import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepoImpl
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -25,5 +24,5 @@ val vmModule = module {
     viewModel { EtfListViewModel(XetraMasterDataInflater(get(), get()), get()) }
     viewModel { FilterDialogViewModel(get()) }
     viewModel { FavouritesViewModel(get()) }
-    viewModel { PortfolioViewModel2(get(), get(), get()) }
+    viewModel { PortfolioViewModel(get(), get(), get()) }
 }

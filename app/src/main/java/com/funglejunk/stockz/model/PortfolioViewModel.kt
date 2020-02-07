@@ -19,7 +19,7 @@ import com.funglejunk.stockz.util.TimeSpanFilter
 import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
 
-class PortfolioViewModel2(
+class PortfolioViewModel(
     private val db: XetraDbInterface,
     private val dbInflater: XetraMasterDataInflater,
     private val fBoerseRepo: FBoerseRepo

@@ -62,7 +62,7 @@
 
     <fragment
             android:id="@+id/portfolio2_fragment"
-            android:name="com.funglejunk.stockz.ui.PortfolioFragment2"
+            android:name="com.funglejunk.stockz.ui.PortfolioFragment"
             android:label="portfolio_fragment2">
     </fragment>
 

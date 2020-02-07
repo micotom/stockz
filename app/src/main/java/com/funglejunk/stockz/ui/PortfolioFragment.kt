@@ -10,20 +10,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.model.PortfolioViewModel2
+import com.funglejunk.stockz.model.PortfolioViewModel
 import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
 import com.funglejunk.stockz.ui.adapter.PortfolioEntryShortAdapter
 import com.funglejunk.stockz.util.TimeSpanFilter
 import com.funglejunk.stockz.withSafeContext
-import kotlinx.android.synthetic.main.labelled_alg_box.*
 import kotlinx.android.synthetic.main.portfolio_fragment2.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class PortfolioFragment2 : Fragment() {
+class PortfolioFragment : Fragment() {
 
-    private val viewModel: PortfolioViewModel2 by viewModel()
+    private val viewModel: PortfolioViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -93,12 +92,12 @@ class PortfolioFragment2 : Fragment() {
         }
     }
 
-    private fun handleNewViewState(viewState: PortfolioViewModel2.ViewState) {
+    private fun handleNewViewState(viewState: PortfolioViewModel.ViewState) {
         when (viewState) {
-            PortfolioViewModel2.ViewState.Loading -> {
+            PortfolioViewModel.ViewState.Loading -> {
                 // chart_time_dropdown.isEnabled = false
             }
-            is PortfolioViewModel2.ViewState.NewPortfolioData -> {
+            is PortfolioViewModel.ViewState.NewPortfolioData -> {
                 // chart_time_dropdown.isEnabled = true
 
                 val (summary, etfList, history) = viewState.summary
