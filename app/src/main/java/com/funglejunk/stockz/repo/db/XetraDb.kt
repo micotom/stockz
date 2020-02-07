@@ -7,7 +7,6 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.toYearMonthDayString
-import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.concurrent.locks.ReentrantLock

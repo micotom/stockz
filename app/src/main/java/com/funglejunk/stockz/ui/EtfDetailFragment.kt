@@ -20,10 +20,6 @@ import com.funglejunk.stockz.ui.adapter.BasicDetailInfoAdapter
 import com.funglejunk.stockz.util.TimeSpanFilter
 import com.funglejunk.stockz.withSafeContext
 import kotlinx.android.synthetic.main.etf_detail_fragment.*
-import kotlinx.android.synthetic.main.etf_detail_fragment.atr_checkbox
-import kotlinx.android.synthetic.main.etf_detail_fragment.bollinger_checkbox
-import kotlinx.android.synthetic.main.etf_detail_fragment.sma_checkbox
-import kotlinx.android.synthetic.main.etf_detail_fragment.spinner
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 

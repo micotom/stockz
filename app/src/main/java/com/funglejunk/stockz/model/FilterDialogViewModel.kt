@@ -3,7 +3,6 @@ package com.funglejunk.stockz.model
 import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import arrow.core.Either
 import arrow.fx.IO
 import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.UiEtfQuery

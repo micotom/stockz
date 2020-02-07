@@ -1,6 +1,6 @@
 package com.funglejunk.stockz.model.portfolio
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.math.BigDecimal
 import java.time.LocalDate

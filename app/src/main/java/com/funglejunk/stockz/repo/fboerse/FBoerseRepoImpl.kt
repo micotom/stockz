@@ -3,13 +3,9 @@ package com.funglejunk.stockz.repo.fboerse
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
 import com.github.kittinunf.fuel.coroutines.awaitObject
-import com.github.kittinunf.fuel.coroutines.awaitObjectResult
-import com.github.kittinunf.fuel.coroutines.awaitStringResponseResult
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
 import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.json.Json
-import timber.log.Timber
 import java.time.LocalDate
 
 @UnstableDefault

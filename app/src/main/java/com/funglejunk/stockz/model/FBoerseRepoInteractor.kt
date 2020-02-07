@@ -5,15 +5,11 @@ import arrow.fx.ForIO
 import arrow.fx.IO
 import arrow.fx.extensions.fx
 import arrow.fx.typeclasses.ConcurrentSyntax
-import com.funglejunk.stockz.data.ChartValue
-import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
-import com.funglejunk.stockz.mapToDrawableData
 import com.funglejunk.stockz.repo.db.CacheableData
 import com.funglejunk.stockz.repo.db.StockDataCacheInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
-import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.StockData
 import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
