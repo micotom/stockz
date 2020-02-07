@@ -47,18 +47,6 @@ class PortfolioFragment2 : Fragment() {
         }
 
         val chartTimes = listOf("MAX", "1 YEAR", "3 MONTHS", "MONTH", "WEEK")
-        /*
-        chart_time_dropdown.setItems(chartTimes)
-        chart_time_dropdown.setOnItemClickListener { _, _, position, _ ->
-            when (position) {
-                0 -> drawTimeSpan(TimeSpanFilter.Max)
-                1 -> drawTimeSpan(TimeSpanFilter.Year)
-                2 -> drawTimeSpan(TimeSpanFilter.Months3)
-                3 -> drawTimeSpan(TimeSpanFilter.Month)
-                4 -> drawTimeSpan(TimeSpanFilter.Week)
-            }
-        }
-         */
 
         bollinger_checkbox.setOnCheckedChangeListener { _, isChecked ->
             when (isChecked) {

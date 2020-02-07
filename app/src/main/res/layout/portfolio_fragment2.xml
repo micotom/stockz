@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:textAllCaps="true"
-                android:textColor="@color/secondaryTextColor"
+                android:textColor="@color/secondaryDarkColor"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@id/left_guideline"

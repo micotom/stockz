@@ -101,6 +101,74 @@
             app:layout_constraintStart_toEndOf="@id/left_guideline"
             app:layout_constraintTop_toBottomOf="@id/headline_divider" />
 
+    <TextView
+            android:id="@+id/timeframe_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="12sp"
+            android:text="Timeframe"
+            app:layout_constraintEnd_toStartOf="@id/checkbox_layout"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintTop_toBottomOf="@id/mychart" />
+
+    <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textSize="12sp"
+            android:text="Algorithm"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintStart_toStartOf="@id/checkbox_layout"
+            app:layout_constraintTop_toBottomOf="@id/mychart" />
+
+    <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintTop_toBottomOf="@id/timeframe_text" />
+
+    <LinearLayout
+            android:id="@+id/checkbox_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@id/spinner"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintStart_toEndOf="@id/spinner"
+            app:layout_constraintTop_toTopOf="@id/spinner">
+
+        <CheckBox
+                android:id="@+id/sma_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:checked="false"
+                android:text="SMA"
+                android:textColor="@color/primaryColor"
+                android:textSize="12sp" />
+
+        <CheckBox
+                android:id="@+id/atr_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="ATR"
+                android:textColor="@color/primaryColor"
+                android:textSize="12sp" />
+
+        <CheckBox
+                android:id="@+id/bollinger_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="Bollinger"
+                android:textColor="@color/primaryColor"
+                android:textSize="12sp" />
+    </LinearLayout>
+
+    <!--
     <LinearLayout
             android:id="@+id/checkbox_layout"
             android:layout_width="match_parent"
@@ -138,6 +206,8 @@
                 android:textColor="@color/primaryColor"
                 android:textSize="12sp" />
     </LinearLayout>
+
+    -->
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/left_column"

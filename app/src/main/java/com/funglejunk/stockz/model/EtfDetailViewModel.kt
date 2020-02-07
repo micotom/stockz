@@ -16,6 +16,7 @@ import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.util.FViewModel
 import com.funglejunk.stockz.util.StockData
+import com.funglejunk.stockz.util.TimeSpanFilter
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import java.time.LocalDate
@@ -74,6 +75,25 @@ class EtfDetailViewModel(
             onFailure = onHistoryFetchError
         )
     }
+
+    fun getHistory(timespan: TimeSpanFilter): FBoerseHistoryData? =
+        etfArg?.let {
+            IO.fx {
+                val history = historyCache.get(it.isin).bind()
+                history.fold(
+                    { null },
+                    {
+                        it.copy(
+                            content = it.content.filter {
+                                timespan(it)
+                            }
+                        )
+                    }
+                )
+            }.unsafeRunSync()
+        } ?: {
+            null
+        }()
 
     fun setEtfArgs(etf: Etf) {
         val receivedNewEtfArg = null == etfArg || etfArg != etf

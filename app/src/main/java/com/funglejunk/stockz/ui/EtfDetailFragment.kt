@@ -4,19 +4,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.data.DrawableHistoricData
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.data.fboerse.FBoersePerfData
 import com.funglejunk.stockz.model.EtfDetailViewModel
 import com.funglejunk.stockz.round
 import com.funglejunk.stockz.ui.adapter.BasicDetailInfoAdapter
+import com.funglejunk.stockz.util.TimeSpanFilter
+import com.funglejunk.stockz.withSafeContext
 import kotlinx.android.synthetic.main.etf_detail_fragment.*
+import kotlinx.android.synthetic.main.etf_detail_fragment.atr_checkbox
+import kotlinx.android.synthetic.main.etf_detail_fragment.bollinger_checkbox
+import kotlinx.android.synthetic.main.etf_detail_fragment.sma_checkbox
+import kotlinx.android.synthetic.main.etf_detail_fragment.spinner
+import kotlinx.android.synthetic.main.portfolio_fragment2.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
@@ -51,6 +59,12 @@ class EtfDetailFragment : Fragment() {
             }
         }
 
+        fun drawTimeSpan(timeSpanFilter: TimeSpanFilter) = viewModel.getHistory(timeSpanFilter)?.let {
+            mychart.draw(it)
+        }
+
+        val chartTimes = listOf("MAX", "1 YEAR", "3 MONTHS", "MONTH", "WEEK")
+
         bollinger_checkbox.setOnCheckedChangeListener { _, isChecked ->
             when (isChecked) {
                 true -> mychart.showBollinger()
@@ -70,6 +84,26 @@ class EtfDetailFragment : Fragment() {
                 true -> mychart.showAtr()
                 false -> mychart.hideAtr()
             }
+        }
+
+        spinner.setItems(chartTimes)
+        spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                when (position) {
+                    0 -> drawTimeSpan(TimeSpanFilter.Max)
+                    1 -> drawTimeSpan(TimeSpanFilter.Year)
+                    2 -> drawTimeSpan(TimeSpanFilter.Months3)
+                    3 -> drawTimeSpan(TimeSpanFilter.Month)
+                    4 -> drawTimeSpan(TimeSpanFilter.Week)
+                }
+            }
+
         }
 
     }
@@ -138,4 +172,12 @@ class EtfDetailFragment : Fragment() {
         left_column.adapter = BasicDetailInfoAdapter(leftData.toMutableList())
         right_column.adapter = BasicDetailInfoAdapter(rightData.toMutableList())
     }
+
+    private fun Spinner.setItems(items: List<String>) {
+        withSafeContext { context ->
+            adapter = ArrayAdapter<String>(context, R.layout.small_dropdown_item, items.toTypedArray())
+            setSelection(0)
+        }
+    }
+
 }
