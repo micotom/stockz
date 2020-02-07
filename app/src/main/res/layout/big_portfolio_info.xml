@@ -4,7 +4,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/secondaryDarkColor"
+        android:background="@color/cardBorderColorLight"
         android:padding="6dp">
 
     <TextView
@@ -13,7 +13,7 @@
             android:layout_height="wrap_content"
             android:textAllCaps="true"
             android:textStyle="bold"
-            android:textColor="@color/primaryDarkColor"
+            android:textColor="@color/primaryColor"
             tools:text="CURRENT VALUE" />
 
     <TextView
@@ -23,5 +23,6 @@
             android:textColor="@color/primaryColor"
             android:textSize="14sp"
             tools:text="10.000 €" />
+
 
 </LinearLayout>
