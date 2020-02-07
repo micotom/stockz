@@ -16,7 +16,7 @@ import com.funglejunk.stockz.textStringPercent
 import com.funglejunk.stockz.ui.adapter.PortfolioEntryShortAdapter
 import com.funglejunk.stockz.util.TimeSpanFilter
 import com.funglejunk.stockz.withSafeContext
-import kotlinx.android.synthetic.main.portfolio_fragment2.*
+import kotlinx.android.synthetic.main.portfolio_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -28,7 +28,7 @@ class PortfolioFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.portfolio_fragment2, container, false)
+    ): View = inflater.inflate(R.layout.portfolio_fragment, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)

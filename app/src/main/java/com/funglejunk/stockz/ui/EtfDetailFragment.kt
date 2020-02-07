@@ -24,7 +24,6 @@ import kotlinx.android.synthetic.main.etf_detail_fragment.atr_checkbox
 import kotlinx.android.synthetic.main.etf_detail_fragment.bollinger_checkbox
 import kotlinx.android.synthetic.main.etf_detail_fragment.sma_checkbox
 import kotlinx.android.synthetic.main.etf_detail_fragment.spinner
-import kotlinx.android.synthetic.main.portfolio_fragment2.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
