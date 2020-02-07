@@ -3,20 +3,24 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/secondaryDarkColor"
+        android:padding="6dp">
 
     <TextView
             android:id="@+id/header_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAllCaps="true"
+            android:textStyle="bold"
+            android:textColor="@color/primaryDarkColor"
             tools:text="CURRENT VALUE" />
 
     <TextView
             android:id="@+id/value_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/secondaryColor"
+            android:textColor="@color/primaryColor"
             android:textSize="14sp"
             tools:text="10.000 €" />
 

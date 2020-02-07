@@ -46,6 +46,17 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="PORTFOLIO NAME COMES HERE" />
 
+    <TextView
+            android:id="@+id/isin_short_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintTop_toBottomOf="@id/etf_name_short_info"
+            tools:text="Isin" />
+
     <include
             android:id="@+id/current_value_short_info"
             layout="@layout/small_portfolio_info"
@@ -53,7 +64,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
             app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/etf_name_short_info" />
+            app:layout_constraintTop_toBottomOf="@id/isin_short_info" />
 
     <include
             android:id="@+id/profit_euro_value_short_info"
@@ -62,7 +73,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
             app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
-            app:layout_constraintTop_toBottomOf="@id/etf_name_short_info" />
+            app:layout_constraintTop_toBottomOf="@id/isin_short_info" />
 
     <include
             android:id="@+id/profit_perc_value_short_info"
@@ -71,6 +82,6 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toStartOf="@id/right_guideline"
             app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
-            app:layout_constraintTop_toBottomOf="@id/etf_name_short_info" />
+            app:layout_constraintTop_toBottomOf="@id/isin_short_info" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

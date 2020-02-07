@@ -38,12 +38,7 @@ class ChartView : View, ChartViewInterface {
         attrs: AttributeSet?,
         defStyleAttr: Int,
         defStyleRes: Int
-    ) : super(
-        context,
-        attrs,
-        defStyleAttr,
-        defStyleRes
-    )
+    ) : super(context, attrs, defStyleAttr, defStyleRes)
 
     private val chartPaint = Paint().apply {
         color = ContextCompat.getColor(context, R.color.primaryColor)
@@ -133,14 +128,29 @@ class ChartView : View, ChartViewInterface {
                 object : Runnable {
                     var ticks = 0
                     private val delay = 1L
+                    private val paintData = when (chartPoints.size > 365) {
+                        true -> {
+                            chartPoints.foldIndexed(mutableListOf()) { index, acc, new ->
+                                if (index % 2 == 0) {
+                                    acc.add(new)
+                                }
+                                acc
+                            }
+                        }
+                        false -> chartPoints
+                    }
+                    private val paintXSpread = when (chartPoints.size != paintData.size) {
+                        true -> xValueSpreadBetweenPoints * 2
+                        false -> xValueSpreadBetweenPoints
+                    }
                     override fun run() {
                         path.lineTo(
-                            xValueSpreadBetweenPoints * ticks + X_PADDING_START,
-                            height - chartPoints[ticks]
+                            paintXSpread * ticks + X_PADDING_START,
+                            height - paintData[ticks]
                         )
                         ++ticks
                         invalidateAndDrawLabels()
-                        if (ticks != chartPoints.size) {
+                        if (ticks != paintData.size) {
                             chartAnimHandler.postDelayed(this, delay)
                         }
                     }
@@ -230,7 +240,7 @@ class ChartView : View, ChartViewInterface {
                     textLabelPaint.getTextBounds(label, 0, label.length, textBound)
                     canvas.drawText(
                         label,
-                        startPoint.first - (textBound.width() / 2f),
+                        startPoint.first + (textBound.width() / 2f),
                         endPoint.second,
                         textLabelPaint
                     )

@@ -16,6 +16,7 @@ class PortfolioEntryShortAdapter(private val summary: PortfolioSummary, val etfs
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
         val etfName: TextView = view.findViewById(R.id.etf_name_short_info)
+        val isin: TextView = view.findViewById(R.id.isin_short_info)
         val currentValueLayout: ViewGroup = view.findViewById(R.id.current_value_short_info)
         val profitEuroLayout: ViewGroup = view.findViewById(R.id.profit_euro_value_short_info)
         val profitPercLayout: ViewGroup = view.findViewById(R.id.profit_perc_value_short_info)
@@ -37,6 +38,7 @@ class PortfolioEntryShortAdapter(private val summary: PortfolioSummary, val etfs
         summary.assets.find { it.isin == etf.isin }?.let { asset ->
             holder.apply {
                 etfName.text = etf.name
+                isin.text = etf.isin
                 currentValueLayout.setText("Value", asset.currentTotalValueNE.textStringCurrency())
                 profitEuroLayout.setText("Profit (€)", asset.profitEuroWE.textStringCurrency())
                 profitPercLayout.setText("Profit (%)", asset.profitPercentWE.textStringPercent())

@@ -100,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
-                app:layout_constraintStart_toEndOf="@id/left_guideline_plus"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
                 app:layout_constraintTop_toBottomOf="@id/portfolio_name" />
 
         <include
@@ -119,9 +119,20 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                app:layout_constraintEnd_toStartOf="@id/right_guideline_minus"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
                 app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
                 app:layout_constraintTop_toBottomOf="@id/portfolio_name" />
+
+        <View
+                android:id="@+id/chart_divider_1"
+                android:layout_width="0dp"
+                android:layout_height="1sp"
+                android:background="@color/secondaryColorDimmed"
+                android:layout_marginTop="12dp"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintTop_toBottomOf="@id/current_value_info"
+                />
 
         <com.funglejunk.stockz.ui.view.ChartView
                 android:id="@+id/chart"
@@ -130,55 +141,107 @@
                 android:layout_marginTop="12dp"
                 app:layout_constraintEnd_toStartOf="@id/right_guideline"
                 app:layout_constraintStart_toEndOf="@id/left_guideline"
-                app:layout_constraintTop_toBottomOf="@id/current_value_info" />
+                app:layout_constraintTop_toBottomOf="@id/chart_divider_1" />
 
-        <RadioGroup
-                android:id="@+id/chart_time_selector_group"
+        <TextView
+                android:id="@+id/timeframe_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textSize="12sp"
+                android:text="Timeframe"
+                app:layout_constraintEnd_toStartOf="@id/checkbox_layout"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/chart" />
+
+        <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textSize="12sp"
+                android:text="Algorithm"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toStartOf="@id/checkbox_layout"
+                app:layout_constraintTop_toBottomOf="@id/chart" />
+
+        <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/timeframe_text" />
+
+        <LinearLayout
+                android:id="@+id/checkbox_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checkedButton="@+id/chart_max"
                 android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="@id/spinner"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/spinner"
+                app:layout_constraintTop_toTopOf="@id/spinner">
+
+            <CheckBox
+                    android:id="@+id/sma_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:checked="false"
+                    android:text="SMA"
+                    android:textColor="@color/primaryColor"
+                    android:textSize="12sp" />
+
+            <CheckBox
+                    android:id="@+id/atr_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="ATR"
+                    android:textColor="@color/primaryColor"
+                    android:textSize="12sp" />
+
+            <CheckBox
+                    android:id="@+id/bollinger_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:text="Bollinger"
+                    android:textColor="@color/primaryColor"
+                    android:textSize="12sp" />
+        </LinearLayout>
+
+        <View
+                android:id="@+id/chart_divider_2"
+                android:layout_width="0dp"
+                android:layout_height="1sp"
+                android:layout_marginTop="12dp"
+                android:background="@color/secondaryColorDimmed"
                 app:layout_constraintStart_toEndOf="@id/left_guideline"
-                app:layout_constraintTop_toBottomOf="@id/chart" >
-            <RadioButton
-                    android:id="@+id/chart_max"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Max"/>
-            <RadioButton
-                    android:id="@+id/chart_1_year"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1 Year"/>
-            <RadioButton
-                    android:id="@+id/chart_3_months"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="3 Months"/>
-            <RadioButton
-                    android:id="@+id/chart_month"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Month"/>
-            <RadioButton
-                    android:id="@+id/chart_1_week"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1 Week"/>
-        </RadioGroup>
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintTop_toBottomOf="@id/checkbox_layout"
+                />
 
         <TextView
                 android:id="@+id/assets_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="12dp"
                 android:maxLines="1"
                 android:textAllCaps="true"
                 android:textColor="@color/secondaryTextColor"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@id/left_guideline"
-                app:layout_constraintTop_toBottomOf="@id/chart_time_selector_group" />
+                app:layout_constraintTop_toBottomOf="@id/chart_divider_2" />
+
+        <com.funglejunk.stockz.ui.view.AssetAllocationView
+                android:id="@+id/asset_allocation_view"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/assets_header" />
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/assets_list"
@@ -188,7 +251,7 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toStartOf="@id/right_guideline"
                 app:layout_constraintStart_toEndOf="@id/left_guideline"
-                app:layout_constraintTop_toBottomOf="@id/assets_header"/>
+                app:layout_constraintTop_toBottomOf="@id/asset_allocation_view" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

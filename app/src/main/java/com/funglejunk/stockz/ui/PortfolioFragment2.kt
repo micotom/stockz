@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
@@ -15,8 +15,11 @@ import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
 import com.funglejunk.stockz.ui.adapter.PortfolioEntryShortAdapter
 import com.funglejunk.stockz.util.TimeSpanFilter
+import com.funglejunk.stockz.withSafeContext
+import kotlinx.android.synthetic.main.labelled_alg_box.*
 import kotlinx.android.synthetic.main.portfolio_fragment2.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+
 
 class PortfolioFragment2 : Fragment() {
 
@@ -43,35 +46,72 @@ class PortfolioFragment2 : Fragment() {
             chart.draw(it)
         }
 
-        chart_max.setOnClickListener {
-            drawTimeSpan(TimeSpanFilter.Max)
+        val chartTimes = listOf("MAX", "1 YEAR", "3 MONTHS", "MONTH", "WEEK")
+        /*
+        chart_time_dropdown.setItems(chartTimes)
+        chart_time_dropdown.setOnItemClickListener { _, _, position, _ ->
+            when (position) {
+                0 -> drawTimeSpan(TimeSpanFilter.Max)
+                1 -> drawTimeSpan(TimeSpanFilter.Year)
+                2 -> drawTimeSpan(TimeSpanFilter.Months3)
+                3 -> drawTimeSpan(TimeSpanFilter.Month)
+                4 -> drawTimeSpan(TimeSpanFilter.Week)
+            }
+        }
+         */
+
+        bollinger_checkbox.setOnCheckedChangeListener { _, isChecked ->
+            when (isChecked) {
+                true -> chart.showBollinger()
+                false -> chart.hideBollinger()
+            }
         }
 
-        chart_1_year.setOnClickListener {
-            drawTimeSpan(TimeSpanFilter.Year)
+        sma_checkbox.setOnCheckedChangeListener { _, isChecked ->
+            when (isChecked) {
+                true -> chart.showSma()
+                false -> chart.hideSma()
+            }
         }
 
-        chart_3_months.setOnClickListener {
-            drawTimeSpan(TimeSpanFilter.Months3)
+        atr_checkbox.setOnCheckedChangeListener { _, isChecked ->
+            when (isChecked) {
+                true -> chart.showAtr()
+                false -> chart.hideAtr()
+            }
         }
 
-        chart_month.setOnClickListener {
-            drawTimeSpan(TimeSpanFilter.Month)
-        }
+        spinner.setItems(chartTimes)
+        spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
 
-        chart_1_week.setOnClickListener {
-            drawTimeSpan(TimeSpanFilter.Week)
-        }
+            }
 
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                when (position) {
+                    0 -> drawTimeSpan(TimeSpanFilter.Max)
+                    1 -> drawTimeSpan(TimeSpanFilter.Year)
+                    2 -> drawTimeSpan(TimeSpanFilter.Months3)
+                    3 -> drawTimeSpan(TimeSpanFilter.Month)
+                    4 -> drawTimeSpan(TimeSpanFilter.Week)
+                }
+            }
+
+        }
     }
 
     private fun handleNewViewState(viewState: PortfolioViewModel2.ViewState) {
         when (viewState) {
             PortfolioViewModel2.ViewState.Loading -> {
-                chart_time_selector_group.isEnabled = false
+                // chart_time_dropdown.isEnabled = false
             }
             is PortfolioViewModel2.ViewState.NewPortfolioData -> {
-                chart_time_selector_group.isEnabled = true
+                // chart_time_dropdown.isEnabled = true
 
                 val (summary, etfList, history) = viewState.summary
 
@@ -106,7 +146,24 @@ class PortfolioFragment2 : Fragment() {
                 chart.draw(history)
 
                 assets_header.text = "Assets"
+
+                asset_allocation_view.applyData(summary)
             }
+        }
+    }
+
+    private fun AutoCompleteTextView.setItems(items: List<String>) {
+        withSafeContext { context ->
+            setAdapter(
+                ArrayAdapter<String>(context, R.layout.small_dropdown_item, items.toTypedArray())
+            )
+        }
+    }
+
+    private fun Spinner.setItems(items: List<String>) {
+        withSafeContext { context ->
+            adapter = ArrayAdapter<String>(context, R.layout.small_dropdown_item, items.toTypedArray())
+            setSelection(0)
         }
     }
 

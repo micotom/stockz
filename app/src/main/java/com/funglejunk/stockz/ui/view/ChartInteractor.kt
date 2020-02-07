@@ -71,11 +71,12 @@ class ChartInteractor {
             ChartValue(it.date.toLocalDate(), it.close.toFloat())
         }
 
-        val smaPoints = calculateAlgorithmPoints(
+        val smaPoints = calculateAlgPoints(
             simpleMovingAverage(dataAsChartValues, Period.DAYS_30, 2),
             data.content,
             xSpreadFactor,
-            viewHeight
+            viewHeight,
+            yPadding
         )
         val atrPoints = calculateChartUnboundAlgorithmPoints(
             averageTrueRange(data.content), data.content, xSpreadFactor, viewHeight, 2f
@@ -85,16 +86,18 @@ class ChartInteractor {
             Period.DAYS_7, 2
         )
         val bollingerPoints =
-            calculateAlgorithmPoints(
+            calculateAlgPoints(
                 bollingerPointsRaw.first,
                 data.content,
                 xSpreadFactor,
-                viewHeight
-            ) to calculateAlgorithmPoints(
+                viewHeight,
+                yPadding
+            ) to calculateAlgPoints(
                 bollingerPointsRaw.second,
                 data.content,
                 xSpreadFactor,
-                viewHeight
+                viewHeight,
+                yPadding
             )
 
         return DrawFuncRegister(
@@ -135,24 +138,28 @@ class ChartInteractor {
         false -> emptyList()
     }
 
-    private fun calculateAlgorithmPoints(
+    private fun calculateAlgPoints(
         data: List<ChartValue>,
         originalData: List<FBoerseHistoryData.Data>, // TODO move vertical span to precalculation
         xSpreadFactor: Float,
-        viewHeight: Float
+        viewHeight: Float,
+        yPadding: Float
     ): List<XyValue> = when (data.isNotEmpty()) {
         true -> {
-            val maxValueY = originalData.maxBy { it.close }!!.close.toFloat()
-            val minValueY = originalData.minBy { it.close }!!.close.toFloat()
-            val verticalSpan = maxValueY - minValueY
-            val factorY = (viewHeight / verticalSpan)
+            val maxValueY = originalData.maxBy { it.close }!!.close
+            val minValueY = originalData.minBy { it.close }!!.close
+            val verticalSpan = when (val diff = maxValueY - minValueY) {
+                0.0 -> 1.0
+                else -> diff
+            }
+            val factorY = (viewHeight - 2 * yPadding) / verticalSpan
             val xValueRegister = originalData.mapIndexed { index, originalValue ->
                 val x = index * xSpreadFactor
                 originalValue.date to x
             }
             data.map { value ->
                 val x = xValueRegister.find { it.first.toLocalDate() == value.date }!!.second
-                val y = (value.value - minValueY) * factorY
+                val y = ((value.value - minValueY) * factorY + yPadding).toFloat()
                 x to y
             }
         }

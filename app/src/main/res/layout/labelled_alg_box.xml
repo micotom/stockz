@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        >
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/parent_top_eight_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".125" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/parent_start_eight_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".125" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/parent_start_sixteen_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".0625" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/parent_end_sixteen_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".9375" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/parent_top_sixteen_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".0625" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/parent_bottom_sixteen_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".9375" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/parent_bottom_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="1" />
+
+    <View
+            android:id="@+id/background"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/round_box"
+            app:layout_constraintTop_toBottomOf="@id/parent_top_sixteen_guideline"
+            app:layout_constraintBottom_toTopOf="@id/parent_bottom_guideline"
+            />
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@id/parent_top_sixteen_guideline"
+            app:layout_constraintBottom_toTopOf="@id/parent_top_sixteen_guideline"
+            app:layout_constraintStart_toEndOf="@id/parent_start_eight_guideline"
+            android:background="@android:color/white"
+            android:textColor="@color/primaryLightColor"
+            android:text="Text" />
+
+    <!--
+    <CheckBox
+            android:id="@+id/sma_checkbox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="SMA"
+            android:layout_gravity="start"
+            android:textColor="@color/primaryColor"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="parent"
+            />
+
+    <CheckBox
+            android:id="@+id/atr_checkbox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="ATR"
+            android:textColor="@color/primaryColor"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/sma_checkbox"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="parent"
+            />
+
+    <CheckBox
+            android:id="@+id/bollinger_checkbox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="Bollinger"
+            android:textColor="@color/primaryColor"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/atr_checkbox"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="parent"
+            />
+    -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
