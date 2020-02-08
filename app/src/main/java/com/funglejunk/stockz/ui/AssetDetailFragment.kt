@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.model.AssetDetailViewModel
+import com.funglejunk.stockz.textStringCurrency
+import com.funglejunk.stockz.textStringPercent
 import com.funglejunk.stockz.ui.adapter.AssetBuyAdapter
 import kotlinx.android.synthetic.main.asset_detail_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -38,6 +41,30 @@ class AssetDetailFragment : Fragment() {
                 MarginItemDecoration(18, assetSummary.buys.size - 1)
             )
             buys_list.adapter = AssetBuyAdapter(assetSummary.buys.toList())
+
+            with(current_value_info) {
+                findViewById<TextView>(R.id.header_text).text = "Value (€)"
+                findViewById<TextView>(R.id.value_text).text =
+                    assetSummary.currentTotalValueWE.textStringCurrency()
+            }
+
+            with(profit_euro_value_info) {
+                findViewById<TextView>(R.id.header_text).text = "Profit (€)"
+                findViewById<TextView>(R.id.value_text).text =
+                    assetSummary.profitEuroWE.textStringCurrency()
+            }
+
+            with(profit_perc_value_info) {
+                findViewById<TextView>(R.id.header_text).text = "Profit (%)"
+                findViewById<TextView>(R.id.value_text).text =
+                    assetSummary.profitPercentWE.textStringPercent()
+            }
+
+            bar_view.draw(
+                "Buy Price" to assetSummary.totalBuyPriceWE.toFloat(),
+                "Value WE" to assetSummary.currentTotalValueWE.toFloat(),
+                "Value NE" to assetSummary.currentTotalValueNE.toFloat()
+            )
 
             viewModel.requestDbInfo(assetSummary.isin)
 

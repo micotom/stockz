@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        xmlns:tools="http://schemas.android.com/tools"
         android:orientation="vertical">
 
     <androidx.constraintlayout.widget.Guideline
@@ -45,80 +45,88 @@
             android:id="@+id/date_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
+            android:text="Date"
             android:textAllCaps="true"
+            android:textSize="12sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/one_quarter_guideline"
             app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="Date"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
             android:id="@+id/date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@id/one_quarter_guideline"
             app:layout_constraintStart_toEndOf="@id/left_guideline"
             app:layout_constraintTop_toBottomOf="@id/date_header"
-            tools:text="2020-02-08"/>
+            tools:text="2020-02-08" />
 
     <TextView
             android:id="@+id/shares_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
+            android:text="Shares"
             android:textAllCaps="true"
+            android:textSize="12sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/two_quarter_guideline"
             app:layout_constraintStart_toEndOf="@id/one_quarter_guideline"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="Shares"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
             android:id="@+id/shares"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@id/two_quarter_guideline"
             app:layout_constraintStart_toEndOf="@id/one_quarter_guideline"
             app:layout_constraintTop_toBottomOf="@id/shares_header"
-            tools:text="98.653"/>
+            tools:text="98.653" />
 
     <TextView
             android:id="@+id/share_price_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
+            android:text="Price"
             android:textAllCaps="true"
+            android:textSize="12sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/three_quarter_guideline"
             app:layout_constraintStart_toEndOf="@id/two_quarter_guideline"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="Price"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
             android:id="@+id/price"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@id/three_quarter_guideline"
             app:layout_constraintStart_toEndOf="@id/two_quarter_guideline"
             app:layout_constraintTop_toBottomOf="@id/share_price_header"
-            tools:text="98.653 €"/>
+            tools:text="98.653 €" />
 
     <TextView
             android:id="@+id/expenses_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
+            android:text="Expenses"
             android:textAllCaps="true"
+            android:textSize="12sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/right_guideline"
             app:layout_constraintStart_toEndOf="@id/three_quarter_guideline"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="Expenses"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
             android:id="@+id/expenses"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:textSize="12sp"
             app:layout_constraintEnd_toStartOf="@id/right_guideline"
             app:layout_constraintStart_toEndOf="@id/three_quarter_guideline"
             app:layout_constraintTop_toBottomOf="@id/expenses_header"
-            tools:text="98.653 €"/>
+            tools:text="98.653 €" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
