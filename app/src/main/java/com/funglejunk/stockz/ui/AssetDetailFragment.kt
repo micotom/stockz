@@ -1,14 +1,15 @@
 package com.funglejunk.stockz.ui
 
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.ui.adapter.AssetBuyAdapter
 import kotlinx.android.synthetic.main.asset_detail_fragment.*
-import timber.log.Timber
 
 class AssetDetailFragment : Fragment() {
 
@@ -22,8 +23,25 @@ class AssetDetailFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         val assetSummaryArg = arguments?.let { AssetDetailFragmentArgs.fromBundle(it).assetSummary }
         assetSummaryArg?.let { assetSummary ->
-            val buysAdapter = AssetBuyAdapter(assetSummary.buys.toList())
-            buys_list.adapter = buysAdapter
+
+            buys_list.addItemDecoration(
+                MarginItemDecoration(18, assetSummary.buys.size - 1)
+            )
+            buys_list.adapter = AssetBuyAdapter(assetSummary.buys.toList())
+
+        }
+    }
+
+    private class MarginItemDecoration(private val spaceHeight: Int, private val lastIndex: Int) :
+        RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(
+            outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
+        ) {
+            with(outRect) {
+                if (parent.getChildAdapterPosition(view) != lastIndex) {
+                    bottom = spaceHeight
+                }
+            }
         }
     }
 
