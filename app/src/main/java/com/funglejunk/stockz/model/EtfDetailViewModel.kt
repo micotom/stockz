@@ -21,9 +21,9 @@ import timber.log.Timber
 import java.time.LocalDate
 
 class EtfDetailViewModel(
-    private val fBoerseRepo: FBoerseRepo,
+    fBoerseRepo: FBoerseRepo,
     private val db: XetraDbInterface,
-    private val historyCache: StockDataCacheInterface
+    historyCache: StockDataCacheInterface
 ) : FViewModel() {
 
     sealed class ViewState {
