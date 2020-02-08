@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.model.PortfolioViewModel
@@ -128,7 +129,9 @@ class PortfolioFragment : Fragment() {
                         etfList.size - 1
                     )
                 )
-                assets_list.adapter = PortfolioEntryShortAdapter(summary, etfList)
+                assets_list.adapter = PortfolioEntryShortAdapter(summary, etfList) {
+                    findNavController().navigate(PortfolioFragmentDirections.portfolioToAssetAction(it))
+                }
 
                 chart.draw(history)
 

@@ -7,11 +7,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.Etf
+import com.funglejunk.stockz.model.portfolio.AssetSummary
 import com.funglejunk.stockz.model.portfolio.PortfolioSummary
 import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
 
-class PortfolioEntryShortAdapter(private val summary: PortfolioSummary, val etfs: List<Etf>) :
+class PortfolioEntryShortAdapter(
+    private val summary: PortfolioSummary,
+    val etfs: List<Etf>,
+    val clickListener: (AssetSummary) -> Unit
+) :
     RecyclerView.Adapter<PortfolioEntryShortAdapter.Holder>() {
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
@@ -42,6 +47,9 @@ class PortfolioEntryShortAdapter(private val summary: PortfolioSummary, val etfs
                 currentValueLayout.setText("Value", asset.currentTotalValueNE.textStringCurrency())
                 profitEuroLayout.setText("Profit (€)", asset.profitEuroWE.textStringCurrency())
                 profitPercLayout.setText("Profit (%)", asset.profitPercentWE.textStringPercent())
+            }
+            holder.itemView.setOnClickListener {
+                clickListener(asset)
             }
         }
         Unit

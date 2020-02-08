@@ -64,6 +64,22 @@
             android:id="@+id/portfolio2_fragment"
             android:name="com.funglejunk.stockz.ui.PortfolioFragment"
             android:label="portfolio_fragment2">
+        <action
+                android:id="@+id/portfolio_to_asset_action"
+                app:destination="@id/asset_detail_fragment">
+            <argument
+                    android:name="assetSummary"
+                    app:argType="com.funglejunk.stockz.model.portfolio.AssetSummary" />
+        </action>
+    </fragment>
+
+    <fragment
+            android:id="@+id/asset_detail_fragment"
+            android:name="com.funglejunk.stockz.ui.AssetDetailFragment"
+            android:label="asset_detail_fragment">
+        <argument
+                android:name="assetSummary"
+                app:argType="com.funglejunk.stockz.model.portfolio.AssetSummary" />
     </fragment>
 
 </navigation>
