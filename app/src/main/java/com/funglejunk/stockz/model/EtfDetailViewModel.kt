@@ -36,6 +36,7 @@ class EtfDetailViewModel(
         ) : ViewState()
 
         data class NewEtfFavouriteState(val isFavourite: Boolean) : ViewState()
+        data class NewEtfHistoryTimeSpan(val historyData: FBoerseHistoryData) : ViewState()
     }
 
     val viewStateData: LiveData<ViewState> = MutableLiveData()
@@ -66,7 +67,7 @@ class EtfDetailViewModel(
         toDate: LocalDate = LocalDate.now()
     ) {
         val action = showLoadingIO.followedBy(
-            repoCacheInteractor.fetchHistoryAction.invoke(isin, fromDate, toDate)
+            repoCacheInteractor.fetchHistoryAndPerfAction.invoke(isin, fromDate, toDate)
         )
         runIO(
             io = action,
@@ -75,24 +76,25 @@ class EtfDetailViewModel(
         )
     }
 
-    fun getHistory(timespan: TimeSpanFilter): FBoerseHistoryData? =
-        etfArg?.let {
+    private val fetchHistoryTimeSpanIO: (Etf, TimeSpanFilter) -> IO<FBoerseHistoryData> =
+        { etf, timespan ->
             IO.fx {
-                val history = historyCache.get(it.isin).bind()
-                history.fold(
-                    { null },
-                    {
-                        it.copy(
-                            content = it.content.filter {
-                                timespan(it)
-                            }
-                        )
-                    }
-                )
-            }.unsafeRunSync()
-        } ?: {
-            null
-        }()
+                repoCacheInteractor.fetchHistoryAction.invoke(etf.isin, timespan).bind()
+            }
+        }
+
+    private val onHistoryTimespanFetched: IO<(FBoerseHistoryData) -> Unit> = IO.just {
+        history ->
+        viewStateData.mutable().value = ViewState.NewEtfHistoryTimeSpan(history)
+    }
+
+    fun getHistory(etf: Etf, timespan: TimeSpanFilter) {
+        runIO(
+            io = fetchHistoryTimeSpanIO(etf, timespan),
+            onFailure = onHistoryFetchError,
+            onSuccess = onHistoryTimespanFetched
+        )
+    }
 
     fun setEtfArgs(etf: Etf) {
         val receivedNewEtfArg = null == etfArg || etfArg != etf

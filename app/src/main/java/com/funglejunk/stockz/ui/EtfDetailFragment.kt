@@ -46,16 +46,32 @@ class EtfDetailFragment : Fragment() {
             val etf = EtfDetailFragmentArgs.fromBundle(it).etf
             viewModel.setEtfArgs(etf)
             showBasicData(etf)
+
             fav_button.setOnClickListener {
                 viewModel.addToFavourites(etf)
             }
             add_to_portfolio_button.setOnClickListener {
                 findNavController().navigate(EtfDetailFragmentDirections.detailToPortfolioAction())
             }
-        }
 
-        fun drawTimeSpan(timeSpanFilter: TimeSpanFilter) = viewModel.getHistory(timeSpanFilter)?.let {
-            mychart.draw(it)
+            spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    when (position) {
+                        0 -> viewModel.getHistory(etf, TimeSpanFilter.Max)
+                        1 -> viewModel.getHistory(etf, TimeSpanFilter.Year)
+                        2 -> viewModel.getHistory(etf, TimeSpanFilter.Months3)
+                        3 -> viewModel.getHistory(etf, TimeSpanFilter.Month)
+                        4 -> viewModel.getHistory(etf, TimeSpanFilter.Week)
+                    }
+                }
+
+            }
         }
 
         val chartTimes = listOf("MAX", "1 YEAR", "3 MONTHS", "MONTH", "WEEK")
@@ -82,25 +98,6 @@ class EtfDetailFragment : Fragment() {
         }
 
         spinner.setItems(chartTimes)
-        spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                when (position) {
-                    0 -> drawTimeSpan(TimeSpanFilter.Max)
-                    1 -> drawTimeSpan(TimeSpanFilter.Year)
-                    2 -> drawTimeSpan(TimeSpanFilter.Months3)
-                    3 -> drawTimeSpan(TimeSpanFilter.Month)
-                    4 -> drawTimeSpan(TimeSpanFilter.Week)
-                }
-            }
-
-        }
-
     }
 
     private fun renderNewViewState(event: EtfDetailViewModel.ViewState) {
@@ -129,6 +126,12 @@ class EtfDetailFragment : Fragment() {
                     true -> View.GONE
                     false -> View.VISIBLE
                 }
+            }
+            is EtfDetailViewModel.ViewState.NewEtfHistoryTimeSpan -> {
+                error_txt.visibility = View.INVISIBLE
+                progressbar.visibility = View.INVISIBLE
+                mychart.visibility = View.VISIBLE
+                renderChartData(event.historyData)
             }
         }
     }

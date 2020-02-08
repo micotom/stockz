@@ -11,6 +11,7 @@ import com.funglejunk.stockz.repo.db.CacheableData
 import com.funglejunk.stockz.repo.db.StockDataCacheInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.util.StockData
+import com.funglejunk.stockz.util.TimeSpanFilter
 import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
 
@@ -19,7 +20,22 @@ class FBoerseRepoInteractor(
     private val historyCache: StockDataCacheInterface
 ) {
 
-    val fetchHistoryAction: (String, LocalDate, LocalDate) -> IO<StockData> =
+    val fetchHistoryAction: (String, TimeSpanFilter) -> IO<FBoerseHistoryData> =
+        { isin, timeFilter ->
+            IO.fx {
+                val cachedData = historyCache.get(isin).bind()
+                cachedData.fold(
+                    {
+                        fetchRawRepoData(isin, timeFilter.startDate, timeFilter.now)
+                    },
+                    {
+                        it.copy(content = it.content.filter { timeFilter(it) })
+                    }
+                )
+            }
+        }
+
+    val fetchHistoryAndPerfAction: (String, LocalDate, LocalDate) -> IO<StockData> =
         { isin, fromDate, toDate ->
             IO.fx {
                 val chartDataIO = IO.fx {
