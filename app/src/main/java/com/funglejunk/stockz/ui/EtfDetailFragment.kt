@@ -42,40 +42,48 @@ class EtfDetailFragment : Fragment() {
             renderNewViewState(event)
         })
 
-        arguments?.let {
-            val etf = EtfDetailFragmentArgs.fromBundle(it).etf
+        val etfArg = arguments?.let { EtfDetailFragmentArgs.fromBundle(it).etf }
+        etfArg?.let { etf ->
             viewModel.setEtfArgs(etf)
             showBasicData(etf)
+            setupFabs(etf)
+            setupTimeFilterSpinner(etf)
+            setupAlgorithmCheckboxes()
+        }
+    }
 
-            fav_button.setOnClickListener {
-                viewModel.addToFavourites(etf)
-            }
-            add_to_portfolio_button.setOnClickListener {
-                findNavController().navigate(EtfDetailFragmentDirections.detailToPortfolioAction())
-            }
-
-            spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-                override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
-                ) {
-                    when (position) {
-                        0 -> viewModel.getHistory(etf, TimeSpanFilter.Max)
-                        1 -> viewModel.getHistory(etf, TimeSpanFilter.Year)
-                        2 -> viewModel.getHistory(etf, TimeSpanFilter.Months3)
-                        3 -> viewModel.getHistory(etf, TimeSpanFilter.Month)
-                        4 -> viewModel.getHistory(etf, TimeSpanFilter.Week)
-                    }
+    private fun setupTimeFilterSpinner(etf: Etf) {
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                when (position) {
+                    0 -> viewModel.getHistory(etf, TimeSpanFilter.Max)
+                    1 -> viewModel.getHistory(etf, TimeSpanFilter.Year)
+                    2 -> viewModel.getHistory(etf, TimeSpanFilter.Months3)
+                    3 -> viewModel.getHistory(etf, TimeSpanFilter.Month)
+                    4 -> viewModel.getHistory(etf, TimeSpanFilter.Week)
                 }
-
             }
         }
-
         val chartTimes = listOf("MAX", "1 YEAR", "3 MONTHS", "MONTH", "WEEK")
+        spinner.setItems(chartTimes)
+    }
 
+    private fun setupFabs(etf: Etf) {
+        fav_button.setOnClickListener {
+            viewModel.addToFavourites(etf)
+        }
+        add_to_portfolio_button.setOnClickListener {
+            findNavController().navigate(EtfDetailFragmentDirections.detailToPortfolioAction())
+        }
+    }
+
+    private fun setupAlgorithmCheckboxes() {
         bollinger_checkbox.setOnCheckedChangeListener { _, isChecked ->
             when (isChecked) {
                 true -> mychart.showBollinger()
@@ -96,8 +104,6 @@ class EtfDetailFragment : Fragment() {
                 false -> mychart.hideAtr()
             }
         }
-
-        spinner.setItems(chartTimes)
     }
 
     private fun renderNewViewState(event: EtfDetailViewModel.ViewState) {
