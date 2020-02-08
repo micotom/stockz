@@ -93,7 +93,7 @@ class PortfolioViewModel(
                         alloc.isin,
                         LocalDate.of(2010, 1, 1),
                         LocalDate.now()
-                    ) //.content.maxBy { it.date }
+                    )
                     val currentSharePrice =
                         (history.content.maxBy { it.date }?.close ?: -1.0).toBigDecimal()
                     AssetSummary(
