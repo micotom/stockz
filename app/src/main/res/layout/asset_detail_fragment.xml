@@ -50,14 +50,14 @@
 
     <TextView
             android:id="@+id/asset_name"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:maxLines="1"
             android:textAllCaps="true"
             android:textColor="@color/secondaryDarkColor"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
             app:layout_constraintTop_toBottomOf="@id/parent_top_guideline"
             tools:text="ASSET NAME COMES HERE" />
 
