@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/left_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".0" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/right_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="1." />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/one_quarter_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".25" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/two_quarter_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".5" />
+
+    <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/three_quarter_guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".75" />
+
+    <TextView
+            android:id="@+id/date_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            app:layout_constraintEnd_toStartOf="@id/one_quarter_guideline"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="Date"/>
+
+    <TextView
+            android:id="@+id/date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/one_quarter_guideline"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintTop_toBottomOf="@id/date_header"
+            tools:text="2020-02-08"/>
+
+    <TextView
+            android:id="@+id/shares_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            app:layout_constraintEnd_toStartOf="@id/two_quarter_guideline"
+            app:layout_constraintStart_toEndOf="@id/one_quarter_guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="Shares"/>
+
+    <TextView
+            android:id="@+id/shares"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/two_quarter_guideline"
+            app:layout_constraintStart_toEndOf="@id/one_quarter_guideline"
+            app:layout_constraintTop_toBottomOf="@id/shares_header"
+            tools:text="98.653"/>
+
+    <TextView
+            android:id="@+id/share_price_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            app:layout_constraintEnd_toStartOf="@id/three_quarter_guideline"
+            app:layout_constraintStart_toEndOf="@id/two_quarter_guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="Price"/>
+
+    <TextView
+            android:id="@+id/price"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/three_quarter_guideline"
+            app:layout_constraintStart_toEndOf="@id/two_quarter_guideline"
+            app:layout_constraintTop_toBottomOf="@id/share_price_header"
+            tools:text="98.653 €"/>
+
+    <TextView
+            android:id="@+id/expenses_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintStart_toEndOf="@id/three_quarter_guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="Expenses"/>
+
+    <TextView
+            android:id="@+id/expenses"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintStart_toEndOf="@id/three_quarter_guideline"
+            app:layout_constraintTop_toBottomOf="@id/expenses_header"
+            tools:text="98.653 €"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

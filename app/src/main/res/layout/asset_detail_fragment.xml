@@ -49,7 +49,7 @@
             app:layout_constraintGuide_percent=".5" />
 
     <TextView
-            android:id="@+id/portfolio_name"
+            android:id="@+id/asset_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
@@ -60,5 +60,15 @@
             app:layout_constraintStart_toEndOf="@id/left_guideline"
             app:layout_constraintTop_toBottomOf="@id/parent_top_guideline"
             tools:text="ASSET NAME COMES HERE" />
+
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/buys_list"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/asset_name"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
