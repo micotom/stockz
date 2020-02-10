@@ -42,23 +42,21 @@ class AssetDetailFragment : Fragment() {
             )
             buys_list.adapter = AssetBuyAdapter(assetSummary.buys.toList())
 
-            with(current_value_info) {
-                findViewById<TextView>(R.id.header_text).text = "Value (€)"
-                findViewById<TextView>(R.id.value_text).text =
-                    assetSummary.currentTotalValueWE.textStringCurrency()
-            }
+            current_value_info.setHeaderAndText(
+                "Value (€)", assetSummary.currentTotalValueWE.textStringCurrency()
+            )
 
-            with(profit_euro_value_info) {
-                findViewById<TextView>(R.id.header_text).text = "Profit (€)"
-                findViewById<TextView>(R.id.value_text).text =
-                    assetSummary.profitEuroWE.textStringCurrency()
-            }
+            profit_euro_value_info.setHeaderAndText(
+                "Profit (€)", assetSummary.profitEuroWE.textStringCurrency()
+            )
 
-            with(profit_perc_value_info) {
-                findViewById<TextView>(R.id.header_text).text = "Profit (%)"
-                findViewById<TextView>(R.id.value_text).text =
-                    assetSummary.profitPercentWE.textStringPercent()
-            }
+            profit_perc_value_info.setHeaderAndText(
+                "Profit (%)", assetSummary.profitPercentWE.textStringPercent()
+            )
+            shares_info.setValue(assetSummary.shares.toString())
+            value_info.setValue(assetSummary.currentTotalValueNE.textStringCurrency())
+            nr_orders_info.setValue(assetSummary.nrOfOrders.toString())
+            expenses_info.setValue(assetSummary.totalExpenses.textStringCurrency())
 
             bar_view.draw(
                 "Buy Price" to assetSummary.totalBuyPriceWE.toFloat(),
@@ -67,14 +65,16 @@ class AssetDetailFragment : Fragment() {
             )
 
             viewModel.requestDbInfo(assetSummary.isin)
-
         }
     }
 
     private fun renderViewState(event: AssetDetailViewModel.ViewState) {
         when (event) {
             is AssetDetailViewModel.ViewState.EtfInfoRetrieved -> {
-                asset_name.text = event.etf.name
+                val etf = event.etf
+                asset_name.text = etf.name
+                symbol_info.setValue(etf.symbol)
+                ter_info.setValue("${etf.ter} %")
             }
         }
     }
@@ -91,5 +91,10 @@ class AssetDetailFragment : Fragment() {
             }
         }
     }
+
+    private fun View.setHeaderAndText(header: String, text: String) = {
+        findViewById<TextView>(R.id.header_text).text = header
+        findViewById<TextView>(R.id.value_text).text = text
+    }()
 
 }

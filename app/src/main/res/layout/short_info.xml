@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+    <TextView
+            android:id="@+id/header_text"
+            tools:text="CURRENT VALUE"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            android:textSize="12sp" />
+
+    <TextView
+            android:id="@+id/value_text"
+            tools:text="10.000 €"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/secondaryColor"
+            android:textSize="12sp" />
+</merge>

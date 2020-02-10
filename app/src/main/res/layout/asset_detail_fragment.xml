@@ -41,7 +41,6 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent=".975" />
 
-
     <androidx.constraintlayout.widget.Guideline
             android:id="@+id/center_vertical_guideline"
             android:layout_width="wrap_content"
@@ -115,6 +114,88 @@
             app:layout_constraintStart_toEndOf="@id/left_guideline"
             app:layout_constraintTop_toBottomOf="@id/current_value_info" />
 
+    <View
+            android:id="@+id/divider_1"
+            android:layout_width="0dp"
+            android:layout_height="1sp"
+            android:layout_marginTop="12dp"
+            android:background="@color/secondaryColorDimmed"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintTop_toBottomOf="@id/bar_view" />
+
+    <com.funglejunk.stockz.ui.view.ShortInfoLayout
+            android:id="@+id/shares_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:header="Shares"
+            app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintTop_toBottomOf="@id/divider_1"
+            />
+
+    <com.funglejunk.stockz.ui.view.ShortInfoLayout
+            android:id="@+id/value_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:header="Value (NE)"
+            app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
+            app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
+            app:layout_constraintTop_toBottomOf="@id/divider_1"/>
+
+    <com.funglejunk.stockz.ui.view.ShortInfoLayout
+            android:id="@+id/ter_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:header="TER %"
+            app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintTop_toBottomOf="@id/divider_1"
+        />
+
+    <com.funglejunk.stockz.ui.view.ShortInfoLayout
+            android:id="@+id/nr_orders_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:header="Orders"
+            app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintTop_toBottomOf="@id/shares_info" />
+
+    <com.funglejunk.stockz.ui.view.ShortInfoLayout
+            android:id="@+id/expenses_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:header="Expenses"
+            app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
+            app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
+            app:layout_constraintTop_toBottomOf="@id/value_info" />
+
+    <com.funglejunk.stockz.ui.view.ShortInfoLayout
+            android:id="@+id/symbol_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:header="Symbol"
+            app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintTop_toBottomOf="@id/ter_info"/>
+
+    <View
+            android:id="@+id/divider_2"
+            android:layout_width="0dp"
+            android:layout_height="1sp"
+            android:layout_marginTop="12dp"
+            android:background="@color/secondaryColorDimmed"
+            app:layout_constraintEnd_toStartOf="@id/right_guideline"
+            app:layout_constraintStart_toEndOf="@id/left_guideline"
+            app:layout_constraintTop_toBottomOf="@id/nr_orders_info" />
+
     <TextView
             android:id="@+id/buys_list_header"
             android:layout_width="wrap_content"
@@ -127,7 +208,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/bar_view" />
+            app:layout_constraintTop_toBottomOf="@id/divider_2" />
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/buys_list"
