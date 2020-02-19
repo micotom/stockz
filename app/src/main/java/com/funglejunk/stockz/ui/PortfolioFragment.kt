@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -71,10 +72,7 @@ class PortfolioFragment : Fragment() {
 
         spinner.setItems(chartTimes)
         spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-
+            override fun onNothingSelected(parent: AdapterView<*>?) = Unit
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -96,10 +94,20 @@ class PortfolioFragment : Fragment() {
     private fun handleNewViewState(viewState: PortfolioViewModel.ViewState) {
         when (viewState) {
             PortfolioViewModel.ViewState.Loading -> {
-                // chart_time_dropdown.isEnabled = false
+                root_layout.children.forEach {
+                    when (it.id) {
+                        R.id.progress_bar -> it.visibility = View.VISIBLE
+                        else -> it.visibility = View.INVISIBLE
+                    }
+                }
             }
             is PortfolioViewModel.ViewState.NewPortfolioData -> {
-                // chart_time_dropdown.isEnabled = true
+                root_layout.children.forEach {
+                    when (it.id) {
+                        R.id.progress_bar -> it.visibility = View.INVISIBLE
+                        else -> it.visibility = View.VISIBLE
+                    }
+                }
 
                 val (summary, etfList, history) = viewState.summary
 

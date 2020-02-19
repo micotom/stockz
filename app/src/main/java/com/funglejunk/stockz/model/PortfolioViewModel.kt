@@ -27,6 +27,7 @@ class PortfolioViewModel(
     FViewModel() {
 
     sealed class ViewState {
+        // TODO error model
         object Loading : ViewState()
         data class NewPortfolioData(val summary: Triple<PortfolioSummary, List<Etf>, FBoerseHistoryData>) :
             ViewState()
