@@ -43,10 +43,6 @@ class PortfolioFragment : Fragment() {
             viewModel.addFooData()
         }
 
-        fun drawTimeSpan(timeSpanFilter: TimeSpanFilter) = viewModel.getHistory(timeSpanFilter)?.let {
-            chart.draw(it)
-        }
-
         val chartTimes = listOf("MAX", "1 YEAR", "3 MONTHS", "MONTH", "WEEK")
 
         bollinger_checkbox.setOnCheckedChangeListener { _, isChecked ->
@@ -71,6 +67,10 @@ class PortfolioFragment : Fragment() {
         }
 
         spinner.setItems(chartTimes)
+        spinner.setSelection(2)
+        fun drawTimeSpan(timeSpanFilter: TimeSpanFilter) = viewModel.getHistory(timeSpanFilter)?.let {
+            chart.draw(it)
+        }
         spinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
             override fun onItemSelected(
@@ -87,7 +87,6 @@ class PortfolioFragment : Fragment() {
                     4 -> drawTimeSpan(TimeSpanFilter.Week)
                 }
             }
-
         }
     }
 
@@ -141,7 +140,9 @@ class PortfolioFragment : Fragment() {
                     findNavController().navigate(PortfolioFragmentDirections.portfolioToAssetAction(it))
                 }
 
-                chart.draw(history)
+                spinner.onItemSelectedListener?.onItemSelected(
+                    null, null, spinner.selectedItemPosition, -1L
+                )
 
                 assets_header.text = "Assets"
 
