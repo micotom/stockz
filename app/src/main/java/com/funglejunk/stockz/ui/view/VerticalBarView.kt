@@ -71,12 +71,13 @@ class VerticalBarView : View {
 
     private val drawBindVal: (List<Pair<String, Float>>) -> (Canvas) -> Unit = { values ->
         { canvas ->
+            val sidePadding = 6
             val barWidth = width.toFloat() / values.size
             val ySpread = height.toFloat() / (values.maxBy { it.second }?.second ?: 1.0f)
             values.forEachIndexed { index, (label, value) ->
 
-                val startX = (index * barWidth).toInt()
-                val endX = ((index + 1) * barWidth).toInt()
+                val startX = (index * barWidth).toInt() + sidePadding
+                val endX = ((index + 1) * barWidth).toInt() - sidePadding
                 val topY = (height - (value * ySpread)).toInt()
                 val rect = Rect(startX, topY, endX, height)
                 canvas.drawRect(rect, rectPaints[index % rectPaints.size])

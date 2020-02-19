@@ -1,223 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="4dp">
+        android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/parent_top_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".025" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="4dp">
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/parent_bottom_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".975" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/parent_top_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".025" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/center_horizontal_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent=".5" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/parent_bottom_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".975" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/left_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent=".025" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/center_horizontal_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent=".5" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/right_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent=".975" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/left_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".025" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/center_vertical_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent=".5" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/right_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".975" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/center_vertical_third_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent=".3497" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/center_vertical_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".5" />
 
-    <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/center_vertical_two_third_guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.64994" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/center_vertical_third_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".3497" />
 
-    <TextView
-            android:id="@+id/asset_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAllCaps="true"
-            android:textColor="@color/secondaryDarkColor"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/parent_top_guideline"
-            tools:text="ASSET NAME COMES HERE" />
+        <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/center_vertical_two_third_guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.64994" />
 
-    <include
-            android:id="@+id/current_value_info"
-            layout="@layout/big_portfolio_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/asset_name" />
+        <TextView
+                android:id="@+id/asset_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textAllCaps="true"
+                android:textColor="@color/secondaryDarkColor"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/parent_top_guideline"
+                tools:text="ASSET NAME COMES HERE" />
 
-    <include
-            android:id="@+id/profit_euro_value_info"
-            layout="@layout/big_portfolio_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
-            app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
-            app:layout_constraintTop_toBottomOf="@id/asset_name" />
+        <include
+                android:id="@+id/current_value_info"
+                layout="@layout/big_portfolio_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/asset_name" />
 
-    <include
-            android:id="@+id/profit_perc_value_info"
-            layout="@layout/big_portfolio_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
-            app:layout_constraintTop_toBottomOf="@id/asset_name" />
+        <include
+                android:id="@+id/profit_euro_value_info"
+                layout="@layout/big_portfolio_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
+                app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
+                app:layout_constraintTop_toBottomOf="@id/asset_name" />
 
-    <com.funglejunk.stockz.ui.view.VerticalBarView
-            android:id="@+id/bar_view"
-            android:layout_width="0dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="12dp"
-            app:layout_constraintEnd_toStartOf="@id/center_vertical_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/current_value_info" />
+        <include
+                android:id="@+id/profit_perc_value_info"
+                layout="@layout/big_portfolio_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
+                app:layout_constraintTop_toBottomOf="@id/asset_name" />
 
-    <View
-            android:id="@+id/divider_1"
-            android:layout_width="0dp"
-            android:layout_height="1sp"
-            android:layout_marginTop="12dp"
-            android:background="@color/secondaryColorDimmed"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/bar_view" />
+        <com.funglejunk.stockz.ui.view.ChartView
+                android:id="@+id/chart"
+                android:layout_width="0dp"
+                android:layout_height="240dp"
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/profit_perc_value_info" />
 
-    <com.funglejunk.stockz.ui.view.ShortInfoLayout
-            android:id="@+id/shares_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:header="Shares"
-            app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/divider_1"
-            />
+        <com.funglejunk.stockz.ui.view.VerticalBarView
+                android:id="@+id/bar_view_returns"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="12dp"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/chart" />
 
-    <com.funglejunk.stockz.ui.view.ShortInfoLayout
-            android:id="@+id/value_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:header="Value (NE)"
-            app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
-            app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
-            app:layout_constraintTop_toBottomOf="@id/divider_1"/>
+        <View
+                android:id="@+id/divider_1"
+                android:layout_width="0dp"
+                android:layout_height="1sp"
+                android:layout_marginTop="12dp"
+                android:background="@color/secondaryColorDimmed"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/bar_view_returns" />
 
-    <com.funglejunk.stockz.ui.view.ShortInfoLayout
-            android:id="@+id/ter_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:header="TER %"
-            app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintTop_toBottomOf="@id/divider_1"
-        />
+        <com.funglejunk.stockz.ui.view.ShortInfoLayout
+                android:id="@+id/shares_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:header="Shares"
+                app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/divider_1" />
 
-    <com.funglejunk.stockz.ui.view.ShortInfoLayout
-            android:id="@+id/nr_orders_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:header="Orders"
-            app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/shares_info" />
+        <com.funglejunk.stockz.ui.view.ShortInfoLayout
+                android:id="@+id/value_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:header="Value (NE)"
+                app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
+                app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
+                app:layout_constraintTop_toBottomOf="@id/divider_1" />
 
-    <com.funglejunk.stockz.ui.view.ShortInfoLayout
-            android:id="@+id/expenses_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:header="Expenses"
-            app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
-            app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
-            app:layout_constraintTop_toBottomOf="@id/value_info" />
+        <com.funglejunk.stockz.ui.view.ShortInfoLayout
+                android:id="@+id/ter_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:header="TER %"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
+                app:layout_constraintTop_toBottomOf="@id/divider_1" />
 
-    <com.funglejunk.stockz.ui.view.ShortInfoLayout
-            android:id="@+id/symbol_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:header="Symbol"
-            app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintTop_toBottomOf="@id/ter_info"/>
+        <com.funglejunk.stockz.ui.view.ShortInfoLayout
+                android:id="@+id/nr_orders_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:header="Orders"
+                app:layout_constraintEnd_toStartOf="@id/center_vertical_third_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/shares_info" />
 
-    <View
-            android:id="@+id/divider_2"
-            android:layout_width="0dp"
-            android:layout_height="1sp"
-            android:layout_marginTop="12dp"
-            android:background="@color/secondaryColorDimmed"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/nr_orders_info" />
+        <com.funglejunk.stockz.ui.view.ShortInfoLayout
+                android:id="@+id/expenses_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:header="Expenses"
+                app:layout_constraintEnd_toStartOf="@id/center_vertical_two_third_guideline"
+                app:layout_constraintStart_toEndOf="@id/center_vertical_third_guideline"
+                app:layout_constraintTop_toBottomOf="@id/value_info" />
 
-    <TextView
-            android:id="@+id/buys_list_header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:maxLines="1"
-            android:text="ORDERS"
-            android:textAllCaps="true"
-            android:textColor="@color/secondaryTextColor"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/divider_2" />
+        <com.funglejunk.stockz.ui.view.ShortInfoLayout
+                android:id="@+id/symbol_info"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:header="Symbol"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/center_vertical_two_third_guideline"
+                app:layout_constraintTop_toBottomOf="@id/ter_info" />
 
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/buys_list"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintEnd_toStartOf="@id/right_guideline"
-            app:layout_constraintStart_toEndOf="@id/left_guideline"
-            app:layout_constraintTop_toBottomOf="@id/buys_list_header" />
+        <View
+                android:id="@+id/divider_2"
+                android:layout_width="0dp"
+                android:layout_height="1sp"
+                android:layout_marginTop="12dp"
+                android:background="@color/secondaryColorDimmed"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/nr_orders_info" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+                android:id="@+id/buys_list_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:maxLines="1"
+                android:text="ORDERS"
+                android:textAllCaps="true"
+                android:textColor="@color/secondaryTextColor"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/divider_2" />
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/buys_list"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toStartOf="@id/right_guideline"
+                app:layout_constraintStart_toEndOf="@id/left_guideline"
+                app:layout_constraintTop_toBottomOf="@id/buys_list_header" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

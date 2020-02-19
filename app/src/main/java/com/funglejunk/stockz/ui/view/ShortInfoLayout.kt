@@ -70,11 +70,6 @@ class ShortInfoLayout : LinearLayout {
             it.recycle()
         }
 
-    inline fun setContent(f: () -> Pair<String, String>) = f().let { (headerStr, infoStr) ->
-        header.text = headerStr
-        info.text = infoStr
-    }
-
     fun setValue(value: String?) = value.let { info.text = it }
 
 }
