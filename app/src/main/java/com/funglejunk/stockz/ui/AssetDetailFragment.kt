@@ -26,6 +26,8 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
 
     private lateinit var chartFunc: ((RepoHistoryData) -> Unit)
 
+    private lateinit var drawBasicInfoFunc: () -> Unit
+
     override val liveData: LiveData<AssetDetailViewModel.ViewState> by lazy {
         viewModel.liveData
     }
@@ -38,11 +40,11 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
             add_order_button.setOnClickListener {
                 openAddOrderDialog(assetSummary, portfolioSummary)
             }
-            drawBasicInfo(assetSummary)
-            viewModel.requestDbInfo(assetSummary.isin)
+            drawBasicInfoFunc = drawBasicInfoBindFunc(assetSummary)
             chartFunc = chartBindFunc.invoke(
                 assetSummary.buys.minBy { it.date }?.date ?: LocalDate.of(2010, 1, 1)
             )
+            viewModel.requestDbInfo(assetSummary.isin)
         }
     }
 
@@ -66,21 +68,23 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
     private val drawInfo: (AssetDetailViewModel.ViewState) -> Unit =
         { event: AssetDetailViewModel.ViewState ->
             event as AssetDetailViewModel.ViewState.EtfInfoRetrieved
-            showContent()
-            val etf = event.etf
             val (history, perf) = event.stockData
-            asset_name.text = etf.name
-            symbol_info.setValue(etf.symbol)
-            ter_info.setValue("${etf.ter} %")
-            bar_view_returns.draw(
-                "1 Month" to perf.months1.changeInPercent.toFloat(),
-                "3 Months" to perf.months3.changeInPercent.toFloat(),
-                "6 Months" to perf.months6.changeInPercent.toFloat(),
-                "1 Year" to perf.years1.changeInPercent.toFloat(),
-                "2 Years" to perf.years2.changeInPercent.toFloat(),
-                "3 Years" to perf.years3.changeInPercent.toFloat()
-            )
+            showContent()
+            drawBasicInfoFunc()
             chartFunc.invoke(history)
+            event.etf.also { etf ->
+                asset_name.text = etf.name
+                symbol_info.setValue(etf.symbol)
+                ter_info.setValue("${etf.ter} %")
+                bar_view_returns.draw(
+                    "1 Month" to perf.months1.changeInPercent.toFloat(),
+                    "3 Months" to perf.months3.changeInPercent.toFloat(),
+                    "6 Months" to perf.months6.changeInPercent.toFloat(),
+                    "1 Year" to perf.years1.changeInPercent.toFloat(),
+                    "2 Years" to perf.years2.changeInPercent.toFloat(),
+                    "3 Years" to perf.years3.changeInPercent.toFloat()
+                )
+            }
         }
 
     private val showProgressBar: (AssetDetailViewModel.ViewState) -> Unit = { _ ->
@@ -120,33 +124,33 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
         }
     }
 
-    private fun drawBasicInfo(assetSummary: AssetSummary) {
-        buys_list.addItemDecoration(
-            MarginItemDecoration(18, assetSummary.buys.size - 1)
-        )
-        buys_list.adapter = AssetBuyAdapter(assetSummary.buys.toList())
+    private val drawBasicInfoBindFunc: (AssetSummary) -> () -> Unit = { assetSummary ->
+        {
+            buys_list.addItemDecoration(
+                MarginItemDecoration(18, assetSummary.buys.size - 1)
+            )
+            buys_list.adapter = AssetBuyAdapter(assetSummary.buys.toList())
 
-        current_value_info.setHeaderAndText(
-            "Value (€)", assetSummary.currentTotalValueWE.textStringCurrency()
-        )
+            current_value_info.setHeaderAndText(
+                "Value (€)", assetSummary.currentTotalValueWE.textStringCurrency()
+            )
 
-        profit_euro_value_info.setHeaderAndText(
-            "Profit (€)", assetSummary.profitEuroWE.textStringCurrency()
-        )
+            profit_euro_value_info.setHeaderAndText(
+                "Profit (€)", assetSummary.profitEuroWE.textStringCurrency()
+            )
 
-        profit_perc_value_info.setHeaderAndText(
-            "Profit (%)", assetSummary.profitPercentWE.textStringPercent()
-        )
-        shares_info.setValue(assetSummary.shares.toString())
-        value_info.setValue(assetSummary.currentTotalValueNE.textStringCurrency())
-        nr_orders_info.setValue(assetSummary.nrOfOrders.toString())
-        expenses_info.setValue(assetSummary.totalExpenses.textStringCurrency())
+            profit_perc_value_info.setHeaderAndText(
+                "Profit (%)", assetSummary.profitPercentWE.textStringPercent()
+            )
+            shares_info.setValue(assetSummary.shares.toString())
+            value_info.setValue(assetSummary.currentTotalValueNE.textStringCurrency())
+            nr_orders_info.setValue(assetSummary.nrOfOrders.toString())
+            expenses_info.setValue(assetSummary.totalExpenses.textStringCurrency())
 
-        viewModel.requestDbInfo(assetSummary.isin)
-
-        chartFunc = chartBindFunc.invoke(
-            assetSummary.buys.minBy { it.date }?.date ?: LocalDate.of(2010, 1, 1)
-        )
+            chartFunc = chartBindFunc.invoke(
+                assetSummary.buys.minBy { it.date }?.date ?: LocalDate.of(2010, 1, 1)
+            )
+        }
     }
 
     private fun withSafePortfolioAndAssetArgs(f: (PortfolioSummary, AssetSummary) -> Unit): Unit? =
@@ -156,6 +160,7 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
             f.invoke(portfolio, asset)
         }
 
+    // TODO introduce custom view
     private fun View.setHeaderAndText(header: String, text: String) = {
         findViewById<TextView>(R.id.header_text).text = header
         findViewById<TextView>(R.id.value_text).text = text
