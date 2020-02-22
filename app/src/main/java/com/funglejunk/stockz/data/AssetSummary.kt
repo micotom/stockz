@@ -59,7 +59,4 @@ data class AssetSummary(
         val expenses: BigDecimal
     ) : Parcelable
 
-    override fun toString(): String {
-        return "AssetSummary(isin='$isin', currentSharePrice=$currentSharePrice, buys=$buys, targetAllocationPercent=$targetAllocationPercent, shares=$shares, currentTotalValueNE=$currentTotalValueNE, totalBuyPriceNE=$totalBuyPriceNE, profitEuroNE=$profitEuroNE, profitPercentNE=$profitPercentNE, totalExpenses=$totalExpenses, currentTotalValueWE=$currentTotalValueWE, totalBuyPriceWE=$totalBuyPriceWE, profitEuroWE=$profitEuroWE, profitPercentWE=$profitPercentWE)"
-    }
 }

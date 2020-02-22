@@ -68,8 +68,11 @@
                 android:id="@+id/portfolio_to_asset_action"
                 app:destination="@id/asset_detail_fragment">
             <argument
+                    android:name="portfolioSummary"
+                    app:argType="com.funglejunk.stockz.data.PortfolioSummary" />
+            <argument
                     android:name="assetSummary"
-                    app:argType="com.funglejunk.stockz.model.portfolio.AssetSummary" />
+                    app:argType="com.funglejunk.stockz.data.AssetSummary" />
         </action>
     </fragment>
 
@@ -78,11 +81,11 @@
             android:name="com.funglejunk.stockz.ui.AssetDetailFragment"
             android:label="asset_detail_fragment">
         <argument
-                android:name="assetSummary"
-                app:argType="com.funglejunk.stockz.model.portfolio.AssetSummary" />
-        <argument
                 android:name="portfolioSummary"
-                app:argType="com.funglejunk.stockz.model.portfolio.PortfolioSummary" />
+                app:argType="com.funglejunk.stockz.data.PortfolioSummary" />
+        <argument
+                android:name="assetSummary"
+                app:argType="com.funglejunk.stockz.data.AssetSummary" />
     </fragment>
 
 </navigation>

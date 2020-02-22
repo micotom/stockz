@@ -9,6 +9,7 @@ import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.StockDataCacheInterface
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
+import com.funglejunk.stockz.ui.StockzFragment
 import com.funglejunk.stockz.util.FViewModel
 import com.funglejunk.stockz.util.StockData
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,7 @@ class AssetDetailViewModel(
     historyCache: StockDataCacheInterface
 ) : FViewModel() {
 
-    sealed class ViewState {
+    sealed class ViewState : StockzFragment.ViewState() {
         object Loading : ViewState()
         data class EtfInfoRetrieved(val etf: Etf, val stockData: StockData) : ViewState()
     }
