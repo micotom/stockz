@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.model.portfolio.AssetSummary
+import com.funglejunk.stockz.data.AssetSummary
 import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.toYearMonthDayString
 

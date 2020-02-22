@@ -1,4 +1,4 @@
-package com.funglejunk.stockz.model.portfolio
+package com.funglejunk.stockz.data
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

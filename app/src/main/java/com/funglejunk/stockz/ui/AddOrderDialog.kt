@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.model.AddOrderDialogViewModel
-import com.funglejunk.stockz.model.portfolio.AssetSummary
-import com.funglejunk.stockz.model.portfolio.PortfolioSummary
+import com.funglejunk.stockz.data.AssetSummary
+import com.funglejunk.stockz.data.PortfolioSummary
 import com.funglejunk.stockz.repo.db.Buys
 import com.funglejunk.stockz.util.SimpleTextWatcher
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

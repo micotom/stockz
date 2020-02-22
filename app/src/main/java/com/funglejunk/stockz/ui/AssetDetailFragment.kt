@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.RepoHistoryData
 import com.funglejunk.stockz.model.AssetDetailViewModel
-import com.funglejunk.stockz.model.portfolio.AssetSummary
-import com.funglejunk.stockz.model.portfolio.PortfolioSummary
+import com.funglejunk.stockz.data.AssetSummary
+import com.funglejunk.stockz.data.PortfolioSummary
 import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
 import com.funglejunk.stockz.toLocalDate

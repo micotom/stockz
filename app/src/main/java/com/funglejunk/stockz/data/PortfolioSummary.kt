@@ -1,4 +1,4 @@
-package com.funglejunk.stockz.model.portfolio
+package com.funglejunk.stockz.data
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
@@ -46,12 +46,13 @@ data class PortfolioSummary(
             val diffPercentWE = actualSharePercWE.toDouble() - asset.targetAllocationPercent
             val diffEuroWE = currentValueEuroWE * (diffPercentWE / 100.0).toBigDecimal()
 
-            val info = AllocationInfo(
-                diffEuroNE,
-                diffPercentNE,
-                diffEuroWE,
-                diffPercentWE
-            )
+            val info =
+                AllocationInfo(
+                    diffEuroNE,
+                    diffPercentNE,
+                    diffEuroWE,
+                    diffPercentWE
+                )
             asset to info
         }.toMap()
 

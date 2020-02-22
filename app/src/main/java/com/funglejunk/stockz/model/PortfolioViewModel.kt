@@ -6,8 +6,8 @@ import arrow.fx.IO
 import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.Etf
 import com.funglejunk.stockz.data.RepoHistoryData
-import com.funglejunk.stockz.model.portfolio.AssetSummary
-import com.funglejunk.stockz.model.portfolio.PortfolioSummary
+import com.funglejunk.stockz.data.AssetSummary
+import com.funglejunk.stockz.data.PortfolioSummary
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.Buys
 import com.funglejunk.stockz.repo.db.Portfolio
@@ -104,7 +104,8 @@ class PortfolioViewModel(
                         targetAllocationPercent = allAllocs.first { it.isin == alloc.isin }.target
                     ) to history
                 }
-                val summary = PortfolioSummary(assets = assetSummaries.map { it.first }.toSet())
+                val summary =
+                    PortfolioSummary(assets = assetSummaries.map { it.first }.toSet())
                 val etfs = allAllocs.map { alloc ->
                     db.etfFlattenedDao().getEtfWithIsin(alloc.isin)
                 }

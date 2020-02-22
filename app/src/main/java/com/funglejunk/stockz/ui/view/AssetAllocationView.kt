@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.model.portfolio.PortfolioSummary
+import com.funglejunk.stockz.data.PortfolioSummary
 import com.funglejunk.stockz.textStringPercent
 import java.math.BigDecimal
 

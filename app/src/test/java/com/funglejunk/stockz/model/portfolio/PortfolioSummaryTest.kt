@@ -1,5 +1,7 @@
 package com.funglejunk.stockz.model.portfolio
 
+import com.funglejunk.stockz.data.AssetSummary
+import com.funglejunk.stockz.data.PortfolioSummary
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.math.BigDecimal
