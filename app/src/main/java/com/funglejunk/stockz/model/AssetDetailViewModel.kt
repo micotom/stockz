@@ -11,6 +11,7 @@ import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
 import com.funglejunk.stockz.util.FViewModel
 import com.funglejunk.stockz.util.StockData
+import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
 
 class AssetDetailViewModel(
@@ -20,6 +21,7 @@ class AssetDetailViewModel(
 ) : FViewModel() {
 
     sealed class ViewState {
+        object Loading : ViewState()
         data class EtfInfoRetrieved(val etf: Etf, val stockData: StockData) : ViewState()
     }
 
@@ -42,9 +44,17 @@ class AssetDetailViewModel(
             liveData.mutable().value = ViewState.EtfInfoRetrieved(etf, stockData)
         }
 
+    private val showLoading: () -> IO<Unit> = {
+        IO.fx {
+            continueOn(Dispatchers.Main)
+            liveData.mutable().value = ViewState.Loading
+            continueOn(Dispatchers.IO)
+        }
+    }
+
     fun requestDbInfo(isin: String) {
         runIO(
-            io = dbInfoIO(isin),
+            io = showLoading().followedBy(dbInfoIO(isin)),
             onSuccess = onDbInfoRetrieved
         )
     }

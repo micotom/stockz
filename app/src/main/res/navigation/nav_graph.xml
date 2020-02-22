@@ -80,6 +80,9 @@
         <argument
                 android:name="assetSummary"
                 app:argType="com.funglejunk.stockz.model.portfolio.AssetSummary" />
+        <argument
+                android:name="portfolioSummary"
+                app:argType="com.funglejunk.stockz.model.portfolio.PortfolioSummary" />
     </fragment>
 
 </navigation>

@@ -1,10 +1,15 @@
 package com.funglejunk.stockz.model.portfolio
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import java.math.BigDecimal
 
+// TODO add id
+@Parcelize
 data class PortfolioSummary(
     val assets: Set<AssetSummary>
-) {
+) : Parcelable {
+
     val currentValueEuroNE: BigDecimal = assets.fold(BigDecimal.ZERO) { acc, new ->
         acc + new.currentTotalValueNE
     }

@@ -137,7 +137,7 @@ class PortfolioFragment : Fragment() {
                     )
                 )
                 assets_list.adapter = PortfolioEntryShortAdapter(summary, etfList) {
-                    findNavController().navigate(PortfolioFragmentDirections.portfolioToAssetAction(it))
+                    findNavController().navigate(PortfolioFragmentDirections.portfolioToAssetAction(it, summary))
                 }
 
                 spinner.onItemSelectedListener?.onItemSelected(

@@ -6,12 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
 import com.funglejunk.stockz.model.AssetDetailViewModel
+import com.funglejunk.stockz.model.portfolio.AssetSummary
+import com.funglejunk.stockz.model.portfolio.PortfolioSummary
 import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
 import com.funglejunk.stockz.toLocalDate
@@ -23,6 +26,8 @@ import java.time.LocalDate
 class AssetDetailFragment : Fragment() {
 
     private val viewModel: AssetDetailViewModel by viewModel()
+
+    private lateinit var chartFunc: ((FBoerseHistoryData) -> Unit)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +44,12 @@ class AssetDetailFragment : Fragment() {
 
         val assetSummaryArg = arguments?.let { AssetDetailFragmentArgs.fromBundle(it).assetSummary }
         assetSummaryArg?.let { assetSummary ->
+
+            arguments?.let { AssetDetailFragmentArgs.fromBundle(it).portfolioSummary }?.let { portfolioSummary ->
+                add_order_button.setOnClickListener {
+                    openAddOrderDialog(assetSummary, portfolioSummary)
+                }
+            }
 
             buys_list.addItemDecoration(
                 MarginItemDecoration(18, assetSummary.buys.size - 1)
@@ -69,23 +80,66 @@ class AssetDetailFragment : Fragment() {
         }
     }
 
+    private fun openAddOrderDialog(
+        assetSummary: AssetSummary,
+        portfolioSummary: PortfolioSummary
+    ) {
+        activity?.let { safeActivity ->
+            AddOrderDialog().apply {
+                arguments = Bundle().apply {
+                    putParcelable(AddOrderDialog.ARGS_ASSET_SUMMARY, assetSummary)
+                    putParcelable(AddOrderDialog.ARGS_PORTFOLIO_SUMMARY, portfolioSummary)
+                }
+            }.show(
+                safeActivity.supportFragmentManager,
+                AddOrderDialog::class.java.name
+            )
+        }
+    }
+
     private fun renderViewState(event: AssetDetailViewModel.ViewState) {
         when (event) {
             is AssetDetailViewModel.ViewState.EtfInfoRetrieved -> {
-                val etf = event.etf
-                val (history, perf) = event.stockData
-                asset_name.text = etf.name
-                symbol_info.setValue(etf.symbol)
-                ter_info.setValue("${etf.ter} %")
-                bar_view_returns.draw(
-                    "1 Month" to perf.months1.changeInPercent.toFloat(),
-                    "3 Months" to perf.months3.changeInPercent.toFloat(),
-                    "6 Months" to perf.months6.changeInPercent.toFloat(),
-                    "1 Year" to perf.years1.changeInPercent.toFloat(),
-                    "2 Years" to perf.years2.changeInPercent.toFloat(),
-                    "3 Years" to perf.years3.changeInPercent.toFloat()
-                )
-                chartFunc?.invoke(history)
+                showContent()
+                drawInfo(event)
+            }
+            AssetDetailViewModel.ViewState.Loading -> showProgressBar()
+        }
+    }
+
+    private fun drawInfo(event: AssetDetailViewModel.ViewState.EtfInfoRetrieved) {
+        val etf = event.etf
+        val (history, perf) = event.stockData
+        asset_name.text = etf.name
+        symbol_info.setValue(etf.symbol)
+        ter_info.setValue("${etf.ter} %")
+        bar_view_returns.draw(
+            "1 Month" to perf.months1.changeInPercent.toFloat(),
+            "3 Months" to perf.months3.changeInPercent.toFloat(),
+            "6 Months" to perf.months6.changeInPercent.toFloat(),
+            "1 Year" to perf.years1.changeInPercent.toFloat(),
+            "2 Years" to perf.years2.changeInPercent.toFloat(),
+            "3 Years" to perf.years3.changeInPercent.toFloat()
+        )
+        chartFunc.invoke(history)
+    }
+
+    private fun showContent() {
+        root_layout.children.forEach {
+            if (it.id == R.id.progress_bar) {
+                it.visibility = View.INVISIBLE
+            } else {
+                it.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun showProgressBar() {
+        root_layout.children.forEach {
+            if (it.id != R.id.progress_bar) {
+                it.visibility = View.INVISIBLE
+            } else {
+                it.visibility = View.VISIBLE
             }
         }
     }
@@ -100,9 +154,6 @@ class AssetDetailFragment : Fragment() {
             chart.draw(filteredHistory)
         }
     }
-
-    // TODO lateinit?
-    private var chartFunc: ((FBoerseHistoryData) -> Unit)? = null
 
     private class MarginItemDecoration(private val spaceHeight: Int, private val lastIndex: Int) :
         RecyclerView.ItemDecoration() {
