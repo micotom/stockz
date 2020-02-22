@@ -16,6 +16,7 @@ import com.funglejunk.stockz.model.PortfolioViewModel
 import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
 import com.funglejunk.stockz.ui.adapter.PortfolioEntryShortAdapter
+import com.funglejunk.stockz.ui.util.MarginItemDecoration
 import com.funglejunk.stockz.util.TimeSpanFilter
 import com.funglejunk.stockz.withSafeContext
 import kotlinx.android.synthetic.main.portfolio_fragment.*
@@ -131,10 +132,7 @@ class PortfolioFragment : Fragment() {
                 }
 
                 assets_list.addItemDecoration(
-                    MarginItemDecoration(
-                        18,
-                        etfList.size - 1
-                    )
+                    MarginItemDecoration(18, etfList.size - 1)
                 )
                 assets_list.adapter = PortfolioEntryShortAdapter(summary, etfList) {
                     findNavController().navigate(PortfolioFragmentDirections.portfolioToAssetAction(summary, it))
@@ -163,20 +161,6 @@ class PortfolioFragment : Fragment() {
         withSafeContext { context ->
             adapter = ArrayAdapter<String>(context, R.layout.small_dropdown_item, items.toTypedArray())
             setSelection(0)
-        }
-    }
-
-    private class MarginItemDecoration(private val spaceHeight: Int, private val lastIndex: Int) :
-        RecyclerView.ItemDecoration() {
-        override fun getItemOffsets(
-            outRect: Rect, view: View,
-            parent: RecyclerView, state: RecyclerView.State
-        ) {
-            with(outRect) {
-                if (parent.getChildAdapterPosition(view) != lastIndex) {
-                    bottom = spaceHeight
-                }
-            }
         }
     }
 

@@ -16,6 +16,8 @@ import com.funglejunk.stockz.textStringCurrency
 import com.funglejunk.stockz.textStringPercent
 import com.funglejunk.stockz.toLocalDate
 import com.funglejunk.stockz.ui.adapter.AssetBuyAdapter
+import com.funglejunk.stockz.ui.util.MarginItemDecoration
+import com.funglejunk.stockz.util.Partial
 import kotlinx.android.synthetic.main.asset_detail_fragment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.time.LocalDate
@@ -24,37 +26,34 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
 
     private val viewModel: AssetDetailViewModel by viewModel()
 
-    private lateinit var chartFunc: ((RepoHistoryData) -> Unit)
-
-    private lateinit var drawBasicInfoFunc: () -> Unit
-
     override val liveData: LiveData<AssetDetailViewModel.ViewState> by lazy {
         viewModel.liveData
     }
 
     override val layoutId: Int = R.layout.asset_detail_fragment
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        withSafePortfolioAndAssetArgs { portfolioSummary, assetSummary ->
-            add_order_button.setOnClickListener {
-                openAddOrderDialog(assetSummary, portfolioSummary)
+    private val drawBasicInfoFunc = Partial<AssetSummary, Unit, Unit> { assetSummary ->
+        {
+            assetSummary.run {
+                buys_list.adapter = AssetBuyAdapter(buys.toList())
+                current_value_info.setHeaderAndText(
+                    "Value (€)", currentTotalValueWE.textStringCurrency()
+                )
+                profit_euro_value_info.setHeaderAndText(
+                    "Profit (€)", profitEuroWE.textStringCurrency()
+                )
+                profit_perc_value_info.setHeaderAndText(
+                    "Profit (%)", profitPercentWE.textStringPercent()
+                )
+                shares_info.setValue(shares.toString())
+                value_info.setValue(currentTotalValueNE.textStringCurrency())
+                nr_orders_info.setValue(nrOfOrders.toString())
+                expenses_info.setValue(totalExpenses.textStringCurrency())
             }
-            drawBasicInfoFunc = drawBasicInfoBindFunc(assetSummary)
-            chartFunc = chartBindFunc.invoke(
-                assetSummary.buys.minBy { it.date }?.date ?: LocalDate.of(2010, 1, 1)
-            )
-            viewModel.requestDbInfo(assetSummary.isin)
         }
     }
 
-    override fun matchRenderFunc(event: AssetDetailViewModel.ViewState): (AssetDetailViewModel.ViewState) -> Unit =
-        when (event) {
-            is AssetDetailViewModel.ViewState.EtfInfoRetrieved -> drawInfo
-            AssetDetailViewModel.ViewState.Loading -> showProgressBar
-        }
-
-    private val chartBindFunc: (LocalDate) -> (RepoHistoryData) -> Unit = { fromDate ->
+    private val drawChartFunc = Partial<LocalDate, RepoHistoryData, Unit> { fromDate ->
         { history ->
             val filteredHistory = history.copy(
                 content = history.content.filter {
@@ -70,8 +69,8 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
             event as AssetDetailViewModel.ViewState.EtfInfoRetrieved
             val (history, perf) = event.stockData
             showContent()
-            drawBasicInfoFunc()
-            chartFunc.invoke(history)
+            drawBasicInfoFunc(Unit)
+            drawChartFunc.invoke(history)
             event.etf.also { etf ->
                 asset_name.text = etf.name
                 symbol_info.setValue(etf.symbol)
@@ -107,10 +106,30 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
         }
     }
 
-    private fun openAddOrderDialog(
-        assetSummary: AssetSummary,
-        portfolioSummary: PortfolioSummary
-    ) {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        withSafePortfolioAndAssetArgs { portfolioSummary, assetSummary ->
+            buys_list.addItemDecoration(
+                MarginItemDecoration(18, assetSummary.buys.size - 1)
+            )
+            add_order_button.setOnClickListener {
+                openAddOrderDialog(assetSummary, portfolioSummary)
+            }
+            drawBasicInfoFunc.apply(assetSummary)
+            drawChartFunc.apply(
+                assetSummary.buys.minBy { it.date }?.date ?: LocalDate.of(2010, 1, 1)
+            )
+            viewModel.requestDbInfo(assetSummary.isin)
+        }
+    }
+
+    override fun matchRenderFunc(event: AssetDetailViewModel.ViewState): (AssetDetailViewModel.ViewState) -> Unit =
+        when (event) {
+            is AssetDetailViewModel.ViewState.EtfInfoRetrieved -> drawInfo
+            AssetDetailViewModel.ViewState.Loading -> showProgressBar
+        }
+
+    private fun openAddOrderDialog(assetSummary: AssetSummary, portfolioSummary: PortfolioSummary) {
         activity?.let { safeActivity ->
             AddOrderDialog().apply {
                 arguments = Bundle().apply {
@@ -120,35 +139,6 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
             }.show(
                 safeActivity.supportFragmentManager,
                 AddOrderDialog::class.java.name
-            )
-        }
-    }
-
-    private val drawBasicInfoBindFunc: (AssetSummary) -> () -> Unit = { assetSummary ->
-        {
-            buys_list.addItemDecoration(
-                MarginItemDecoration(18, assetSummary.buys.size - 1)
-            )
-            buys_list.adapter = AssetBuyAdapter(assetSummary.buys.toList())
-
-            current_value_info.setHeaderAndText(
-                "Value (€)", assetSummary.currentTotalValueWE.textStringCurrency()
-            )
-
-            profit_euro_value_info.setHeaderAndText(
-                "Profit (€)", assetSummary.profitEuroWE.textStringCurrency()
-            )
-
-            profit_perc_value_info.setHeaderAndText(
-                "Profit (%)", assetSummary.profitPercentWE.textStringPercent()
-            )
-            shares_info.setValue(assetSummary.shares.toString())
-            value_info.setValue(assetSummary.currentTotalValueNE.textStringCurrency())
-            nr_orders_info.setValue(assetSummary.nrOfOrders.toString())
-            expenses_info.setValue(assetSummary.totalExpenses.textStringCurrency())
-
-            chartFunc = chartBindFunc.invoke(
-                assetSummary.buys.minBy { it.date }?.date ?: LocalDate.of(2010, 1, 1)
             )
         }
     }
@@ -165,18 +155,5 @@ class AssetDetailFragment : StockzFragment<AssetDetailViewModel.ViewState>() {
         findViewById<TextView>(R.id.header_text).text = header
         findViewById<TextView>(R.id.value_text).text = text
     }()
-
-    private class MarginItemDecoration(private val spaceHeight: Int, private val lastIndex: Int) :
-        RecyclerView.ItemDecoration() {
-        override fun getItemOffsets(
-            outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State
-        ) {
-            with(outRect) {
-                if (parent.getChildAdapterPosition(view) != lastIndex) {
-                    bottom = spaceHeight
-                }
-            }
-        }
-    }
 
 }

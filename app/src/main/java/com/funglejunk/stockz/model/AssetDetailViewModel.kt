@@ -22,6 +22,7 @@ class AssetDetailViewModel(
 ) : FViewModel() {
 
     sealed class ViewState : StockzFragment.ViewState() {
+        // TODO error model
         object Loading : ViewState()
         data class EtfInfoRetrieved(val etf: Etf, val stockData: StockData) : ViewState()
     }

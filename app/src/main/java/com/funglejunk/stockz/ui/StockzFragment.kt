@@ -24,7 +24,6 @@ abstract class StockzFragment<T : StockzFragment.ViewState> : Fragment() {
 
     abstract fun matchRenderFunc(event: T): (T) -> Unit
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
