@@ -1,6 +1,7 @@
 package com.funglejunk.stockz.data
 
 import android.os.Parcelable
+import com.funglejunk.stockz.data.UiEtfQuery.Companion.empty
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -16,9 +17,7 @@ data class UiEtfQuery(
     companion object {
 
         private const val STRING_EMPTY = ""
-
         const val ALL_PLACEHOLDER = "- All -"
-
         const val TER_MAX = 1.0f
         const val NAME_EMPTY = STRING_EMPTY
         const val PROFIT_USE_EMPTY = STRING_EMPTY
@@ -36,5 +35,6 @@ data class UiEtfQuery(
         )
     }
 
-    fun isEmpty() = this == empty
 }
+
+fun UiEtfQuery.isEmpty() = this == empty

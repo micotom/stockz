@@ -4,6 +4,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import arrow.fx.IO
 import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.UiEtfQuery
+import com.funglejunk.stockz.data.isEmpty
 import com.funglejunk.stockz.repo.db.XetraDbEtf
 import com.funglejunk.stockz.repo.db.XetraDbInterface
 import com.funglejunk.stockz.repo.db.XetraEtfFlattenedDao
