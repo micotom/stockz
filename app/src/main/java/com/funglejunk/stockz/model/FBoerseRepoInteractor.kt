@@ -5,8 +5,8 @@ import arrow.fx.ForIO
 import arrow.fx.IO
 import arrow.fx.extensions.fx
 import arrow.fx.typeclasses.ConcurrentSyntax
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
-import com.funglejunk.stockz.data.fboerse.FBoersePerfData
+import com.funglejunk.stockz.data.RepoHistoryData
+import com.funglejunk.stockz.data.RepoPerformanceData
 import com.funglejunk.stockz.repo.db.CacheableData
 import com.funglejunk.stockz.repo.db.StockDataCacheInterface
 import com.funglejunk.stockz.repo.fboerse.FBoerseRepo
@@ -20,7 +20,7 @@ class FBoerseRepoInteractor(
     private val historyCache: StockDataCacheInterface
 ) {
 
-    val fetchHistoryAction: (String, TimeSpanFilter) -> IO<FBoerseHistoryData> =
+    val fetchHistoryAction: (String, TimeSpanFilter) -> IO<RepoHistoryData> =
         { isin, timeFilter ->
             IO.fx {
                 val cachedData = historyCache.get(isin).bind()
@@ -51,9 +51,9 @@ class FBoerseRepoInteractor(
         }
 
     private fun createParallelIoActionFrom(
-        chartDataIO: IO<FBoerseHistoryData>,
-        historyDataIO: Kind<ForIO, FBoersePerfData>
-    ): IO<Pair<FBoerseHistoryData, FBoersePerfData>> =
+        chartDataIO: IO<RepoHistoryData>,
+        historyDataIO: Kind<ForIO, RepoPerformanceData>
+    ): IO<Pair<RepoHistoryData, RepoPerformanceData>> =
         IO.parMapN(
             Dispatchers.IO,
             chartDataIO,
@@ -64,8 +64,8 @@ class FBoerseRepoInteractor(
 
     private fun persistAndMergeWithCacheData(
         isin: String,
-        history: FBoerseHistoryData
-    ): IO<FBoerseHistoryData> =
+        history: RepoHistoryData
+    ): IO<RepoHistoryData> =
         IO.fx {
             val cacheSuccess =
                 historyCache.persist(CacheableData(isin, history)).bind()
@@ -82,7 +82,7 @@ class FBoerseRepoInteractor(
         isin: String,
         fromDate: LocalDate,
         toDate: LocalDate
-    ): FBoerseHistoryData = effect {
+    ): RepoHistoryData = effect {
         val data = fBoerseRepo.getHistory(isin, fromDate, toDate)
         data.copy(
             content = data.content.sortedBy { it.date }

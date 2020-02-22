@@ -1,6 +1,6 @@
 package com.funglejunk.stockz.ui.view
 
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.data.RepoHistoryData
 import com.funglejunk.stockz.round
 import com.funglejunk.stockz.toYearMonthDayString
 import org.junit.Assert.assertEquals
@@ -12,16 +12,16 @@ import kotlin.math.min
 
 class ChartInteractorTest {
 
-    private fun createData(content: List<FBoerseHistoryData.Data>): FBoerseHistoryData =
-        FBoerseHistoryData(
+    private fun createData(content: List<RepoHistoryData.Data>): RepoHistoryData =
+        RepoHistoryData(
             isin = "Foo",
             content = content,
             totalCount = 0,
             tradedInPercent = false
         )
 
-    private fun createDataPoint(date: LocalDate, close: Double): FBoerseHistoryData.Data =
-        FBoerseHistoryData.Data(
+    private fun createDataPoint(date: LocalDate, close: Double): RepoHistoryData.Data =
+        RepoHistoryData.Data(
             date = date.toYearMonthDayString(),
             openValue = 10.0,
             close = close,

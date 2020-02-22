@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import arrow.fx.IO
 import com.funglejunk.stockz.data.ChartValue
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.data.RepoHistoryData
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -38,7 +38,7 @@ fun not(b: Boolean) = !b
 
 fun not(b: IO<Boolean>) = b.map { not(it) }
 
-fun FBoerseHistoryData.mapToDrawableData(): List<ChartValue> =
+fun RepoHistoryData.mapToDrawableData(): List<ChartValue> =
     content
         .map { dayHistory ->
             ChartValue(dayHistory.date.toLocalDate(), dayHistory.close.toFloat())

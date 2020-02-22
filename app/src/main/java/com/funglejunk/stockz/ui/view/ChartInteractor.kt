@@ -5,7 +5,7 @@ import android.graphics.Path
 import androidx.annotation.VisibleForTesting
 import arrow.syntax.function.partially1
 import com.funglejunk.stockz.data.ChartValue
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.data.RepoHistoryData
 import com.funglejunk.stockz.model.Period
 import com.funglejunk.stockz.model.averageTrueRange
 import com.funglejunk.stockz.model.bollingerBands
@@ -30,7 +30,7 @@ typealias DoubleXyDrawFunc = (Pair<List<XyValue>, List<XyValue>>) -> (Canvas) ->
 typealias DrawFunc = (Canvas) -> Unit
 
 typealias XBoundaries = Pair<Float, Float>
-typealias Sector = Pair<XBoundaries, List<FBoerseHistoryData.Data>>
+typealias Sector = Pair<XBoundaries, List<RepoHistoryData.Data>>
 
 class ChartInteractor {
 
@@ -46,7 +46,7 @@ class ChartInteractor {
     )
 
     fun prepareDrawing(
-        data: FBoerseHistoryData, // TODO hand over content object directly
+        data: RepoHistoryData, // TODO hand over content object directly
         viewWidth: Float,
         viewHeight: Float,
         isInPortraitMode: Boolean,
@@ -118,7 +118,7 @@ class ChartInteractor {
 
     private fun calculateChartUnboundAlgorithmPoints(
         data: List<ChartValue>,
-        originalData: List<FBoerseHistoryData.Data>, // TODO move vertical span to precalculation
+        originalData: List<RepoHistoryData.Data>, // TODO move vertical span to precalculation
         xSpreadFactor: Float,
         viewHeight: Float,
         scaleFactor: Float
@@ -140,7 +140,7 @@ class ChartInteractor {
 
     private fun calculateAlgPoints(
         data: List<ChartValue>,
-        originalData: List<FBoerseHistoryData.Data>, // TODO move vertical span to precalculation
+        originalData: List<RepoHistoryData.Data>, // TODO move vertical span to precalculation
         xSpreadFactor: Float,
         viewHeight: Float,
         yPadding: Float
@@ -168,7 +168,7 @@ class ChartInteractor {
 
     @VisibleForTesting
     fun calculateChartPoints(
-        data: List<FBoerseHistoryData.Data>,
+        data: List<RepoHistoryData.Data>,
         viewHeight: Float,
         yPadding: Float
     ): List<Float> = when (data.isNotEmpty()) {
@@ -189,7 +189,7 @@ class ChartInteractor {
 
     @VisibleForTesting
     fun calculateVerticalMonthLines(
-        data: List<FBoerseHistoryData.Data>,
+        data: List<RepoHistoryData.Data>,
         viewHeight: Float,
         xSpreadFactor: Float,
         isInPortraitMode: Boolean
@@ -227,7 +227,7 @@ class ChartInteractor {
 
     @VisibleForTesting
     fun calculateHorizontalValueLines(
-        data: List<FBoerseHistoryData.Data>,
+        data: List<RepoHistoryData.Data>,
         viewWidth: Float,
         viewHeight: Float,
         yPadding: Float,
@@ -255,7 +255,7 @@ class ChartInteractor {
 
     @VisibleForTesting
     fun calculateVerticalYearLines(
-        data: List<FBoerseHistoryData.Data>,
+        data: List<RepoHistoryData.Data>,
         viewHeight: Float,
         xSpreadFactor: Float
     ): List<LabelWithLineCoordinates> {

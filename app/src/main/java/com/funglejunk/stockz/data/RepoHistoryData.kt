@@ -1,10 +1,10 @@
-package com.funglejunk.stockz.data.fboerse
+package com.funglejunk.stockz.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FBoerseHistoryData(
+data class RepoHistoryData(
     val isin: String,
     @SerialName("data")
     val content: List<Data>,

@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.funglejunk.stockz.R
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.data.RepoHistoryData
 import com.funglejunk.stockz.model.AssetDetailViewModel
 import com.funglejunk.stockz.model.portfolio.AssetSummary
 import com.funglejunk.stockz.model.portfolio.PortfolioSummary
@@ -27,7 +27,7 @@ class AssetDetailFragment : Fragment() {
 
     private val viewModel: AssetDetailViewModel by viewModel()
 
-    private lateinit var chartFunc: ((FBoerseHistoryData) -> Unit)
+    private lateinit var chartFunc: ((RepoHistoryData) -> Unit)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -144,7 +144,7 @@ class AssetDetailFragment : Fragment() {
         }
     }
 
-    private val chartBindFunc: (LocalDate) -> (FBoerseHistoryData) -> Unit = { fromDate ->
+    private val chartBindFunc: (LocalDate) -> (RepoHistoryData) -> Unit = { fromDate ->
         { history ->
             val filteredHistory = history.copy(
                 content = history.content.filter {

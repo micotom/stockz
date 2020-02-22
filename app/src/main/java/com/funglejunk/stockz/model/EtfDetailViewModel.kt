@@ -6,8 +6,8 @@ import arrow.core.Option
 import arrow.fx.IO
 import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.Etf
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
-import com.funglejunk.stockz.data.fboerse.FBoersePerfData
+import com.funglejunk.stockz.data.RepoHistoryData
+import com.funglejunk.stockz.data.RepoPerformanceData
 import com.funglejunk.stockz.mutable
 import com.funglejunk.stockz.repo.db.StockDataCacheInterface
 import com.funglejunk.stockz.repo.db.XetraDbInterface
@@ -31,12 +31,12 @@ class EtfDetailViewModel(
         data class Error(val error: Throwable) : ViewState()
         data class NewChartData(
             val etf: Etf,
-            val historyData: FBoerseHistoryData,
-            val performanceData: FBoersePerfData
+            val historyData: RepoHistoryData,
+            val performanceData: RepoPerformanceData
         ) : ViewState()
 
         data class NewEtfFavouriteState(val isFavourite: Boolean) : ViewState()
-        data class NewEtfHistoryTimeSpan(val historyData: FBoerseHistoryData) : ViewState()
+        data class NewEtfHistoryTimeSpan(val historyData: RepoHistoryData) : ViewState()
     }
 
     val viewStateData: LiveData<ViewState> = MutableLiveData()
@@ -76,14 +76,14 @@ class EtfDetailViewModel(
         )
     }
 
-    private val fetchHistoryTimeSpanIO: (Etf, TimeSpanFilter) -> IO<FBoerseHistoryData> =
+    private val fetchHistoryTimeSpanIO: (Etf, TimeSpanFilter) -> IO<RepoHistoryData> =
         { etf, timespan ->
             IO.fx {
                 repoCacheInteractor.fetchHistoryAction.invoke(etf.isin, timespan).bind()
             }
         }
 
-    private val onHistoryTimespanFetched: IO<(FBoerseHistoryData) -> Unit> = IO.just {
+    private val onHistoryTimespanFetched: IO<(RepoHistoryData) -> Unit> = IO.just {
         history ->
         viewStateData.mutable().value = ViewState.NewEtfHistoryTimeSpan(history)
     }

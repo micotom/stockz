@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import arrow.fx.IO
 import arrow.fx.extensions.fx
 import com.funglejunk.stockz.data.Etf
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.data.RepoHistoryData
 import com.funglejunk.stockz.model.portfolio.AssetSummary
 import com.funglejunk.stockz.model.portfolio.PortfolioSummary
 import com.funglejunk.stockz.mutable
@@ -29,7 +29,7 @@ class PortfolioViewModel(
     sealed class ViewState {
         // TODO error model
         object Loading : ViewState()
-        data class NewPortfolioData(val summary: Triple<PortfolioSummary, List<Etf>, FBoerseHistoryData>) :
+        data class NewPortfolioData(val summary: Triple<PortfolioSummary, List<Etf>, RepoHistoryData>) :
             ViewState()
     }
 
@@ -47,7 +47,7 @@ class PortfolioViewModel(
             }
         }
 
-    fun getHistory(timespan: TimeSpanFilter): FBoerseHistoryData? =
+    fun getHistory(timespan: TimeSpanFilter): RepoHistoryData? =
         liveData.value?.let {
             when (it) {
                 ViewState.Loading -> null
@@ -125,28 +125,29 @@ class PortfolioViewModel(
                 val congregatedTotalData = totalData.map { (date, data) ->
                     date to data.sumByDouble { it.close }
                 }
-                val portfolioHistory = FBoerseHistoryData(
-                    isin = "n/a",
-                    totalCount = summary.assets.size,
-                    tradedInPercent = false,
-                    content = congregatedTotalData.map { (dateStr, value) ->
-                        FBoerseHistoryData.Data(
-                            date = dateStr,
-                            openValue = -1.0,
-                            close = value,
-                            high = -1.0,
-                            low = -1.0,
-                            turnoverPieces = -1.0,
-                            turnoverEuro = -1.0
-                        )
-                    }.sortedBy { it.date }
-                )
+                val portfolioHistory =
+                    RepoHistoryData(
+                        isin = "n/a",
+                        totalCount = summary.assets.size,
+                        tradedInPercent = false,
+                        content = congregatedTotalData.map { (dateStr, value) ->
+                            RepoHistoryData.Data(
+                                date = dateStr,
+                                openValue = -1.0,
+                                close = value,
+                                high = -1.0,
+                                low = -1.0,
+                                turnoverPieces = -1.0,
+                                turnoverEuro = -1.0
+                            )
+                        }.sortedBy { it.date }
+                    )
 
                 Triple(summary, etfs, portfolioHistory)
             }
         }
 
-        val onSuccess = IO.just { data: Triple<PortfolioSummary, List<Etf>, FBoerseHistoryData> ->
+        val onSuccess = IO.just { data: Triple<PortfolioSummary, List<Etf>, RepoHistoryData> ->
             liveData.mutable().value = ViewState.NewPortfolioData(data)
         }
 

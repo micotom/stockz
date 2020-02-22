@@ -1,7 +1,7 @@
 package com.funglejunk.stockz.repo.fboerse
 
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
-import com.funglejunk.stockz.data.fboerse.FBoersePerfData
+import com.funglejunk.stockz.data.RepoHistoryData
+import com.funglejunk.stockz.data.RepoPerformanceData
 import com.github.kittinunf.fuel.coroutines.awaitObject
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.serialization.kotlinxDeserializerOf
@@ -27,7 +27,7 @@ class FBoerseRepoImpl : FBoerseRepo {
         isin: String,
         minDate: LocalDate,
         maxDate: LocalDate
-    ): FBoerseHistoryData = (BASE_URL + PRICE_HISTORY_EP).httpGet(
+    ): RepoHistoryData = (BASE_URL + PRICE_HISTORY_EP).httpGet(
             listOf(
                 OFFSET_PARAM,
                 LIMIT_PARAM,
@@ -36,15 +36,15 @@ class FBoerseRepoImpl : FBoerseRepo {
                 MIN_DATE_ID to minDate,
                 MAX_DATE_ID to maxDate
             )
-        ).awaitObject(kotlinxDeserializerOf(FBoerseHistoryData.serializer()))
+        ).awaitObject(kotlinxDeserializerOf(RepoHistoryData.serializer()))
 
-    override suspend fun getHistoryPerfData(isin: String): FBoersePerfData =
+    override suspend fun getHistoryPerfData(isin: String): RepoPerformanceData =
         (BASE_URL + PERFORMANCE_EP).httpGet(
             listOf(
                 MIC_PARAM,
                 ISIN_PARAM_ID to isin
             )
-        ).awaitObject(kotlinxDeserializerOf(FBoersePerfData.serializer()))
+        ).awaitObject(kotlinxDeserializerOf(RepoPerformanceData.serializer()))
 
 /*
 All endpoints reverse engineered

@@ -1,7 +1,7 @@
 package com.funglejunk.stockz.model
 
 import com.funglejunk.stockz.data.ChartValue
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.data.RepoHistoryData
 import com.funglejunk.stockz.toLocalDate
 import java.time.temporal.ChronoUnit
 import kotlin.math.abs
@@ -61,7 +61,7 @@ private fun standardDeviationOnPartition(data: List<ChartValue>): Float {
     return sqrt(variance).toFloat()
 }
 
-fun averageTrueRange(data: List<FBoerseHistoryData.Data>): List<ChartValue> {
+fun averageTrueRange(data: List<RepoHistoryData.Data>): List<ChartValue> {
     return when (data.isNotEmpty()) {
         true -> {
             val trueRanges = data.mapIndexed { index, currentValue ->

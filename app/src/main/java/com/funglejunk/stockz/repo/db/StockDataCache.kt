@@ -6,7 +6,7 @@ import arrow.core.Option
 import arrow.core.toOption
 import arrow.fx.IO
 import arrow.fx.extensions.fx
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.data.RepoHistoryData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
@@ -42,12 +42,12 @@ class StockDataCache(context: Context) : StockDataCacheInterface {
         staleValue: String,
         data: CacheableData
     ) {
-        val staleData = json.parse(FBoerseHistoryData.serializer(), staleValue)
+        val staleData = json.parse(RepoHistoryData.serializer(), staleValue)
         val mergedData = staleData.merge(data.value)
         if (mergedData.content.size != staleData.content.size) {
             putString(
                 data.key,
-                json.stringify(FBoerseHistoryData.serializer(), mergedData)
+                json.stringify(RepoHistoryData.serializer(), mergedData)
             )
         }
     }
@@ -55,19 +55,19 @@ class StockDataCache(context: Context) : StockDataCacheInterface {
     private fun SharedPreferences.Editor.putNewValue(data: CacheableData) {
         putString(
             data.key,
-            json.stringify(FBoerseHistoryData.serializer(), data.value)
+            json.stringify(RepoHistoryData.serializer(), data.value)
         )
     }
 
-    override fun get(key: String): IO<Option<FBoerseHistoryData>> = IO.fx {
+    override fun get(key: String): IO<Option<RepoHistoryData>> = IO.fx {
         continueOn(Dispatchers.IO)
         val sharedPref = dataLayer.bind()
         sharedPref.getString(key, null).toOption().map {
-            json.parse(FBoerseHistoryData.serializer(), it)
+            json.parse(RepoHistoryData.serializer(), it)
         }
     }
 
-    private fun FBoerseHistoryData.merge(other: FBoerseHistoryData): FBoerseHistoryData {
+    private fun RepoHistoryData.merge(other: RepoHistoryData): RepoHistoryData {
         val thisContent = this.content
         val otherContent = other.content
         val merged = thisContent.mergeWith(otherContent)
@@ -77,9 +77,9 @@ class StockDataCache(context: Context) : StockDataCacheInterface {
         )
     }
 
-    private fun List<FBoerseHistoryData.Data>.mergeWith(other: List<FBoerseHistoryData.Data>):
-            List<FBoerseHistoryData.Data> =
-        mutableListOf<FBoerseHistoryData.Data>().apply {
+    private fun List<RepoHistoryData.Data>.mergeWith(other: List<RepoHistoryData.Data>):
+            List<RepoHistoryData.Data> =
+        mutableListOf<RepoHistoryData.Data>().apply {
             addAll(this@mergeWith)
             addAll(
                 other.filter { !this.contains(it) }

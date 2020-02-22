@@ -1,9 +1,9 @@
-package com.funglejunk.stockz.data.fboerse
+package com.funglejunk.stockz.data
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FBoersePerfData(
+data class RepoPerformanceData(
     @Transient val isin: String? = null,
     val months1: Performance,
     val months3: Performance,

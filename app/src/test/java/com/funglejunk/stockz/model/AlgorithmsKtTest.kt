@@ -1,6 +1,6 @@
 package com.funglejunk.stockz.model
 
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
+import com.funglejunk.stockz.data.RepoHistoryData
 import com.funglejunk.stockz.mapToDrawableData
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
@@ -12,12 +12,12 @@ class AlgorithmsKtTest {
 
     private val json = Json(JsonConfiguration.Stable)
 
-    private val data: FBoerseHistoryData
+    private val data: RepoHistoryData
 
     init {
         println(System.getProperty("user.dir"))
         val dataSetRaw = File("./src/test/res/sample_repo_data.json").readText()
-        data = json.parse(FBoerseHistoryData.serializer(), dataSetRaw)
+        data = json.parse(RepoHistoryData.serializer(), dataSetRaw)
     }
 
     @Test
@@ -30,7 +30,7 @@ class AlgorithmsKtTest {
 
     @Test
     fun `calculate sma`() {
-        val templateEntry = FBoerseHistoryData.Data(
+        val templateEntry = RepoHistoryData.Data(
             "2018-01-01", -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
         )
         val content = listOf(
@@ -41,7 +41,7 @@ class AlgorithmsKtTest {
             templateEntry.copy(date = "2018-03-05", close = 0.0),
             templateEntry.copy(date = "2018-03-15", close = 10.0) // 5
         )
-        val fooData = FBoerseHistoryData(
+        val fooData = RepoHistoryData(
             "foo", content, content.size, true
         )
         val sma = simpleMovingAverage(fooData.mapToDrawableData(), Period.DAYS_30, 1)

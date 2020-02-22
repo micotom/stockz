@@ -3,12 +3,12 @@ package com.funglejunk.stockz.util
 import android.text.Editable
 import android.text.TextWatcher
 import com.funglejunk.stockz.data.Etf
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
-import com.funglejunk.stockz.data.fboerse.FBoersePerfData
+import com.funglejunk.stockz.data.RepoHistoryData
+import com.funglejunk.stockz.data.RepoPerformanceData
 import timber.log.Timber
 
 typealias EtfList = List<Etf>
-typealias StockData = Pair<FBoerseHistoryData, FBoersePerfData>
+typealias StockData = Pair<RepoHistoryData, RepoPerformanceData>
 
 val logError: (Throwable) -> Unit = { throwable -> Timber.e(throwable) }
 

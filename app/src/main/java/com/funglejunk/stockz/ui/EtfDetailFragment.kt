@@ -12,8 +12,8 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.funglejunk.stockz.R
 import com.funglejunk.stockz.data.Etf
-import com.funglejunk.stockz.data.fboerse.FBoerseHistoryData
-import com.funglejunk.stockz.data.fboerse.FBoersePerfData
+import com.funglejunk.stockz.data.RepoHistoryData
+import com.funglejunk.stockz.data.RepoPerformanceData
 import com.funglejunk.stockz.model.EtfDetailViewModel
 import com.funglejunk.stockz.round
 import com.funglejunk.stockz.ui.adapter.BasicDetailInfoAdapter
@@ -142,7 +142,7 @@ class EtfDetailFragment : Fragment() {
         }
     }
 
-    private fun renderChartData(data: FBoerseHistoryData) {
+    private fun renderChartData(data: RepoHistoryData) {
         mychart.draw(data)
     }
 
@@ -153,7 +153,7 @@ class EtfDetailFragment : Fragment() {
     }
 
     // TODO inflate strings from resources
-    private fun showExtendedData(etf: Etf, data: FBoersePerfData) {
+    private fun showExtendedData(etf: Etf, data: RepoPerformanceData) {
         val leftData = listOf(
             "Symbol" to etf.symbol,
             "Benchmark" to etf.benchmarkName,
