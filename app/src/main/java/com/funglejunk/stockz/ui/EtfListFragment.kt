@@ -57,7 +57,7 @@ class EtfListFragment : Fragment() {
                 viewModel.searchDbFor(query)
             }.also {
                 activity?.let { safeActivity ->
-                    it.show(safeActivity.supportFragmentManager, "some_tag")
+                    it.show(safeActivity.supportFragmentManager, FilterDialog::class.java.name)
                 }
             }
         }
